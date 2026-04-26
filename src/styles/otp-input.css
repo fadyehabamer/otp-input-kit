@@ -263,11 +263,14 @@
 
 /* ── Paste suggestion ── */
 .otp-paste-suggestion {
-  display: block;
-  width: 100%;
-  max-width: calc(var(--otp-input-width) * 6 + var(--otp-gap) * 5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: 100%;
   padding: 8px 14px;
   margin-top: 4px;
+  margin-inline: auto;
   background: var(--otp-paste-bg);
   border: 1px solid var(--otp-paste-border);
   border-radius: 8px;
