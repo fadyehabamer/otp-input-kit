@@ -94,6 +94,21 @@
   flex-direction: row-reverse;
 }
 
+/* ── Digit separator ── */
+.otp-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--otp-separator-color, var(--otp-border-color, #cbd5e1));
+  font-size: 1.2em;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  user-select: none;
+  padding: 0 2px;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
 /* ── Individual input ── */
 .otp-input {
   width: var(--otp-input-width);

@@ -430,9 +430,13 @@
     <a href="#error-animations" class="nav-link">Error Animations</a>
     <a href="#themes"       class="nav-link">Themes</a>
     <a href="#toasts"       class="nav-link">Toasts</a>
+    <a href="#separator"    class="nav-link">Separator</a>
+    <a href="#sms-auto-read" class="nav-link">SMS Auto-Read</a>
+    <a href="#biometric"   class="nav-link">Biometric</a>
     <a href="#web-component" class="nav-link">Web Component</a>
     <a href="#api"          class="nav-link">API</a>
   </div>
+  <a href="index.ar.html" class="rtl-toggle" style="text-decoration:none;" title="العربية">🇸🇦 عربي</a>
   <button class="rtl-toggle" id="rtl-page-toggle" onclick="togglePageRTL()" title="Toggle page direction">
     <span class="rtl-indicator"></span>
     <span id="rtl-toggle-label">LTR</span>
@@ -945,6 +949,124 @@ OTPInput.create('#otp', {
     </div>
   </div>
 
+  <!-- ── Separator ── -->
+  <div class="section-header" id="separator">
+    <h2>Digit Separators</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="demo-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">➖ Custom Digit Separators</div>
+        <div class="card-desc">Visual separators between digit groups — dash, dot, space, or any character</div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:18px;align-items:center;width:100%">
+          <div>
+            <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Dash  ( 3 + 3 )</div>
+            <div id="otp-sep-dash"></div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Bullet  ( 2 + 2 + 2 )</div>
+            <div id="otp-sep-dot"></div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Em dash  ( 4 + 4 )</div>
+            <div id="otp-sep-em"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <pre>// Dash separator after 3rd digit (3+3)
+OTPInput.create('#otp', {
+  length: 6,
+  separator: { char: '-', after: [3] },
+});
+
+// Bullet every 2 digits (2+2+2)
+OTPInput.create('#otp', {
+  length: 6,
+  separator: { char: '·', after: [2, 4] },
+});</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SMS OTP Auto-Read ── -->
+  <div class="section-header" id="sms-auto-read">
+    <h2>SMS OTP Auto-Read</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="demo-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📱 Web OTP API — Auto-Fill from SMS</div>
+        <div class="card-desc">On Android Chrome, the browser reads the OTP from an incoming SMS and fills the inputs automatically</div>
+      </div>
+      <div class="card-body">
+        <div id="otp-sms"></div>
+        <div id="out-sms" class="output">Waiting for SMS… (requires Android + Chrome + HTTPS)</div>
+        <div class="controls">
+          <button class="btn" onclick="otpSms.clear()">Clear</button>
+          <button class="btn btn-primary" onclick="simulateSmsAutoFill()">Simulate Auto-Fill</button>
+        </div>
+        <div style="font-size:0.78rem;color:var(--muted);text-align:center;max-width:380px;line-height:1.5;">
+          Required SMS format:<br>
+          <code style="background:var(--code-bg);color:var(--code-text);padding:6px 10px;border-radius:6px;display:inline-block;margin-top:6px;font-size:0.78rem;">Your code is 123456<br><br>@yourdomain.com #123456</code>
+        </div>
+      </div>
+      <div class="card-footer">
+        <pre>// Automatically fills when SMS arrives (Android Chrome + HTTPS)
+OTPInput.create('#otp', {
+  length: 6,
+  smsAutoRead: true,   // uses navigator.credentials.get({ otp: … })
+  onComplete: (v) => verify(v),
+});</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Biometric Confirm ── -->
+  <div class="section-header" id="biometric">
+    <h2>Biometric Confirm</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="demo-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔐 Biometric Confirm Step (WebAuthn)</div>
+        <div class="card-desc">After the OTP is accepted, request fingerprint / Face ID / Windows Hello as a second factor</div>
+      </div>
+      <div class="card-body">
+        <div id="otp-bio"></div>
+        <div id="out-bio" class="output">Fill the OTP — then approve the biometric prompt</div>
+        <div class="controls">
+          <button class="btn" onclick="otpBio.clear()">Clear</button>
+          <button class="btn btn-primary" onclick="otpBio.setValue('123456')">Auto-fill &amp; trigger</button>
+        </div>
+        <div id="bio-support" style="font-size:0.78rem;color:var(--muted);text-align:center;margin-top:4px;">Checking platform authenticator…</div>
+      </div>
+      <div class="card-footer">
+        <pre>OTPInput.create('#otp', {
+  length: 6,
+  biometric: {
+    enabled: true,
+    promptText: 'Verify your identity to continue',
+    onConfirmed: () => console.log('Biometric confirmed ✓'),
+    onCancelled: () => console.log('Biometric cancelled'),
+  },
+  onComplete: (v) => {
+    // fires only AFTER biometric passes
+    verify(v);
+  },
+});</pre>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Web Component ── -->
   <div class="section-header" id="web-component">
     <h2>Web Component</h2>
@@ -1307,7 +1429,7 @@ OTPInput.create('#otp', {
     logEl.prepend(line);
   };
 
-  window.otpEvents = OTPInput.create('#otp-events', { length: 6 });
+  window.otpEvents = OTPInput.create('#otp-events', { length: 6, autoFocus: false });
   otpEvents.on('change',   v    => log('change', v));
   otpEvents.on('complete', v    => log('complete ✓', v));
   otpEvents.on('error',    errs => log('error ✗', errs));
@@ -1362,6 +1484,7 @@ OTPInput.create('#otp', {
   // ── OTP with auto-toast ───────────────────────────────────────────────────
   window.otpWithToast = OTPInput.create('#otp-with-toast', {
     length: 6,
+    autoFocus: false,
     theme: 'soft',
     validate: (v) => v === '000000' ? 'This code is blacklisted' : null,
     toast: {
@@ -1388,9 +1511,86 @@ OTPInput.create('#otp', {
     }
   });
 
-  // ── Scroll to top after all OTP instances initialise ─────────────────────
-  // autoFocus:true on the basic instance would otherwise scroll the page down
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  // ── Separator examples ────────────────────────────────────────────────────
+  OTPInput.create('#otp-sep-dash', {
+    length: 6, autoFocus: false, theme: 'rounded',
+    separator: { char: '—', after: [3] },
+  });
+  OTPInput.create('#otp-sep-dot', {
+    length: 6, autoFocus: false, theme: 'rounded',
+    separator: { char: '·', after: [2, 4] },
+  });
+  OTPInput.create('#otp-sep-em', {
+    length: 8, autoFocus: false, theme: 'rounded',
+    separator: { char: '–', after: [4] },
+  });
+
+  // ── SMS Auto-Read ─────────────────────────────────────────────────────────
+  window.otpSms = OTPInput.create('#otp-sms', {
+    length: 6,
+    autoFocus: false,
+    theme: 'soft',
+    smsAutoRead: true,
+    onComplete: (v) => {
+      const el = document.getElementById('out-sms');
+      el.textContent = `✓ Auto-filled: ${v}`;
+      el.className = 'output success';
+    },
+    onChange: (v) => {
+      if (!v) {
+        const el = document.getElementById('out-sms');
+        el.textContent = 'Waiting for SMS… (requires Android + Chrome + HTTPS)';
+        el.className = 'output';
+      }
+    },
+  });
+  window.simulateSmsAutoFill = () => {
+    otpSms.setValue('246810');
+    const el = document.getElementById('out-sms');
+    el.textContent = '✓ Auto-filled via simulated SMS: 246810';
+    el.className = 'output success';
+  };
+
+  // ── Biometric confirm ─────────────────────────────────────────────────────
+  window.otpBio = OTPInput.create('#otp-bio', {
+    length: 6,
+    autoFocus: false,
+    theme: 'soft',
+    biometric: {
+      enabled: true,
+      promptText: 'Verify your identity to continue',
+      onConfirmed: () => {
+        const el = document.getElementById('out-bio');
+        el.textContent = '✓ Biometric confirmed — OTP accepted!';
+        el.className = 'output success';
+      },
+      onCancelled: () => {
+        const el = document.getElementById('out-bio');
+        el.textContent = '✗ Biometric cancelled';
+        el.className = 'output error';
+      },
+    },
+    onComplete: (v) => {
+      const el = document.getElementById('out-bio');
+      el.textContent = `✓ OTP complete: ${v}`;
+      el.className = 'output success';
+    },
+  });
+  // Check platform authenticator availability for the info label
+  if (window.PublicKeyCredential) {
+    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok => {
+      document.getElementById('bio-support').textContent = ok
+        ? '✓ Platform authenticator available (fingerprint / Face ID / Windows Hello)'
+        : '✗ No platform authenticator found on this device';
+    }).catch(() => {
+      document.getElementById('bio-support').textContent = 'WebAuthn not available in this context';
+    });
+  } else {
+    document.getElementById('bio-support').textContent = '✗ WebAuthn not supported in this browser';
+  }
+
+  // ── Scroll to top — double rAF ensures it fires after all autoFocus rAFs ──
+  requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' })));
 </script>
 
 <script>

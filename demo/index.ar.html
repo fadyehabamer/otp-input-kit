@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OTPInput.js — عرض توضيحي بالعربية</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #3b82f6;
+      --code-bg: #1e293b;
+      --code-text: #94a3b8;
+      --radius: 16px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --border: #334155;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --code-bg: #0f172a;
+      }
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, 'Noto Sans Arabic', 'Cairo', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .nav { background: rgba(15,23,42,0.85); }
+    }
+
+    .nav-brand {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0;
+    }
+
+    .nav-links { display: flex; gap: 8px; flex-wrap: wrap; margin-inline-start: 0; margin-inline-end: auto; }
+
+    .nav-link {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .nav-link:hover {
+      background: rgba(59,130,246,0.1);
+      color: var(--accent);
+    }
+
+    .ltr-link {
+      margin-inline-start: auto;
+      padding: 5px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .ltr-link:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Layout ── */
+    .page { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    .hero {
+      text-align: center;
+      padding: 60px 0 48px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: 0;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      margin-top: 14px;
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin-inline: auto;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(59,130,246,0.12);
+      color: #3b82f6;
+    }
+
+    /* ── Cards ── */
+    .demo-grid { display: grid; gap: 28px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .card-header { padding: 18px 24px 0; }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-desc { font-size: 0.875rem; color: var(--muted); margin-top: 4px; }
+
+    .card-body {
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .card-footer {
+      border-top: 1px solid var(--border);
+      background: var(--code-bg);
+      padding: 14px 20px;
+    }
+
+    .card-footer pre {
+      font-size: 0.78rem;
+      color: var(--code-text);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      direction: ltr;
+      text-align: left;
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .btn:hover { background: rgba(59,130,246,0.08); border-color: var(--accent); color: var(--accent); }
+    .btn.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.btn-primary:hover { opacity: 0.88; }
+    .btn.btn-danger { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+    .output {
+      min-height: 28px;
+      font-size: 0.875rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: rgba(59,130,246,0.06);
+      transition: all 0.2s;
+    }
+
+    .output.success { color: #22c55e; background: rgba(34,197,94,0.08); font-weight: 600; }
+    .output.error   { color: #ef4444; background: rgba(239,68,68,0.08); font-weight: 600; }
+
+    /* ── Section header ── */
+    .section-header {
+      margin: 48px 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .section-header .line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Theme showcase ── */
+    .theme-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .theme-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .theme-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      direction: ltr;
+    }
+
+    @media (max-width: 600px) {
+      .card-body { padding: 20px 16px; }
+      .section-header h2 { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="#" class="nav-brand">⌨️ OTPInput.js</a>
+  <div class="nav-links">
+    <a href="#ar-basic"    class="nav-link">أساسي</a>
+    <a href="#ar-types"    class="nav-link">الأنواع</a>
+    <a href="#ar-secure"   class="nav-link">آمن</a>
+    <a href="#ar-timer"    class="nav-link">المؤقت</a>
+    <a href="#ar-sep"      class="nav-link">الفواصل</a>
+    <a href="#ar-themes"   class="nav-link">المظاهر</a>
+    <a href="#ar-toast"    class="nav-link">الإشعارات</a>
+  </div>
+  <a href="index.html" class="ltr-link">English ↗</a>
+</nav>
+
+<div class="page">
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>OTPInput.js</h1>
+    <p>مكتبة إدخال رمز التحقق — قابلة للتخصيص الكامل، تدعم RTL والعربية بشكل أصيل، بدون أي اعتمادية خارجية.</p>
+    <div class="badge-row">
+      <span class="badge">بدون اعتماديات</span>
+      <span class="badge">دعم RTL كامل</span>
+      <span class="badge">إمكانية الوصول WCAG 2.1</span>
+      <span class="badge">Web Component</span>
+      <span class="badge">الوضع المظلم</span>
+      <span class="badge">الأرقام العربية-الهندية</span>
+    </div>
+  </section>
+
+  <div class="demo-grid">
+
+    <!-- ── 1. Basic Arabic ── -->
+    <div id="ar-basic" class="card">
+      <div class="card-header">
+        <div class="card-title">🔢 رمز التحقق الأساسي — ٦ أرقام</div>
+        <div class="card-desc">تركيز تلقائي، لصق ذكي، التنقل بالأرقام العربية-الهندية من اليمين لليسار</div>
+      </div>
+      <div class="card-body">
+        <div id="otp-ar-basic" dir="rtl"></div>
+        <div id="out-ar-basic" class="output">أدخل رمز التحقق المكوّن من ٦ أرقام</div>
+        <div class="controls">
+          <button class="btn" onclick="otpArBasic.clear()">مسح</button>
+          <button class="btn" onclick="otpArBasic.setValue('123456')">تعيين ١٢٣٤٥٦</button>
+          <button class="btn" onclick="otpArBasic.focus()">تركيز</button>
+          <button class="btn btn-danger" onclick="otpArBasic.setError('الرمز غير صحيح، حاول مجدداً.')">محاكاة خطأ</button>
+        </div>
+      </div>
+      <div class="card-footer">
+        <pre>OTPInput.create('#otp', {
+  length: 6,
+  direction: 'rtl',
+  locale: 'ar',
+  nativeNumerals: true,   // ٠١٢٣٤٥٦٧٨٩
+  onComplete: (v) => verify(v),
+});</pre>
+      </div>
+    </div>
+
+    <!-- ── 2. With Separator ── -->
+    <div id="ar-sep" class="card">
+      <div class="card-header">
+        <div class="card-title">➖ الفاصل بين مجموعات الأرقام</div>
+        <div class="card-desc">فاصل مرئي بين مجموعتين من الأرقام — ٣ + ٣</div>
+      </div>
+      <div class="card-body">
+        <div id="otp-ar-sep" dir="rtl"></div>
+        <div id="out-ar-sep" class="output">أدخل الرمز</div>
+        <div class="controls">
+          <button class="btn" onclick="otpArSep.clear()">مسح</button>
+          <button class="btn" onclick="otpArSep.setValue('246810')">تعيين</button>
+        </div>
+      </div>
+      <div class="card-footer">
+        <pre>OTPInput.create('#otp', {
+  length: 6,
+  direction: 'rtl',
+  locale: 'ar',
+  nativeNumerals: true,
+  separator: { char: '—', after: [3] },
+});</pre>
+      </div>
+    </div>
+
+    <!-- ── 3. Input types ── -->
+    <div id="ar-types" class="card">
+      <div class="card-header">
+        <div class="card-title">🔤 أنواع الإدخال</div>
+        <div class="card-desc">رقمي · أبجدي · أبجدي-رقمي · سداسي عشري</div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:18px;align-items:center;width:100%">
+          <div>
+            <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:8px">رقمي بالأرقام العربية-الهندية</div>
+            <div id="otp-ar-num" dir="rtl"></div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:8px">أبجدي (حروف إنجليزية)</div>
+            <div id="otp-ar-alpha" dir="rtl"></div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:8px">سداسي عشري</div>
+            <div id="otp-ar-hex" dir="rtl"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <pre>// أبجدي-رقمي
+OTPInput.create('#otp', { length: 6, type: 'alphanumeric', direction: 'rtl' });
+
+// سداسي عشري
+OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
+      </div>
+    </div>
+
+    <!-- ── 4. Secure ── -->
+    <div id="ar-secure" class="card">
+      <div class="card-header">
+        <div class="card-title">🔒 الوضع الآمن (مُقنَّع)</div>
+        <div class="card-desc">الإدخال مخفي كحقل كلمة مرور — يمنع التجسس البصري</div>
+      </div>
+      <div class="card-body">
+        <div id="otp-ar-secure" dir="rtl"></div>
+        <div id="out-ar-secure" class="output">أدخل رمز PIN (مُقنَّع)</div>
+        <div class="controls">
+          <button class="btn" onclick="document.getElementById('out-ar-secure').textContent = 'القيمة: ' + otpArSecure.getValue()">كشف القيمة</button>
+          <button class="btn" onclick="otpArSecure.clear()">مسح</button>
+        </div>
+      </div>
+      <div class="card-footer">
+        <pre>OTPInput.create('#otp', {
+  length: 4,
+  secure: true,
+  direction: 'rtl',
+  locale: 'ar',
+});</pre>
+      </div>
+    </div>
+
+    <!-- ── 5. Timer + Resend ── -->
+    <div id="ar-timer" class="card">
+      <div class="card-header">
+        <div class="card-title">⏱ مؤقت العد التنازلي + إعادة الإرسال</div>
+        <div class="card-desc">يعرض الوقت المتبقي ويتيح إعادة إرسال الرمز بعد انتهاء مهلة</div>
+      </div>
+      <div class="card-body">
+        <div id="otp-ar-timer" dir="rtl"></div>
+        <div id="out-ar-timer" class="output">أدخل الرمز خلال ٣٠ ثانية</div>
+        <div class="controls">
+          <button class="btn" onclick="otpArTimer.resetTimer(30)">إعادة الضبط (٣٠ث)</button>
+          <button class="btn" onclick="otpArTimer.clear()">مسح</button>
+        </div>
+      </div>
+      <div class="card-footer">
+        <pre>OTPInput.create('#otp', {
+  length: 6,
+  direction: 'rtl',
+  locale: 'ar',
+  nativeNumerals: true,
+  timer: {
+    enabled: true,
+    duration: 30,
+    showProgress: true,
+    onExpire: () => showError('انتهت صلاحية الرمز'),
+  },
+  resend: {
+    enabled: true,
+    cooldown: 30,
+    label: 'إعادة الإرسال',
+    onResend: () => sendCode(),
+  },
+});</pre>
+      </div>
+    </div>
+
+  </div><!-- /demo-grid -->
+
+  <!-- ── Themes ── -->
+  <div class="section-header" id="ar-themes">
+    <div class="line"></div>
+    <h2>المظاهر</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="theme-row">
+    <div class="theme-card">
+      <div class="theme-label">default</div>
+      <div id="th-ar-default" dir="rtl"></div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-label">underline</div>
+      <div id="th-ar-underline" dir="rtl"></div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-label">rounded</div>
+      <div id="th-ar-rounded" dir="rtl"></div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-label">pill</div>
+      <div id="th-ar-pill" dir="rtl"></div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-label">soft</div>
+      <div id="th-ar-soft" dir="rtl"></div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-label">neon</div>
+      <div id="th-ar-neon" dir="rtl"></div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-label">gradient</div>
+      <div id="th-ar-gradient" dir="rtl"></div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-label">elevated</div>
+      <div id="th-ar-elevated" dir="rtl"></div>
+    </div>
+  </div>
+
+  <!-- ── Toast ── -->
+  <div class="section-header" id="ar-toast">
+    <div class="line"></div>
+    <h2>الإشعارات (Toast)</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🔔 إشعارات تلقائية عند الإكمال أو الخطأ</div>
+      <div class="card-desc">تظهر إشعارات Toast تلقائياً عند إكمال الرمز أو حدوث خطأ أو انتهاء المهلة</div>
+    </div>
+    <div class="card-body">
+      <div id="otp-ar-toast" dir="rtl"></div>
+      <div class="controls">
+        <button class="btn" onclick="otpArToast.setValue('123456')">تعيين صحيح</button>
+        <button class="btn btn-danger" onclick="otpArToast.setError('رمز التحقق غير صالح')">محاكاة خطأ</button>
+        <button class="btn" onclick="otpArToast.clear()">مسح</button>
+      </div>
+    </div>
+    <div class="card-footer">
+      <pre>OTPInput.create('#otp', {
+  length: 6,
+  direction: 'rtl',
+  locale: 'ar',
+  nativeNumerals: true,
+  theme: 'soft',
+  toast: {
+    enabled: true,
+    theme: 'minimal',
+    position: 'top-left',   // يسار الشاشة لـ RTL
+    successMessage: 'تم التحقق بنجاح!',
+    errorMessage: 'رمز غير صالح، حاول مجدداً.',
+  },
+});</pre>
+    </div>
+  </div>
+
+  <!-- ── Web Component RTL ── -->
+  <div class="section-header">
+    <div class="line"></div>
+    <h2>Web Component — RTL</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🧩 مكوّن الويب بدعم RTL الكامل</div>
+      <div class="card-desc">استخدم <code>&lt;otp-input&gt;</code> مباشرة في HTML مع دعم RTL والأرقام العربية</div>
+    </div>
+    <div class="card-body">
+      <otp-input
+        id="wc-ar-demo"
+        length="6"
+        direction="rtl"
+        locale="ar"
+        native-numerals
+        theme="rounded"
+        placeholder="·"
+      ></otp-input>
+      <div id="out-wc-ar" class="output">في انتظار إدخال رمز التحقق…</div>
+      <div class="controls">
+        <button class="btn" onclick="document.getElementById('wc-ar-demo').clear()">مسح</button>
+        <button class="btn" onclick="document.getElementById('wc-ar-demo').setValue('246810')">تعيين</button>
+      </div>
+    </div>
+    <div class="card-footer">
+      <pre>&lt;otp-input
+  length="6"
+  direction="rtl"
+  locale="ar"
+  native-numerals
+  theme="rounded"
+&gt;&lt;/otp-input&gt;</pre>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script type="module">
+  import OTPInput, { registerOTPInputElement } from '../src/index.js';
+  registerOTPInputElement();
+
+  const rtlOpts = { direction: 'rtl', locale: 'ar', nativeNumerals: true, autoFocus: false };
+
+  // ── 1. Basic ──────────────────────────────────────────────────────────────
+  window.otpArBasic = OTPInput.create('#otp-ar-basic', {
+    ...rtlOpts,
+    length: 6,
+    onChange: (v) => {
+      const el = document.getElementById('out-ar-basic');
+      el.textContent = v ? `القيمة: ${v}` : 'أدخل رمز التحقق المكوّن من ٦ أرقام';
+      el.className = 'output';
+    },
+    onComplete: (v) => {
+      const el = document.getElementById('out-ar-basic');
+      el.textContent = `✓ مكتمل: ${v}`;
+      el.className = 'output success';
+    },
+    onError: (errs) => {
+      const el = document.getElementById('out-ar-basic');
+      el.textContent = `✗ ${errs.map(e => e.message).join('، ')}`;
+      el.className = 'output error';
+    },
+  });
+
+  // ── 2. Separator ──────────────────────────────────────────────────────────
+  window.otpArSep = OTPInput.create('#otp-ar-sep', {
+    ...rtlOpts,
+    length: 6,
+    theme: 'rounded',
+    separator: { char: '—', after: [3] },
+    onChange: (v) => {
+      const el = document.getElementById('out-ar-sep');
+      el.textContent = v ? `القيمة: ${v}` : 'أدخل الرمز';
+      el.className = 'output';
+    },
+    onComplete: (v) => {
+      const el = document.getElementById('out-ar-sep');
+      el.textContent = `✓ مكتمل: ${v}`;
+      el.className = 'output success';
+    },
+  });
+
+  // ── 3. Types ──────────────────────────────────────────────────────────────
+  OTPInput.create('#otp-ar-num', { ...rtlOpts, length: 6, theme: 'soft' });
+  OTPInput.create('#otp-ar-alpha', { direction: 'rtl', locale: 'ar', autoFocus: false, length: 6, type: 'alpha', theme: 'soft' });
+  OTPInput.create('#otp-ar-hex', { direction: 'rtl', locale: 'ar', autoFocus: false, length: 6, type: 'hex', placeholder: '0', theme: 'soft' });
+
+  // ── 4. Secure ─────────────────────────────────────────────────────────────
+  window.otpArSecure = OTPInput.create('#otp-ar-secure', {
+    ...rtlOpts, length: 4, secure: true,
+    onComplete: (v) => {
+      const el = document.getElementById('out-ar-secure');
+      el.textContent = '✓ تم إدخال رمز PIN (مُقنَّع)';
+      el.className = 'output success';
+    },
+  });
+
+  // ── 5. Timer ──────────────────────────────────────────────────────────────
+  window.otpArTimer = OTPInput.create('#otp-ar-timer', {
+    ...rtlOpts,
+    length: 6,
+    timer: {
+      enabled: true, duration: 30, showProgress: true,
+      onExpire: () => {
+        const el = document.getElementById('out-ar-timer');
+        el.textContent = '✗ انتهت صلاحية الرمز. يرجى طلب رمز جديد.';
+        el.className = 'output error';
+      },
+    },
+    resend: {
+      enabled: true, cooldown: 30,
+      label: 'إعادة الإرسال',
+      onResend: () => {
+        const el = document.getElementById('out-ar-timer');
+        el.textContent = '↺ تم إرسال رمز جديد. أدخله خلال ٣٠ ثانية.';
+        el.className = 'output';
+      },
+    },
+    onComplete: (v) => {
+      const el = document.getElementById('out-ar-timer');
+      el.textContent = `✓ تم التحقق: ${v}`;
+      el.className = 'output success';
+    },
+  });
+
+  // ── Themes ────────────────────────────────────────────────────────────────
+  ['default','underline','rounded','pill','soft','neon','gradient','elevated'].forEach(theme => {
+    OTPInput.create(`#th-ar-${theme}`, { length: 4, autoFocus: false, direction: 'rtl', locale: 'ar', nativeNumerals: true, theme });
+  });
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  window.otpArToast = OTPInput.create('#otp-ar-toast', {
+    ...rtlOpts,
+    length: 6,
+    autoFocus: false,
+    theme: 'soft',
+    validate: (v) => v === '000000' ? 'هذا الرمز محظور' : null,
+    toast: {
+      enabled: true,
+      theme: 'minimal',
+      position: 'top-left',
+      successMessage: 'تم التحقق بنجاح! جارٍ التوجيه…',
+      errorMessage: 'رمز غير صالح، حاول مجدداً.',
+    },
+  });
+
+  // ── Web Component events ──────────────────────────────────────────────────
+  const wcArEl = document.getElementById('wc-ar-demo');
+  wcArEl.addEventListener('otp-complete', (e) => {
+    const el = document.getElementById('out-wc-ar');
+    el.textContent = `✓ مكتمل (Web Component): ${e.detail}`;
+    el.className = 'output success';
+  });
+  wcArEl.addEventListener('otp-change', (e) => {
+    if (!e.detail) {
+      const el = document.getElementById('out-wc-ar');
+      el.textContent = 'في انتظار إدخال رمز التحقق…';
+      el.className = 'output';
+    }
+  });
+
+  requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' })));
+</script>
+
+</body>
+</html>

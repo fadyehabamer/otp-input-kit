@@ -46,6 +46,14 @@ const DEFAULT_OPTIONS = {
     label: 'Resend code',
     onResend: null,
   },
+  separator: null,           // { char: '—', after: [3] }  — visual separator between digit groups
+  smsAutoRead: false,        // use Web OTP API to auto-fill from SMS (requires HTTPS + correct SMS format)
+  biometric: {
+    enabled: false,          // require platform biometric/PIN after OTP completion
+    promptText: 'Verify your identity to continue',
+    onConfirmed: null,       // () => void
+    onCancelled: null,       // () => void
+  },
   theme: 'default',          // 'default' | 'underline' | 'rounded' | 'ghost' | 'filled' | 'soft' | 'neon' | 'gradient' | 'pill'
   toast: {
     enabled: false,           // auto-show toast on complete/error/expire
@@ -108,6 +116,7 @@ export class OTPInput {
     this._build();
     this._bindOptionCallbacks();
     this._startIfNeeded();
+    this._initSmsAutoRead();
   }
 
   // ─── Static factory ────────────────────────────────────────────────────────
@@ -145,6 +154,17 @@ export class OTPInput {
       const input = this._createInput(i);
       this._inputsRow.appendChild(input);
       this.inputs.push(input);
+
+      // Separator after digit (i+1) if configured
+      const sep = this.options.separator;
+      if (sep && i < length - 1) {
+        const positions = Array.isArray(sep.after) ? sep.after : (sep.after != null ? [sep.after] : [Math.floor(length / 2)]);
+        if (positions.includes(i + 1)) {
+          const sepEl = createElement('span', { class: 'otp-separator', 'aria-hidden': 'true' });
+          sepEl.textContent = sep.char ?? '—';
+          this._inputsRow.appendChild(sepEl);
+        }
+      }
     }
 
     this._wrapper.appendChild(this._inputsRow);
@@ -434,6 +454,15 @@ export class OTPInput {
       return;
     }
 
+    if (this.options.biometric?.enabled) {
+      this._biometricConfirm(value);
+      return;
+    }
+
+    this._completeSuccess(value);
+  }
+
+  _completeSuccess(value) {
     this._animateSuccess();
     this.a11y.announceCompletion(value);
     if (this.options.toast?.enabled) {
@@ -494,6 +523,57 @@ export class OTPInput {
         inp.addEventListener('animationend', () => removeClasses(inp, 'otp-anim-pop'), { once: true });
       }, i * 40);
     });
+  }
+
+  // ─── SMS Auto-Read (Web OTP API) ───────────────────────────────────────────
+
+  _initSmsAutoRead() {
+    if (!this.options.smsAutoRead || !('OTPCredential' in window)) return;
+    const ac = new AbortController();
+    this._smsAbortController = ac;
+    navigator.credentials.get({ otp: { transport: ['sms'] }, signal: ac.signal })
+      .then(otp => { if (otp?.code) this.setValue(otp.code); })
+      .catch(() => {});
+  }
+
+  // ─── Biometric Confirm (WebAuthn) ──────────────────────────────────────────
+
+  async _biometricConfirm(value) {
+    if (!window.PublicKeyCredential) {
+      this._completeSuccess(value);
+      return;
+    }
+
+    try {
+      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      if (!available) {
+        this._completeSuccess(value);
+        return;
+      }
+
+      if (this.options.toast?.enabled) {
+        this.toast.info(this.options.biometric.promptText || 'Verify your identity to continue');
+      }
+      this.emitter.emit('biometric-start');
+
+      await navigator.credentials.get({
+        publicKey: {
+          challenge: crypto.getRandomValues(new Uint8Array(32)),
+          rpId: location.hostname || 'localhost',
+          allowCredentials: [],
+          userVerification: 'required',
+          timeout: 60000,
+        },
+      });
+
+      if (typeof this.options.biometric.onConfirmed === 'function') this.options.biometric.onConfirmed();
+      this.emitter.emit('biometric-confirmed');
+      this._completeSuccess(value);
+    } catch (err) {
+      if (typeof this.options.biometric.onCancelled === 'function') this.options.biometric.onCancelled();
+      this.emitter.emit('biometric-cancelled');
+      this.setError('Biometric verification was cancelled or failed');
+    }
   }
 
   _triggerError(index) {
@@ -659,6 +739,7 @@ export class OTPInput {
   destroy() {
     if (this._destroyed) return;
     this._destroyed = true;
+    this._smsAbortController?.abort();
     this.timer.destroy();
     this.clipboard.destroy();
     this.a11y.destroy();

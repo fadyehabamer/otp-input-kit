@@ -2,8 +2,8 @@
 
 A highly customizable, framework-agnostic OTP input component with full RTL support, i18n, accessibility, countdown timer, toast notifications, and Web Component support — zero dependencies.
 
-[![npm version](https://img.shields.io/npm/v/@fadyehabamer/otp-input.svg)](https://www.npmjs.com/package/@fadyehabamer/otp-input)
-[![license](https://img.shields.io/npm/l/@fadyehabamer/otp-input.svg)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/otp-input-kit.svg)](https://www.npmjs.com/package/otp-input-kit)
+[![license](https://img.shields.io/npm/l/otp-input-kit.svg)](LICENSE)
 
 ---
 
@@ -29,13 +29,13 @@ A highly customizable, framework-agnostic OTP input component with full RTL supp
 ### npm
 
 ```bash
-npm install @fadyehabamer/otp-input
+npm install otp-input-kit
 ```
 
 ### CDN (no build step)
 
 ```html
-<script src="https://unpkg.com/@fadyehabamer/otp-input/dist/otp-input.umd.min.js"></script>
+<script src="https://unpkg.com/otp-input-kit/dist/otp-input.umd.min.js"></script>
 ```
 
 ---
@@ -45,7 +45,7 @@ npm install @fadyehabamer/otp-input
 ### ES Module (bundler / Vite / Webpack)
 
 ```js
-import OTPInput from '@fadyehabamer/otp-input';
+import OTPInput from 'otp-input-kit';
 
 const otp = OTPInput.create('#container', {
   length: 6,
@@ -57,7 +57,7 @@ const otp = OTPInput.create('#container', {
 
 ```html
 <div id="container"></div>
-<script src="https://unpkg.com/@fadyehabamer/otp-input/dist/otp-input.umd.min.js"></script>
+<script src="https://unpkg.com/otp-input-kit/dist/otp-input.umd.min.js"></script>
 <script>
   OTPInput.create('#container', {
     length: 6,
@@ -70,7 +70,7 @@ const otp = OTPInput.create('#container', {
 
 ```html
 <script type="module">
-  import '@fadyehabamer/otp-input';
+  import 'otp-input-kit';
 </script>
 
 <otp-input length="6" theme="rounded" direction="rtl" locale="ar" native-numerals></otp-input>
