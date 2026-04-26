@@ -1,0 +1,53 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">otp-input-kit social preview</title>
+  <desc id="desc">A gradient preview image with the otp-input-kit name and a centered OTP code card.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1294D9" />
+      <stop offset="0.55" stop-color="#34B0E4" />
+      <stop offset="1" stop-color="#7DD9CC" />
+    </linearGradient>
+    <linearGradient id="card" x1="210" y1="96" x2="990" y2="534" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="1" stop-color="#F8FBFF" stop-opacity="0.88" />
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="360" y1="128" x2="840" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6D5EFC" />
+      <stop offset="0.55" stop-color="#5B7CFF" />
+      <stop offset="1" stop-color="#2EC2D7" />
+    </linearGradient>
+    <filter id="shadow" x="120" y="60" width="960" height="540" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#0F172A" flood-opacity="0.22" />
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <circle cx="1040" cy="140" r="120" fill="#FFFFFF" fill-opacity="0.12" />
+  <circle cx="140" cy="520" r="140" fill="#FFFFFF" fill-opacity="0.08" />
+  <rect x="92" y="72" width="1016" height="486" rx="34" fill="url(#card)" filter="url(#shadow)" />
+
+  <text x="600" y="165" text-anchor="middle" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="72" font-weight="800" fill="url(#titleGrad)">otp-input-kit</text>
+  <text x="600" y="225" text-anchor="middle" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="25" fill="#64748B">Customizable OTP input with RTL, i18n, a11y, timer, and Web Component support</text>
+
+  <g transform="translate(194 275)">
+    <rect x="0" y="0" rx="18" width="112" height="112" fill="#FFFFFF" fill-opacity="0.95" stroke="#D7DEE9" stroke-width="2.5" />
+    <rect x="130" y="0" rx="18" width="112" height="112" fill="#FFFFFF" fill-opacity="0.95" stroke="#D7DEE9" stroke-width="2.5" />
+    <rect x="260" y="0" rx="18" width="112" height="112" fill="#FFFFFF" fill-opacity="0.95" stroke="#D7DEE9" stroke-width="2.5" />
+    <rect x="390" y="0" rx="18" width="112" height="112" fill="#FFFFFF" fill-opacity="0.95" stroke="#D7DEE9" stroke-width="2.5" />
+    <rect x="520" y="0" rx="18" width="112" height="112" fill="#FFFFFF" fill-opacity="0.95" stroke="#D7DEE9" stroke-width="2.5" />
+    <rect x="650" y="0" rx="18" width="112" height="112" fill="#FFFFFF" fill-opacity="0.95" stroke="#D7DEE9" stroke-width="2.5" />
+
+    <circle cx="56" cy="56" r="3" fill="#D1D5DB" />
+    <circle cx="186" cy="56" r="3" fill="#D1D5DB" />
+    <circle cx="316" cy="56" r="3" fill="#D1D5DB" />
+    <circle cx="446" cy="56" r="3" fill="#D1D5DB" />
+    <circle cx="576" cy="56" r="3" fill="#D1D5DB" />
+    <circle cx="706" cy="56" r="3" fill="#D1D5DB" />
+
+    <rect x="0" y="162" rx="16" width="296" height="56" fill="#EDF4FF" stroke="#BFD6FF" />
+    <text x="148" y="198" text-anchor="middle" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#2563EB">Paste code from clipboard</text>
+
+    <rect x="348" y="162" rx="16" width="254" height="56" fill="#EEF2FF" />
+    <text x="475" y="198" text-anchor="middle" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#64748B">Enter your 6-digit code</text>
+  </g>
+</svg>
