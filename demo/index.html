@@ -93,8 +93,7 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
+      gap: 20px;
       padding: 0 0 18px;
       margin-bottom: 10px;
       border-bottom: 1px solid rgba(148, 163, 184, 0.18);
@@ -140,12 +139,17 @@
     .nav-menu-icon::before { top: -5px; }
     .nav-menu-icon::after { top: 5px; }
 
-    .nav-collapsible {
+    .nav-collapsible { display: none; }
+
+    .nav-desktop-only {
       display: flex;
       align-items: center;
       gap: 12px;
       flex: 1;
       min-width: 0;
+    }
+    @media (max-width: 760px) {
+      .nav-desktop-only { display: none !important; }
     }
 
     .nav-backdrop {
@@ -163,9 +167,13 @@
 
     .nav-links {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+      gap: 4px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
+    .nav-links::-webkit-scrollbar { display: none; }
 
     .nav-link {
       font-size: 0.8rem;
@@ -187,56 +195,8 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
     }
 
-    .rtl-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      background: rgba(255, 255, 255, 0.82);
-      color: #0f172a;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      white-space: nowrap;
-    }
-
-    .rtl-toggle:hover {
-      border-color: rgba(59, 130, 246, 0.5);
-      color: #2563eb;
-      background: rgba(59, 130, 246, 0.08);
-    }
-
-    .rtl-toggle .rtl-indicator {
-      display: inline-block;
-      width: 28px;
-      height: 16px;
-      border-radius: 8px;
-      background: rgba(148, 163, 184, 0.6);
-      position: relative;
-      transition: background 0.2s;
-    }
-
-    .rtl-toggle .rtl-indicator::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #fff;
-      transition: transform 0.2s, background 0.2s;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.18);
-    }
-
-    html[dir="rtl"] .rtl-toggle .rtl-indicator { background: #2563eb; }
-    html[dir="rtl"] .rtl-toggle .rtl-indicator::after { transform: translateX(12px); }
 
     /* ── Layout ── */
     .page {
@@ -575,32 +535,59 @@
       }
 
       .nav-collapsible {
+        display: flex;
         position: fixed;
         top: 0;
         bottom: 0;
         inset-inline-start: 0;
-        z-index: 40;
-        width: min(84vw, 320px);
-        display: flex;
+        z-index: 1000;
+        width: 280px;
         flex-direction: column;
         align-items: stretch;
-        gap: 14px;
-        padding: 22px 16px;
+        gap: 8px;
+        padding: 40px 20px;
         background: rgba(255, 255, 255, 0.98);
-        border-inline-end: 1px solid rgba(148, 163, 184, 0.28);
-        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.2);
-        transform: translateX(calc(-100% - 24px));
-        transition: transform 0.2s ease;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-inline-end: 1px solid var(--border);
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         overflow-y: auto;
-        max-width: 100%;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .nav-collapsible {
+          background: rgba(30, 41, 59, 0.95);
+        }
       }
 
       html[dir="rtl"] .nav-collapsible {
-        transform: translateX(calc(100% + 24px));
+        transform: translateX(100%);
       }
 
       .nav-collapsible.is-open {
         transform: translateX(0);
+      }
+
+      .nav-links {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .nav-link {
+        text-align: start;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 12px;
+        background: transparent;
+        border: none;
+      }
+
+      .nav-link:hover {
+        background: rgba(59, 130, 246, 0.1);
+        transform: none;
       }
 
       .nav-backdrop {
@@ -619,32 +606,12 @@
         pointer-events: auto;
       }
 
-      .nav-links {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .nav-link {
-        display: block;
-        text-align: center;
-        border-radius: 10px;
-        border: 1px solid rgba(148, 163, 184, 0.2);
-        background: rgba(255, 255, 255, 0.62);
-      }
-
       .nav-actions {
         margin-inline-start: 0;
         width: 100%;
         display: flex;
         flex-direction: column;
         gap: 8px;
-      }
-
-      .rtl-toggle {
-        width: 100%;
-        justify-content: center;
       }
     }
 
@@ -660,16 +627,34 @@
     }
 
     @media (max-width: 420px) {
-      .nav-links { grid-template-columns: 1fr; }
-      .nav-actions { grid-template-columns: 1fr; }
+      .nav-actions { display: flex; flex-direction: column; }
     }
   </style>
 </head>
 <body>
 
-<div class="page">
-
   <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
+
+  <div class="nav-collapsible" id="nav-collapsible">
+    <div class="nav-links">
+      <a href="#basic" class="nav-link">Basic</a>
+      <a href="#rtl" class="nav-link">RTL / Arabic</a>
+      <a href="#secure" class="nav-link">Secure</a>
+      <a href="#timer" class="nav-link">Timer</a>
+      <a href="#validation" class="nav-link">Validation</a>
+      <a href="#themes" class="nav-link">Themes</a>
+      <a href="#toasts" class="nav-link">Toasts</a>
+      <a href="#separator" class="nav-link">Separator</a>
+      <a href="#web-component" class="nav-link">Web Component</a>
+      <a href="#api" class="nav-link">API</a>
+    </div>
+    <div class="nav-actions" style="margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+      <a href="index.ar.html" class="nav-link" style="background: rgba(59, 130, 246, 0.1); color: #2563eb; font-weight: 600; text-align: center;">🇸🇦 العربية</a>
+      <a href="https://github.com/fadyehabamer/otp-input-kit" class="nav-link" style="background: rgba(15, 23, 42, 0.05); font-weight: 600; text-align: center;">GitHub</a>
+    </div>
+  </div>
+
+<div class="page">
 
   <!-- Navigation -->
   <nav class="nav">
@@ -678,7 +663,8 @@
       <span class="nav-menu-icon" aria-hidden="true"></span>
       <span>Menu</span>
     </button>
-    <div class="nav-collapsible" id="nav-collapsible">
+
+    <div class="nav-desktop-only">
       <div class="nav-links">
         <a href="#basic" class="nav-link">Basic</a>
         <a href="#rtl" class="nav-link">RTL / Arabic</a>
@@ -692,11 +678,8 @@
         <a href="#api" class="nav-link">API</a>
       </div>
       <div class="nav-actions">
-        <a href="index.ar.html" class="rtl-toggle" style="text-decoration:none;" title="العربية">🇸🇦 عربي</a>
-        <button class="rtl-toggle" id="rtl-page-toggle" onclick="togglePageRTL()" title="Toggle page direction">
-          <span class="rtl-indicator"></span>
-          <span id="rtl-toggle-label">LTR</span>
-        </button>
+        <a href="index.ar.html" class="nav-link" style="background: rgba(59, 130, 246, 0.1); color: #2563eb; font-weight: 600;">🇸🇦 العربية</a>
+        <a href="https://github.com/fadyehabamer/otp-input-kit" class="nav-link" style="background: rgba(15, 23, 42, 0.05); font-weight: 600;">GitHub</a>
       </div>
     </div>
   </nav>
@@ -1890,16 +1873,6 @@ OTPInput.create('#otp', {
   requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' })));
 </script>
 
-<script>
-  // ── RTL page toggle (non-module so onclick="" works) ──────────────────────
-  function togglePageRTL() {
-    const html = document.documentElement;
-    const isRTL = html.getAttribute('dir') === 'rtl';
-    html.setAttribute('dir', isRTL ? 'ltr' : 'rtl');
-    html.setAttribute('lang', isRTL ? 'en' : 'ar');
-    document.getElementById('rtl-toggle-label').textContent = isRTL ? 'LTR' : 'RTL';
-  }
-</script>
 
 </body>
 </html>
