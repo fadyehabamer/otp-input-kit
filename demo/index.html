@@ -814,6 +814,12 @@
         if (!toggle || !panel || !backdrop) return;
 
         const closePanel = () => {
+          // Blur any focused element inside the panel (or the toggle) so the
+          // mobile keyboard doesn't open and the page doesn't scroll to the
+          // first OTP input after the menu is dismissed.
+          if (document.activeElement && (panel.contains(document.activeElement) || document.activeElement === toggle)) {
+            document.activeElement.blur();
+          }
           panel.classList.remove('is-open');
           backdrop.classList.remove('is-open');
           document.body.classList.remove('nav-open');
