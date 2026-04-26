@@ -99,6 +99,54 @@
       border-bottom: 1px solid rgba(148, 163, 184, 0.18);
     }
 
+    .nav-menu-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 36px;
+      min-width: 36px;
+      padding: 6px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.82);
+      color: #0f172a;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-menu-icon {
+      width: 16px;
+      height: 2px;
+      background: currentColor;
+      border-radius: 2px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .nav-menu-icon::before,
+    .nav-menu-icon::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 16px;
+      height: 2px;
+      background: currentColor;
+      border-radius: 2px;
+    }
+
+    .nav-menu-icon::before { top: -5px; }
+    .nav-menu-icon::after { top: 5px; }
+
+    .nav-collapsible {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
     .nav-brand {
       font-weight: 800;
       font-size: 1.05rem;
@@ -506,17 +554,73 @@
     }
 
     /* ── Responsive ── */
+    @media (max-width: 760px) {
+      .nav {
+        gap: 10px;
+        padding-bottom: 14px;
+      }
+
+      .nav-menu-toggle {
+        display: inline-flex;
+        margin-inline-start: auto;
+      }
+
+      .nav-collapsible {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding-top: 8px;
+      }
+
+      .nav-collapsible.is-open {
+        display: flex;
+      }
+
+      .nav-links {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .nav-link {
+        display: block;
+        text-align: center;
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        background: rgba(255, 255, 255, 0.62);
+      }
+
+      .nav-actions {
+        margin-inline-start: 0;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .rtl-toggle {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
     @media (max-width: 600px) {
       body { padding: 16px 12px 32px; }
       .page { padding: 18px 16px 28px; border-radius: 26px; }
-      .nav { gap: 10px; }
-      .nav-actions { margin-inline-start: 0; width: 100%; }
       .hero { padding: 28px 0 26px; }
       .hero p { margin-top: 14px; }
       .badge { padding: 6px 12px; }
       .card-body { padding: 20px 16px; }
       .section-header h2 { font-size: 1.1rem; }
       .toast-row-label { min-width: auto; flex-basis: 100%; }
+    }
+
+    @media (max-width: 420px) {
+      .nav-links { grid-template-columns: 1fr; }
+      .nav-actions { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -527,26 +631,58 @@
   <!-- Navigation -->
   <nav class="nav">
     <a href="#" class="nav-brand">⌨️ otp-input-kit</a>
-    <div class="nav-links">
-      <a href="#basic" class="nav-link">Basic</a>
-      <a href="#rtl" class="nav-link">RTL / Arabic</a>
-      <a href="#secure" class="nav-link">Secure</a>
-      <a href="#timer" class="nav-link">Timer</a>
-      <a href="#validation" class="nav-link">Validation</a>
-      <a href="#themes" class="nav-link">Themes</a>
-      <a href="#toasts" class="nav-link">Toasts</a>
-      <a href="#separator" class="nav-link">Separator</a>
-      <a href="#web-component" class="nav-link">Web Component</a>
-      <a href="#api" class="nav-link">API</a>
-    </div>
-    <div class="nav-actions">
-      <a href="index.ar.html" class="rtl-toggle" style="text-decoration:none;" title="العربية">🇸🇦 عربي</a>
-      <button class="rtl-toggle" id="rtl-page-toggle" onclick="togglePageRTL()" title="Toggle page direction">
-        <span class="rtl-indicator"></span>
-        <span id="rtl-toggle-label">LTR</span>
-      </button>
+    <button class="nav-menu-toggle" id="nav-menu-toggle" aria-expanded="false" aria-controls="nav-collapsible" aria-label="Toggle navigation menu">
+      <span class="nav-menu-icon" aria-hidden="true"></span>
+      <span>Menu</span>
+    </button>
+    <div class="nav-collapsible" id="nav-collapsible">
+      <div class="nav-links">
+        <a href="#basic" class="nav-link">Basic</a>
+        <a href="#rtl" class="nav-link">RTL / Arabic</a>
+        <a href="#secure" class="nav-link">Secure</a>
+        <a href="#timer" class="nav-link">Timer</a>
+        <a href="#validation" class="nav-link">Validation</a>
+        <a href="#themes" class="nav-link">Themes</a>
+        <a href="#toasts" class="nav-link">Toasts</a>
+        <a href="#separator" class="nav-link">Separator</a>
+        <a href="#web-component" class="nav-link">Web Component</a>
+        <a href="#api" class="nav-link">API</a>
+      </div>
+      <div class="nav-actions">
+        <a href="index.ar.html" class="rtl-toggle" style="text-decoration:none;" title="العربية">🇸🇦 عربي</a>
+        <button class="rtl-toggle" id="rtl-page-toggle" onclick="togglePageRTL()" title="Toggle page direction">
+          <span class="rtl-indicator"></span>
+          <span id="rtl-toggle-label">LTR</span>
+        </button>
+      </div>
     </div>
   </nav>
+
+  <script>
+    (function initMobileNav() {
+      const toggle = document.getElementById('nav-menu-toggle');
+      const panel = document.getElementById('nav-collapsible');
+      if (!toggle || !panel) return;
+
+      const closePanel = () => {
+        panel.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      };
+
+      toggle.addEventListener('click', () => {
+        const isOpen = panel.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      panel.querySelectorAll('.nav-link').forEach((link) => {
+        link.addEventListener('click', closePanel);
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 760) closePanel();
+      });
+    })();
+  </script>
 
   <!-- Hero -->
   <section class="hero">
