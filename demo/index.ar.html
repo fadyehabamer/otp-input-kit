@@ -7,19 +7,20 @@
   <meta name="description" content="مكتبة otp-input-kit لإدخال رموز التحقق مع دعم RTL واللغات المتعددة وإمكانية الوصول والمؤقت والإشعارات ومكوّن ويب." />
   <meta name="theme-color" content="#1797d6" />
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
-  <link rel="canonical" href="../demo/index.ar.html" />
+  <link rel="canonical" href="https://fadyehabamer.github.io/otp-input-kit/demo/index.ar.html" /> <!-- Replace with your absolute URL -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="otp-input-kit" />
   <meta property="og:title" content="otp-input-kit — عرض توضيحي بالعربية" />
   <meta property="og:description" content="مكتبة قابلة للتخصيص لإدخال رموز التحقق مع دعم RTL واللغات المتعددة وإمكانية الوصول والمؤقت والإشعارات ومكوّن ويب." />
-  <meta property="og:url" content="../demo/index.ar.html" />
+  <meta property="og:url" content="https://fadyehabamer.github.io/otp-input-kit/demo/index.ar.html" /> <!-- Replace with your absolute URL -->
   <meta property="og:image" content="../social-preview.svg" />
-  <meta property="og:image:alt" content="معاينة otp-input-kit بالعربية مع واجهة إدخال رموز التحقق" />
+  <meta property="og:image:alt" content="معاينة otp-input-kit بالعربية" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="otp-input-kit — عرض توضيحي بالعربية" />
   <meta name="twitter:description" content="مكتبة قابلة للتخصيص لإدخال رموز التحقق مع دعم RTL واللغات المتعددة وإمكانية الوصول والمؤقت والإشعارات ومكوّن ويب." />
   <meta name="twitter:image" content="../social-preview.svg" />
   <style>
+    /* ── Reset & base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -49,37 +50,53 @@
 
     body {
       font-family: 'Segoe UI', -apple-system, 'Noto Sans Arabic', 'Cairo', system-ui, sans-serif;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.28), transparent 36%),
+        radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.18), transparent 22%),
+        linear-gradient(180deg, #1797d6 0%, #2eb4e4 42%, #7ed9cb 100%);
       color: var(--text);
       min-height: 100vh;
       line-height: 1.7;
+      padding: 34px 24px 56px;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      inset: auto;
+      border-radius: 999px;
+      filter: blur(24px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    body::before {
+      width: 240px;
+      height: 240px;
+      right: -80px;
+      top: 8%;
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    body::after {
+      width: 320px;
+      height: 320px;
+      left: -120px;
+      bottom: 6%;
+      background: rgba(21, 128, 61, 0.16);
     }
 
     /* ── Nav ── */
     .nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 24px;
       display: flex;
       align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .nav { background: rgba(15,23,42,0.85); }
-    }
-
-    .nav-brand {
-      font-weight: 800;
-      font-size: 1.1rem;
-      color: var(--accent);
-      text-decoration: none;
-      letter-spacing: 0;
+      gap: 20px;
+      padding: 0 0 18px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
     }
 
     .nav-menu-toggle {
@@ -123,73 +140,118 @@
     .nav-menu-icon::before { top: -5px; }
     .nav-menu-icon::after { top: 5px; }
 
-    .nav-collapsible {
+    .nav-collapsible { display: none; }
+
+    .nav-desktop-only {
       display: flex;
       align-items: center;
       gap: 12px;
       flex: 1;
       min-width: 0;
     }
+    @media (max-width: 760px) {
+      .nav-desktop-only { display: none !important; }
+    }
 
     .nav-backdrop {
       display: none;
     }
 
-    .nav-links { display: flex; gap: 8px; flex-wrap: wrap; margin-inline-start: 0; margin-inline-end: auto; }
+    .nav-brand {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #2563eb;
+      text-decoration: none;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .nav-links::-webkit-scrollbar { display: none; }
 
     .nav-link {
-      font-size: 0.8125rem;
-      color: var(--muted);
+      font-size: 0.8rem;
+      color: #64748b;
       text-decoration: none;
-      padding: 4px 10px;
-      border-radius: 6px;
-      transition: background 0.15s, color 0.15s;
+      padding: 6px 10px;
+      border-radius: 999px;
+      transition: background 0.15s, color 0.15s, transform 0.15s;
     }
 
     .nav-link:hover {
-      background: rgba(59,130,246,0.1);
-      color: var(--accent);
+      background: rgba(59, 130, 246, 0.1);
+      color: #2563eb;
+      transform: translateY(-1px);
     }
 
-    .ltr-link {
+    .nav-actions {
       margin-inline-start: auto;
-      padding: 5px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-size: 0.8125rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      white-space: nowrap;
-      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .ltr-link:hover { border-color: var(--accent); color: var(--accent); }
 
     /* ── Layout ── */
-    .page { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 28px 44px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 34px;
+      box-shadow: 0 28px 70px rgba(15, 23, 42, 0.24);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      overflow: hidden;
+    }
+
+    .page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0)),
+        radial-gradient(circle at top center, rgba(99, 102, 241, 0.08), transparent 42%);
+      pointer-events: none;
+    }
+
+    .page > * {
+      position: relative;
+      z-index: 1;
+    }
 
     .hero {
       text-align: center;
-      padding: 60px 0 48px;
+      padding: 44px 0 36px;
+      max-width: 840px;
+      margin: 0 auto;
     }
 
     .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-size: clamp(2.8rem, 7vw, 4.8rem);
       font-weight: 900;
       letter-spacing: 0;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
+      line-height: 1.1;
+      background: linear-gradient(135deg, #6d5efc 0%, #5b7cff 42%, #2ec2d7 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
     .hero p {
-      margin-top: 14px;
-      font-size: 1.1rem;
-      color: var(--muted);
-      max-width: 560px;
+      margin-top: 18px;
+      font-size: clamp(1rem, 1.55vw, 1.18rem);
+      color: #64748b;
+      max-width: 760px;
       margin-inline: auto;
     }
 
@@ -202,25 +264,33 @@
     }
 
     .badge {
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 4px 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 7px 14px;
       border-radius: 999px;
-      background: rgba(59,130,246,0.12);
+      background: rgba(77, 124, 255, 0.12);
       color: #3b82f6;
+      border: 1px solid rgba(77, 124, 255, 0.08);
+      box-shadow: 0 8px 16px rgba(59, 130, 246, 0.08);
     }
 
-    /* ── Cards ── */
-    .demo-grid { display: grid; gap: 28px; }
+    /* ── Demo card ── */
+    .demo-grid {
+      display: grid;
+      gap: 28px;
+    }
 
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
     }
 
-    .card-header { padding: 18px 24px 0; }
+    .card-header {
+      padding: 18px 24px 0;
+    }
 
     .card-title {
       font-size: 1rem;
@@ -230,14 +300,18 @@
       gap: 8px;
     }
 
-    .card-desc { font-size: 0.875rem; color: var(--muted); margin-top: 4px; }
+    .card-desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
 
     .card-body {
-      padding: 28px 24px;
+      padding: 30px 28px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
+      gap: 22px;
     }
 
     .card-footer {
@@ -281,7 +355,7 @@
     .btn:hover { background: rgba(59,130,246,0.08); border-color: var(--accent); color: var(--accent); }
     .btn.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
     .btn.btn-primary:hover { opacity: 0.88; }
-    .btn.btn-danger { background: #ef4444; color: #fff; border-color: #ef4444; }
+    .btn.btn-danger  { background: #ef4444; color: #fff; border-color: #ef4444; }
 
     .output {
       min-height: 28px;
@@ -320,7 +394,7 @@
     /* ── Theme showcase ── */
     .theme-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 20px;
     }
 
@@ -340,10 +414,11 @@
       font-weight: 600;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.08em;
       direction: ltr;
     }
 
+    /* ── Responsive ── */
     @media (max-width: 760px) {
       body.nav-open {
         overflow: hidden;
@@ -351,6 +426,7 @@
 
       .nav {
         gap: 10px;
+        padding-bottom: 14px;
       }
 
       .nav-menu-toggle {
@@ -359,28 +435,59 @@
       }
 
       .nav-collapsible {
+        display: flex;
         position: fixed;
         top: 0;
         bottom: 0;
         inset-inline-start: 0;
-        z-index: 40;
-        width: min(84vw, 320px);
-        display: flex;
+        z-index: 1000;
+        width: 280px;
         flex-direction: column;
         align-items: stretch;
-        gap: 14px;
-        padding: 22px 16px;
+        gap: 8px;
+        padding: 40px 20px;
         background: rgba(255, 255, 255, 0.98);
-        border-inline-end: 1px solid rgba(148, 163, 184, 0.28);
-        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.2);
-        transform: translateX(calc(100% + 24px));
-        transition: transform 0.2s ease;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-inline-end: 1px solid var(--border);
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.1);
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         overflow-y: auto;
-        max-width: 100%;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .nav-collapsible {
+          background: rgba(30, 41, 59, 0.95);
+        }
+      }
+
+      html[dir="ltr"] .nav-collapsible {
+        transform: translateX(-100%);
       }
 
       .nav-collapsible.is-open {
         transform: translateX(0);
+      }
+
+      .nav-links {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .nav-link {
+        text-align: start;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 12px;
+        background: transparent;
+        border: none;
+      }
+
+      .nav-link:hover {
+        background: rgba(59, 130, 246, 0.1);
+        transform: none;
       }
 
       .nav-backdrop {
@@ -399,50 +506,38 @@
         pointer-events: auto;
       }
 
-      .nav-links {
+      .nav-actions {
+        margin-inline-start: 0;
         width: 100%;
         display: flex;
         flex-direction: column;
         gap: 8px;
       }
-
-      .nav-link {
-        display: block;
-        text-align: center;
-        border-radius: 10px;
-        border: 1px solid rgba(148, 163, 184, 0.2);
-        background: rgba(255, 255, 255, 0.62);
-      }
-
-      .ltr-link {
-        width: 100%;
-        text-align: center;
-        margin-inline-start: 0;
-      }
     }
 
     @media (max-width: 600px) {
+      body { padding: 16px 12px 32px; }
+      .page { padding: 18px 16px 28px; border-radius: 26px; }
+      .hero { padding: 28px 0 26px; }
+      .hero p { margin-top: 14px; }
+      .badge { padding: 6px 12px; }
       .card-body { padding: 20px 16px; }
       .section-header h2 { font-size: 1.1rem; }
+      .toast-row-label { min-width: auto; flex-basis: 100%; }
     }
 
     @media (max-width: 420px) {
-      .nav-links { grid-template-columns: 1fr; }
+      .nav-actions { display: flex; flex-direction: column; }
     }
   </style>
 </head>
 <body>
 
-<div class="nav-backdrop" id="nav-backdrop-ar" aria-hidden="true"></div>
+  <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
 
-<nav class="nav">
-  <a href="#" class="nav-brand">⌨️ otp-input-kit</a>
-  <button class="nav-menu-toggle" id="nav-menu-toggle-ar" aria-expanded="false" aria-controls="nav-collapsible-ar" aria-label="تبديل قائمة التنقل">
-    <span class="nav-menu-icon" aria-hidden="true"></span>
-    <span>القائمة</span>
-  </button>
-  <div class="nav-collapsible" id="nav-collapsible-ar">
+  <div class="nav-collapsible" id="nav-collapsible">
     <div class="nav-links">
+      <a href="#installation" class="nav-link">التثبيت</a>
       <a href="#ar-basic" class="nav-link">أساسي</a>
       <a href="#ar-types" class="nav-link">الأنواع</a>
       <a href="#ar-secure" class="nav-link">آمن</a>
@@ -451,52 +546,80 @@
       <a href="#ar-themes" class="nav-link">المظاهر</a>
       <a href="#ar-toast" class="nav-link">الإشعارات</a>
     </div>
-    <a href="index.html" class="ltr-link">English ↗</a>
+    <div class="nav-actions" style="margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+      <a href="index.html" class="nav-link" style="background: rgba(59, 130, 246, 0.1); color: #2563eb; font-weight: 600; text-align: center;">🇺🇸 English</a>
+      <a href="https://github.com/fadyehabamer/otp-input-kit" class="nav-link" style="background: rgba(15, 23, 42, 0.05); font-weight: 600; text-align: center;">GitHub</a>
+    </div>
   </div>
-</nav>
-
-<script>
-  (function initMobileNavArabic() {
-    const toggle = document.getElementById('nav-menu-toggle-ar');
-    const panel = document.getElementById('nav-collapsible-ar');
-    const backdrop = document.getElementById('nav-backdrop-ar');
-    if (!toggle || !panel || !backdrop) return;
-
-    const closePanel = () => {
-      panel.classList.remove('is-open');
-      backdrop.classList.remove('is-open');
-      document.body.classList.remove('nav-open');
-      toggle.setAttribute('aria-expanded', 'false');
-    };
-
-    toggle.addEventListener('click', () => {
-      const isOpen = panel.classList.toggle('is-open');
-      backdrop.classList.toggle('is-open', isOpen);
-      document.body.classList.toggle('nav-open', isOpen);
-      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
-
-    backdrop.addEventListener('click', closePanel);
-
-    panel.querySelectorAll('.nav-link').forEach((link) => {
-      link.addEventListener('click', closePanel);
-    });
-
-    panel.querySelectorAll('.ltr-link').forEach((action) => {
-      action.addEventListener('click', closePanel);
-    });
-
-    window.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') closePanel();
-    });
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 760) closePanel();
-    });
-  })();
-</script>
 
 <div class="page">
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="#" class="nav-brand">⌨️ otp-input-kit</a>
+    <button class="nav-menu-toggle" id="nav-menu-toggle" aria-expanded="false" aria-controls="nav-collapsible" aria-label="تبديل قائمة التنقل">
+      <span class="nav-menu-icon" aria-hidden="true"></span>
+      <span>القائمة</span>
+    </button>
+
+    <div class="nav-desktop-only">
+      <div class="nav-links">
+        <a href="#installation" class="nav-link">التثبيت</a>
+        <a href="#ar-basic" class="nav-link">أساسي</a>
+        <a href="#ar-types" class="nav-link">الأنواع</a>
+        <a href="#ar-secure" class="nav-link">آمن</a>
+        <a href="#ar-timer" class="nav-link">المؤقت</a>
+        <a href="#ar-sep" class="nav-link">الفواصل</a>
+        <a href="#ar-themes" class="nav-link">المظاهر</a>
+        <a href="#ar-toast" class="nav-link">الإشعارات</a>
+      </div>
+      <div class="nav-actions">
+        <a href="index.html" class="nav-link" style="background: rgba(59, 130, 246, 0.1); color: #2563eb; font-weight: 600;">🇺🇸 English</a>
+        <a href="https://github.com/fadyehabamer/otp-input-kit" class="nav-link" style="background: rgba(15, 23, 42, 0.05); font-weight: 600;">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <script>
+    (function initMobileNav() {
+      const toggle = document.getElementById('nav-menu-toggle');
+      const panel = document.getElementById('nav-collapsible');
+      const backdrop = document.getElementById('nav-backdrop');
+      if (!toggle || !panel || !backdrop) return;
+
+      const closePanel = () => {
+        panel.classList.remove('is-open');
+        backdrop.classList.remove('is-open');
+        document.body.classList.remove('nav-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      };
+
+      toggle.addEventListener('click', () => {
+        const isOpen = panel.classList.toggle('is-open');
+        backdrop.classList.toggle('is-open', isOpen);
+        document.body.classList.toggle('nav-open', isOpen);
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      backdrop.addEventListener('click', closePanel);
+
+      panel.querySelectorAll('.nav-link').forEach((link) => {
+        link.addEventListener('click', closePanel);
+      });
+
+      panel.querySelectorAll('.ltr-toggle').forEach((action) => {
+        action.addEventListener('click', closePanel);
+      });
+
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closePanel();
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 760) closePanel();
+      });
+    })();
+  </script>
 
   <!-- Hero -->
   <section class="hero">
@@ -509,6 +632,46 @@
       <span class="badge">Web Component</span>
       <span class="badge">الوضع المظلم</span>
       <span class="badge">الأرقام العربية-الهندية</span>
+    </div>
+  </section>
+
+  <!-- ── Installation ── -->
+  <section id="installation" style="margin-bottom: 40px;">
+    <div class="section-header">
+      <div class="line"></div>
+      <h2>التثبيت</h2>
+      <div class="line"></div>
+    </div>
+    <div class="demo-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📦 NPM</div>
+        </div>
+        <div class="card-body" style="align-items: stretch; padding: 20px;">
+          <div class="card-footer" style="border-radius: 8px; border-top: none;">
+            <pre>npm install otp-input-kit</pre>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--muted); margin-top: 12px;">استيراد في مشروعك:</p>
+          <div class="card-footer" style="border-radius: 8px; border-top: none;">
+            <pre>import OTPInput from 'otp-input-kit';
+// لا داعي لاستيراد ملف CSS بشكل منفصل — يتم حقنه تلقائياً! 🚀</pre>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🌐 CDN (UMD)</div>
+        </div>
+        <div class="card-body" style="align-items: stretch; padding: 20px;">
+          <div class="card-footer" style="border-radius: 8px; border-top: none;">
+            <pre>&lt;script src="https://unpkg.com/otp-input-kit/dist/otp-input.umd.min.js"&gt;&lt;/script&gt;</pre>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--muted); margin-top: 12px;">ثم استخدم المتغير العام:</p>
+          <div class="card-footer" style="border-radius: 8px; border-top: none; margin-top: 8px;">
+            <pre>const otp = OTPInput.create('#container', { ... });</pre>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

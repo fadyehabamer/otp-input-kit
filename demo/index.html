@@ -7,14 +7,14 @@
   <meta name="description" content="Explore otp-input-kit, a customizable OTP input library with RTL support, i18n, accessibility, timer, toast, and Web Component support." />
   <meta name="theme-color" content="#1797d6" />
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
-  <link rel="canonical" href="../demo/" />
+  <link rel="canonical" href="https://fadyehabamer.github.io/otp-input-kit/demo/" /> <!-- Replace with your absolute URL -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="otp-input-kit" />
   <meta property="og:title" content="otp-input-kit — Full Feature Demo" />
   <meta property="og:description" content="A customizable OTP input library with RTL support, i18n, accessibility, timer, toast notifications, and Web Component support." />
-  <meta property="og:url" content="../demo/" />
+  <meta property="og:url" content="https://fadyehabamer.github.io/otp-input-kit/demo/" /> <!-- Replace with your absolute URL -->
   <meta property="og:image" content="../social-preview.svg" />
-  <meta property="og:image:alt" content="otp-input-kit demo preview with a centered OTP input interface" />
+  <meta property="og:image:alt" content="otp-input-kit demo preview" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="otp-input-kit — Full Feature Demo" />
   <meta name="twitter:description" content="A customizable OTP input library with RTL support, i18n, accessibility, timer, toast notifications, and Web Component support." />
@@ -666,6 +666,7 @@
 
     <div class="nav-desktop-only">
       <div class="nav-links">
+        <a href="#installation" class="nav-link">Installation</a>
         <a href="#basic" class="nav-link">Basic</a>
         <a href="#rtl" class="nav-link">RTL / Arabic</a>
         <a href="#secure" class="nav-link">Secure</a>
@@ -736,6 +737,46 @@
       <span class="badge">WCAG 2.1 AA</span>
       <span class="badge">Web Component</span>
       <span class="badge">Dark mode</span>
+    </div>
+  </section>
+
+  <!-- ── Installation ── -->
+  <section id="installation" style="margin-bottom: 40px;">
+    <div class="section-header">
+      <div class="line"></div>
+      <h2>Installation</h2>
+      <div class="line"></div>
+    </div>
+    <div class="demo-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📦 NPM</div>
+        </div>
+        <div class="card-body" style="align-items: stretch; padding: 20px;">
+          <div class="card-footer" style="border-radius: 8px; border-top: none;">
+            <pre>npm install otp-input-kit</pre>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--muted); margin-top: 12px;">Import in your project:</p>
+          <div class="card-footer" style="border-radius: 8px; border-top: none;">
+            <pre>import OTPInput from 'otp-input-kit';
+// No separate CSS import needed — it's auto-injected! 🚀</pre>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🌐 CDN (UMD)</div>
+        </div>
+        <div class="card-body" style="align-items: stretch; padding: 20px;">
+          <div class="card-footer" style="border-radius: 8px; border-top: none;">
+            <pre>&lt;script src="https://unpkg.com/otp-input-kit/dist/otp-input.umd.min.js"&gt;&lt;/script&gt;</pre>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--muted); margin-top: 12px;">Then use global variable:</p>
+          <div class="card-footer" style="border-radius: 8px; border-top: none; margin-top: 8px;">
+            <pre>const otp = OTPInput.create('#container', { ... });</pre>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
