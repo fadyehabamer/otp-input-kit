@@ -1,0 +1,60 @@
+{
+  "name": "otp-input-js",
+  "version": "1.0.0",
+  "description": "Highly customizable, framework-agnostic OTP input component with RTL, i18n, a11y, timer, and Web Component support",
+  "author": "Fady Ehab <a.chwayekh.sparkit@gmail.com>",
+  "homepage": "https://github.com/fadyehabamer/OtpInput.js#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fadyehabamer/OtpInput.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fadyehabamer/OtpInput.js/issues"
+  },
+  "main": "dist/otp-input.umd.cjs",
+  "module": "dist/otp-input.esm.js",
+  "browser": "dist/otp-input.umd.js",
+  "unpkg": "dist/otp-input.umd.min.js",
+  "exports": {
+    ".": {
+      "import": "./dist/otp-input.esm.js",
+      "require": "./dist/otp-input.umd.cjs",
+      "browser": "./dist/otp-input.umd.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "dev": "rollup -c rollup.config.js --watch",
+    "demo": "npx serve . -p 3000",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "otp",
+    "one-time-password",
+    "input",
+    "rtl",
+    "i18n",
+    "accessibility",
+    "a11y",
+    "vanilla-js",
+    "web-component",
+    "timer",
+    "arabic",
+    "persian",
+    "hebrew",
+    "zero-dependency"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/pluginutils": "^5.1.0",
+    "rollup": "^4.9.0"
+  }
+}
