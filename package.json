@@ -1,6 +1,6 @@
 {
   "name": "otp-input-kit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Highly customizable, framework-agnostic OTP input component with RTL, i18n, a11y, timer, and Web Component support",
   "author": "Fady Ehab <a.chwayekh.sparkit@gmail.com>",
   "homepage": "https://github.com/fadyehabamer/otp-input-kit#readme",
