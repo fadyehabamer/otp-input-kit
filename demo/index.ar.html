@@ -35,18 +35,7 @@
       --radius: 16px;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0f172a;
-        --surface: #1e293b;
-        --border: #334155;
-        --text: #f1f5f9;
-        --muted: #94a3b8;
-        --code-bg: #0f172a;
-      }
-    }
-
-    html { scroll-behavior: smooth; }
+    html { -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: 'Segoe UI', -apple-system, 'Noto Sans Arabic', 'Cairo', system-ui, sans-serif;
@@ -462,12 +451,6 @@
         overflow-y: auto;
       }
 
-      @media (prefers-color-scheme: dark) {
-        .nav-collapsible {
-          background: rgba(30, 41, 59, 0.95);
-        }
-      }
-
       html[dir="ltr"] .nav-collapsible {
         transform: translateX(-100%);
       }
@@ -535,6 +518,33 @@
     @media (max-width: 420px) {
       .nav-actions { display: flex; flex-direction: column; }
     }
+
+    /* ── Copy button ── */
+    .card-footer, .card-body .card-footer { position: relative; }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 5px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    html[dir="ltr"] .copy-btn { left: auto; right: 10px; }
+    .copy-btn:hover { background: rgba(255, 255, 255, 0.18); color: #fff; transform: translateY(-1px); }
+    .copy-btn:active { transform: translateY(0); }
+    .copy-btn.copied { background: #22c55e; color: #fff; border-color: #22c55e; }
   </style>
 </head>
 <body>
@@ -611,6 +621,21 @@
 
       backdrop.addEventListener('click', closePanel);
 
+      // Manual smooth scroll for internal links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          const href = this.getAttribute('href');
+          if (href === '#') return;
+          e.preventDefault();
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+            // Update URL hash without jumping
+            history.pushState(null, null, href);
+          }
+        });
+      });
+
       panel.querySelectorAll('.nav-link').forEach((link) => {
         link.addEventListener('click', closePanel);
       });
@@ -626,6 +651,8 @@
       window.addEventListener('resize', () => {
         if (window.innerWidth > 760) closePanel();
       });
+    })();
+
     })();
   </script>
 
@@ -1127,6 +1154,34 @@ OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
   });
 
   requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' })));
+
+  (function initCopyButtons() {
+    document.querySelectorAll('pre').forEach(pre => {
+      const container = pre.parentElement;
+      if (!container || !container.classList.contains('card-footer')) return;
+
+      container.style.position = 'relative';
+
+      const btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.innerHTML = '<span>نسخ</span>';
+      btn.setAttribute('aria-label', 'نسخ الكود');
+
+      btn.addEventListener('click', () => {
+        const text = pre.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          btn.classList.add('copied');
+          btn.innerHTML = '<span>✓ تم النسخ</span>';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<span>نسخ</span>';
+          }, 2000);
+        });
+      });
+
+      container.appendChild(btn);
+    });
+  })();
 </script>
 
 </body>
