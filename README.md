@@ -1,4 +1,4 @@
-# OTPInput.js
+# otp-input-kit
 
 A highly customizable, framework-agnostic OTP input component with full RTL support, i18n, accessibility, countdown timer, toast notifications, and Web Component support — zero dependencies.
 

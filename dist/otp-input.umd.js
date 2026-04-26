@@ -1,5 +1,5 @@
 /*!
- * OTPInput.js v1.0.0
+ * otp-input-kit v1.0.0
  * A highly customizable, framework-agnostic OTP input component
  * (c) 2026 — MIT License
  */
