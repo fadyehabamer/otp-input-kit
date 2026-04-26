@@ -1,5 +1,5 @@
 {
-  "name": "otp-input-js",
+  "name": "@fadyehabamer/otp-input",
   "version": "1.0.0",
   "description": "Highly customizable, framework-agnostic OTP input component with RTL, i18n, a11y, timer, and Web Component support",
   "author": "Fady Ehab <a.chwayekh.sparkit@gmail.com>",
