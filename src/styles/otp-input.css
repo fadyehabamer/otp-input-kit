@@ -198,13 +198,15 @@
   height: 100%;
   background: var(--otp-progress-fill);
   border-radius: 999px;
-  transition: width 1s linear, background-color 0.3s ease;
+  transition: background-color 0.3s ease;
   width: 100%;
 }
 
-.otp-timer--urgent ~ .otp-timer-progress .otp-timer-progress-bar,
-.otp-timer-progress-bar[style*="width: 1"],
-.otp-timer-progress-bar[style*="width: 2"] {
+.otp-timer-progress-bar.otp-timer-progress-bar--running {
+  animation: otpProgressCountdown linear forwards;
+}
+
+.otp-timer--urgent ~ .otp-timer-progress .otp-timer-progress-bar {
   background: var(--otp-error-color);
 }
 
@@ -299,6 +301,11 @@
 }
 
 /* ─── Animations ──────────────────────────────────────────────────────────── */
+
+@keyframes otpProgressCountdown {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
 
 @keyframes otpShake {
   0%, 100% { transform: translateX(0); }

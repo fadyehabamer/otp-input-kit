@@ -64,33 +64,7 @@
       overflow-x: hidden;
     }
 
-    body::before,
-    body::after {
-      content: '';
-      position: fixed;
-      inset: auto;
-      border-radius: 999px;
-      filter: blur(24px);
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.4;
-    }
 
-    body::before {
-      width: 240px;
-      height: 240px;
-      left: -80px;
-      top: 8%;
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    body::after {
-      width: 320px;
-      height: 320px;
-      right: -120px;
-      bottom: 6%;
-      background: rgba(21, 128, 61, 0.16);
-    }
 
     /* ── Nav ── */
     .nav {
@@ -231,12 +205,10 @@
       max-width: 1120px;
       margin: 0 auto;
       padding: 28px 28px 44px;
-      background: rgba(255, 255, 255, 0.9);
+      background: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.5);
       border-radius: 34px;
       box-shadow: 0 28px 70px rgba(15, 23, 42, 0.24);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
       overflow: hidden;
     }
 
@@ -312,6 +284,8 @@
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+      content-visibility: auto;
+      contain-intrinsic-size: auto 500px;
     }
 
     .card-header {
@@ -638,9 +612,7 @@
         align-items: stretch;
         gap: 8px;
         padding: 40px 20px;
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
+        background: #fff;
         border-inline-end: 1px solid var(--border);
         box-shadow: 20px 0 50px rgba(0, 0, 0, 0.1);
         transform: translateX(-100%);
@@ -654,6 +626,9 @@
 
       .nav-collapsible.is-open {
         transform: translateX(0);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        background: rgba(255, 255, 255, 0.98);
       }
 
       .nav-links {
@@ -750,8 +725,8 @@
       padding: 5px 10px;
       font-size: 0.72rem;
       font-weight: 700;
-      color: rgba(255, 255, 255, 0.8);
-      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(15, 23, 42, 0.65);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 8px;
       cursor: pointer;
@@ -760,8 +735,6 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
     }
     html[dir="rtl"] .copy-btn { right: auto; left: 10px; }
     .copy-btn:hover { background: rgba(255, 255, 255, 0.18); color: #fff; transform: translateY(-1px); }
@@ -1948,7 +1921,7 @@ OTPInput.create('#otp', {
   <!-- Load the library (inline bundle for demo — in production use dist/otp-input.umd.js) -->
   <script type="module">
     // Import from src directly (works with any dev server or as a module)
-    import OTPInput, { registerOTPInputElement, ToastManager } from '../src/index.js';
+    import OTPInput, { registerOTPInputElement, ToastManager } from '../dist/otp-input.esm.js';
 
     // Ensure web component is registered
     registerOTPInputElement();

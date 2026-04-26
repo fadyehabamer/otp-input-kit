@@ -72,7 +72,7 @@ export class ClipboardManager {
     this._suggestionEl = btn;
 
     // Auto-hide after 8s
-    this._suggestionTimer = setTimeout(() => this._hideSuggestion(), 8000);
+    this._suggestionTimer = setTimeout(() => this._hideSuggestion(), 18000);
   }
 
   _hideSuggestion() {

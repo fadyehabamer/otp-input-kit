@@ -1,5 +1,5 @@
 /*!
- * otp-input-kit v1.0.2
+ * otp-input-kit v1.0.3
  * A highly customizable, framework-agnostic OTP input component
  * (c) 2026 — MIT License
  */
@@ -451,11 +451,11 @@
         this._hideSuggestion();
       });
 
-      inst.container.appendChild(btn);
+      inst._wrapper.appendChild(btn);
       this._suggestionEl = btn;
 
       // Auto-hide after 8s
-      this._suggestionTimer = setTimeout(() => this._hideSuggestion(), 8000);
+      this._suggestionTimer = setTimeout(() => this._hideSuggestion(), 18000);
     }
 
     _hideSuggestion() {
@@ -477,6 +477,7 @@
       this.instance = instance;
       this._timerEl = null;
       this._progressEl = null;
+      this._progressBar = null;
       this._resendBtn = null;
       this._interval = null;
       this._remaining = 0;
@@ -497,9 +498,9 @@
           if (timer.showProgress) {
             this._progressEl = document.createElement('div');
             this._progressEl.className = 'otp-timer-progress';
-            const bar = document.createElement('div');
-            bar.className = 'otp-timer-progress-bar';
-            this._progressEl.appendChild(bar);
+            this._progressBar = document.createElement('div');
+            this._progressBar.className = 'otp-timer-progress-bar';
+            this._progressEl.appendChild(this._progressBar);
             wrapperEl.insertBefore(this._progressEl, wrapperEl.querySelector('.otp-inputs-row'));
           }
 
@@ -528,8 +529,30 @@
       this.stop();
       this._total = durationSeconds;
       this._remaining = durationSeconds;
+
+      if (this._progressBar) {
+        this._progressBar.classList.remove('otp-timer-progress-bar--running');
+        this._progressBar.style.animationDuration = '';
+        // Force reflow so removing the class takes effect before re-adding
+        void this._progressBar.offsetWidth;
+        this._progressBar.style.animationDuration = `${durationSeconds}s`;
+        this._progressBar.classList.add('otp-timer-progress-bar--running');
+      }
+
       this._tick();
       this._interval = setInterval(() => this._tick(), 1000);
+
+      if (!this._visibilityHandler) {
+        this._visibilityHandler = () => {
+          if (document.hidden) {
+            clearInterval(this._interval);
+            this._interval = null;
+          } else if (this._remaining > 0) {
+            this._interval = setInterval(() => this._tick(), 1000);
+          }
+        };
+        document.addEventListener('visibilitychange', this._visibilityHandler);
+      }
     }
 
     _tick() {
@@ -557,11 +580,6 @@
           this._timerEl.classList.add('otp-timer--urgent');
         }
       }
-      if (this._progressEl) {
-        const pct = (this._remaining / this._total) * 100;
-        const bar = this._progressEl.querySelector('.otp-timer-progress-bar');
-        if (bar) bar.style.width = `${pct}%`;
-      }
     }
 
     _handleResend() {
@@ -583,6 +601,9 @@
     stop() {
       clearInterval(this._interval);
       this._interval = null;
+      if (this._progressBar) {
+        this._progressBar.classList.remove('otp-timer-progress-bar--running');
+      }
     }
 
     reset(durationSeconds) {
@@ -594,6 +615,10 @@
 
     destroy() {
       this.stop();
+      if (this._visibilityHandler) {
+        document.removeEventListener('visibilitychange', this._visibilityHandler);
+        this._visibilityHandler = null;
+      }
     }
   }
 
