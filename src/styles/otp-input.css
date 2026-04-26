@@ -132,7 +132,7 @@
     background-color var(--otp-transition),
     box-shadow var(--otp-transition),
     transform var(--otp-transition);
-  user-select: none;
+  user-select: text;
 }
 
 /* Remove number spinners */

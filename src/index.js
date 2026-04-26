@@ -1,4 +1,4 @@
-import './styles/inject.js';
+import './styles/otp-input.css';
 import { OTPInput } from './core/OTPInput.js';
 import { OTPInputElement, registerOTPInputElement } from './web-component/OTPInputElement.js';
 import { ToastManager, getDefaultToast } from './core/ToastManager.js';
