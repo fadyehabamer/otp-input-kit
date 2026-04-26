@@ -31,7 +31,7 @@ export default __css;
 }
 
 const banner = `/*!
- * otp-input-kit v1.0.2
+ * otp-input-kit v1.0.3
  * A highly customizable, framework-agnostic OTP input component
  * (c) ${new Date().getFullYear()} — MIT License
  */`;

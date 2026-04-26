@@ -263,14 +263,12 @@
 
 /* ── Paste suggestion ── */
 .otp-paste-suggestion {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
   justify-content: center;
-  width: auto;
-  max-width: 100%;
-  padding: 8px 14px;
-  margin-top: 4px;
-  margin-inline: auto;
+  padding: 8px 16px;
+  margin: 0 auto;
   background: var(--otp-paste-bg);
   border: 1px solid var(--otp-paste-border);
   border-radius: 8px;

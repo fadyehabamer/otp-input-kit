@@ -93,7 +93,8 @@
     .nav {
       display: flex;
       align-items: center;
-      gap: 20px;
+      flex-wrap: wrap;
+      gap: 12px 20px;
       padding: 0 0 18px;
       margin-bottom: 10px;
       border-bottom: 1px solid rgba(148, 163, 184, 0.18);
@@ -144,9 +145,10 @@
     .nav-desktop-only {
       display: flex;
       align-items: center;
-      gap: 12px;
-      flex: 1;
+      flex: 1 0 100%;
+      order: 3;
       min-width: 0;
+      justify-content: center;
     }
     @media (max-width: 760px) {
       .nav-desktop-only { display: none !important; }
@@ -168,10 +170,8 @@
     .nav-links {
       display: flex;
       gap: 4px;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     .nav-links::-webkit-scrollbar { display: none; }
 
@@ -191,10 +191,16 @@
     }
 
     .nav-actions {
-      margin-inline-start: auto;
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+    .nav-actions-header {
+      margin-inline-start: auto;
+      order: 2;
+    }
+    @media (max-width: 760px) {
+      .nav-actions-header { display: none !important; }
     }
 
 
@@ -667,6 +673,7 @@
     <div class="nav-desktop-only">
       <div class="nav-links">
         <a href="#installation" class="nav-link">Installation</a>
+        <a href="#usage" class="nav-link">Usage</a>
         <a href="#basic" class="nav-link">Basic</a>
         <a href="#rtl" class="nav-link">RTL / Arabic</a>
         <a href="#secure" class="nav-link">Secure</a>
@@ -678,10 +685,11 @@
         <a href="#web-component" class="nav-link">Web Component</a>
         <a href="#api" class="nav-link">API</a>
       </div>
-      <div class="nav-actions">
-        <a href="index.ar.html" class="nav-link" style="background: rgba(59, 130, 246, 0.1); color: #2563eb; font-weight: 600;">🇸🇦 العربية</a>
-        <a href="https://github.com/fadyehabamer/otp-input-kit" class="nav-link" style="background: rgba(15, 23, 42, 0.05); font-weight: 600;">GitHub</a>
-      </div>
+    </div>
+
+    <div class="nav-actions nav-actions-header">
+      <a href="index.ar.html" class="nav-link" style="background: rgba(59, 130, 246, 0.1); color: #2563eb; font-weight: 600;">🇸🇦 العربية</a>
+      <a href="https://github.com/fadyehabamer/otp-input-kit" class="nav-link" style="background: rgba(15, 23, 42, 0.05); font-weight: 600;">GitHub</a>
     </div>
   </nav>
 
@@ -774,6 +782,56 @@
           <p style="font-size: 0.85rem; color: var(--muted); margin-top: 12px;">Then use global variable:</p>
           <div class="card-footer" style="border-radius: 8px; border-top: none; margin-top: 8px;">
             <pre>const otp = OTPInput.create('#container', { ... });</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Usage ── -->
+  <section id="usage" style="margin-bottom: 40px;">
+    <div class="section-header">
+      <div class="line"></div>
+      <h2>Basic Usage</h2>
+      <div class="line"></div>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding: 24px;">
+        <p style="margin-bottom: 24px; color: var(--muted);">Choose your preferred way to integrate the library into your project.</p>
+        
+        <div class="demo-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+          <!-- JS API -->
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text);">🚀 JavaScript API</h3>
+            <div class="card-footer" style="border-radius: 12px; border-top: none; background: #1e293b; padding: 20px; flex: 1;">
+              <pre style="color: #e2e8f0; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5;"><span style="color: #94a3b8;">// 1. Container</span>
+&lt;div id="otp-container"&gt;&lt;/div&gt;
+
+<span style="color: #94a3b8;">// 2. Initialize</span>
+&lt;script&gt;
+  const otp = OTPInput.create('#otp-container', {
+    length: 6,
+    onComplete: (v) => console.log(v)
+  });
+&lt;/script&gt;</pre>
+            </div>
+          </div>
+
+          <!-- Web Component -->
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text);">🧩 Web Component</h3>
+            <div class="card-footer" style="border-radius: 12px; border-top: none; background: #1e293b; padding: 20px; flex: 1;">
+              <pre style="color: #e2e8f0; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5;"><span style="color: #94a3b8;">&lt;!-- 1. Declare custom element --&gt;</span>
+&lt;otp-input length="6" type="numeric"&gt;&lt;/otp-input&gt;
+
+<span style="color: #94a3b8;">&lt;!-- 2. Listen for events --&gt;</span>
+&lt;script&gt;
+  const el = document.querySelector('otp-input');
+  el.addEventListener('otp-complete', (e) => {
+    console.log('OTP:', e.detail);
+  });
+&lt;/script&gt;</pre>
+            </div>
           </div>
         </div>
       </div>

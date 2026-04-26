@@ -68,7 +68,7 @@ export class ClipboardManager {
       this._hideSuggestion();
     });
 
-    inst.container.appendChild(btn);
+    inst._wrapper.appendChild(btn);
     this._suggestionEl = btn;
 
     // Auto-hide after 8s
