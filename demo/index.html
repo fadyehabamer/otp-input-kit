@@ -1,948 +1,1093 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" dir="ltr">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>otp-input-kit — Full Feature Demo</title>
-  <meta name="description"
-    content="Explore otp-input-kit, a customizable OTP input library with RTL support, i18n, accessibility, timer, toast, and Web Component support." />
-  <meta name="theme-color" content="#1797d6" />
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
-  <link rel="canonical" href="https://fadyehabamer.github.io/otp-input-kit/demo/" />
-  <!-- Replace with your absolute URL -->
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="otp-input-kit" />
-  <meta property="og:title" content="otp-input-kit — Full Feature Demo" />
-  <meta property="og:description"
-    content="A customizable OTP input library with RTL support, i18n, accessibility, timer, toast notifications, and Web Component support." />
-  <meta property="og:url" content="https://fadyehabamer.github.io/otp-input-kit/demo/" />
-  <!-- Replace with your absolute URL -->
-  <meta property="og:image" content="../social-preview.svg" />
-  <meta property="og:image:alt" content="otp-input-kit demo preview" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="otp-input-kit — Full Feature Demo" />
-  <meta name="twitter:description"
-    content="A customizable OTP input library with RTL support, i18n, accessibility, timer, toast notifications, and Web Component support." />
-  <meta name="twitter:image" content="../social-preview.svg" />
-  <style>
-    /* ── Reset & base ── */
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --text: #0f172a;
-      --muted: #64748b;
-      --accent: #3b82f6;
-      --code-bg: #1e293b;
-      --code-text: #94a3b8;
-      --radius: 16px;
-    }
-
-    html {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(255, 255, 255, 0.28), transparent 36%),
-        radial-gradient(circle at 85% 18%, rgba(255, 255, 255, 0.18), transparent 22%),
-        linear-gradient(180deg, #1797d6 0%, #2eb4e4 42%, #7ed9cb 100%);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.6;
-      padding: 34px 24px 56px;
-      overflow-x: clip;
-    }
-
-
-
-    /* ── Nav ── */
-    .nav {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px 20px;
-      padding: 0 0 18px;
-      margin-bottom: 10px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-    }
-
-    .nav-menu-toggle {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 36px;
-      min-width: 36px;
-      padding: 6px 10px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.82);
-      color: #0f172a;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .nav-menu-icon {
-      width: 16px;
-      height: 2px;
-      background: currentColor;
-      border-radius: 2px;
-      position: relative;
-      display: inline-block;
-    }
-
-    .nav-menu-icon::before,
-    .nav-menu-icon::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      width: 16px;
-      height: 2px;
-      background: currentColor;
-      border-radius: 2px;
-    }
-
-    .nav-menu-icon::before {
-      top: -5px;
-    }
-
-    .nav-menu-icon::after {
-      top: 5px;
-    }
-
-    .nav-collapsible {
-      display: none;
-    }
-
-    .nav-desktop-only {
-      display: flex;
-      align-items: center;
-      flex: 1 0 100%;
-      order: 3;
-      min-width: 0;
-      justify-content: center;
-    }
-
-    @media (max-width: 760px) {
-      .nav-desktop-only {
-        display: none !important;
-      }
-    }
-
-    .nav-backdrop {
-      display: none;
-    }
-
-    .nav-brand {
-      font-weight: 800;
-      font-size: 1.05rem;
-      color: #2563eb;
-      text-decoration: none;
-      letter-spacing: -0.02em;
-      white-space: nowrap;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .nav-links::-webkit-scrollbar {
-      display: none;
-    }
-
-    .nav-link {
-      font-size: 0.8rem;
-      color: #64748b;
-      text-decoration: none;
-      padding: 6px 10px;
-      border-radius: 999px;
-      transition: background 0.15s, color 0.15s, transform 0.15s;
-    }
-
-    .nav-link:hover {
-      background: rgba(59, 130, 246, 0.1);
-      color: #2563eb;
-      transform: translateY(-1px);
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .nav-actions-header {
-      margin-inline-start: auto;
-      order: 2;
-    }
-
-    @media (max-width: 760px) {
-      .nav-actions-header {
-        display: none !important;
-      }
-    }
-
-
-    /* ── Layout ── */
-    .page {
-      position: relative;
-      z-index: 1;
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 28px 28px 44px;
-      background: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      border-radius: 34px;
-      box-shadow: 0 28px 70px rgba(15, 23, 42, 0.24);
-      overflow: clip;
-    }
-
-    .page::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0)),
-        radial-gradient(circle at top center, rgba(99, 102, 241, 0.08), transparent 42%);
-      pointer-events: none;
-    }
-
-    .page>* {
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero {
-      text-align: center;
-      padding: 44px 0 36px;
-      max-width: 840px;
-      margin: 0 auto;
-    }
-
-    .hero h1 {
-      font-size: clamp(2.8rem, 7vw, 4.8rem);
-      font-weight: 900;
-      letter-spacing: -0.06em;
-      line-height: 0.95;
-      background: linear-gradient(135deg, #6d5efc 0%, #5b7cff 42%, #2ec2d7 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero p {
-      margin-top: 18px;
-      font-size: clamp(1rem, 1.55vw, 1.18rem);
-      color: #64748b;
-      max-width: 760px;
-      margin-inline: auto;
-    }
-
-    .badge-row {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
-    .badge {
-      font-size: 0.76rem;
-      font-weight: 700;
-      padding: 7px 14px;
-      border-radius: 999px;
-      background: rgba(77, 124, 255, 0.12);
-      color: #3b82f6;
-      border: 1px solid rgba(77, 124, 255, 0.08);
-      box-shadow: 0 8px 16px rgba(59, 130, 246, 0.08);
-    }
-
-    /* ── Demo card ── */
-    .demo-grid {
-      display: grid;
-      gap: 28px;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: clip;
-      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
-      content-visibility: auto;
-      contain-intrinsic-size: auto 500px;
-    }
-
-    .card-header {
-      padding: 18px 24px 0;
-    }
-
-    .card-title {
-      font-size: 1rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .card-desc {
-      font-size: 0.875rem;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .card-body {
-      padding: 30px 28px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 22px;
-    }
-
-    .card-footer {
-      border-top: 1px solid var(--border);
-      background: var(--code-bg);
-      padding: 14px 20px;
-    }
-
-    .card-footer pre {
-      font-size: 0.78rem;
-      color: var(--code-text);
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-all;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-    }
-
-    /* ── Controls ── */
-    .controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .btn {
-      padding: 8px 18px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-size: 0.8125rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .btn:hover {
-      background: rgba(59, 130, 246, 0.08);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .btn.btn-primary {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    .btn.btn-primary:hover {
-      opacity: 0.88;
-    }
-
-    .btn.btn-danger {
-      background: #ef4444;
-      color: #fff;
-      border-color: #ef4444;
-    }
-
-    .output {
-      min-height: 28px;
-      font-size: 0.875rem;
-      color: var(--muted);
-      text-align: center;
-      padding: 6px 14px;
-      border-radius: 8px;
-      background: rgba(59, 130, 246, 0.06);
-      transition: all 0.2s;
-    }
-
-    .output.success {
-      color: #22c55e;
-      background: rgba(34, 197, 94, 0.08);
-      font-weight: 600;
-    }
-
-    .output.error {
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.08);
-      font-weight: 600;
-    }
-
-    /* ── Section header ── */
-    .section-header {
-      margin: 48px 0 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .section-header h2 {
-      font-size: 1.3rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .section-header .line {
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    /* ── RTL demo ── */
-    .rtl-demo {
-      direction: rtl;
-      text-align: right;
-    }
-
-    /* ── Theme showcase ── */
-    .theme-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-    }
-
-    .theme-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .theme-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    /* ── API table ── */
-    .api-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.875rem;
-    }
-
-    .api-table th,
-    .api-table td {
-      padding: 10px 14px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .api-table th {
-      font-weight: 600;
-      color: var(--muted);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-    }
-
-    .api-table td:first-child {
-      font-family: monospace;
-      color: var(--accent);
-      font-size: 0.82rem;
-    }
-
-    .api-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .code {
-      font-family: monospace;
-      background: rgba(99, 102, 241, 0.1);
-      color: #6366f1;
-      padding: 1px 5px;
-      border-radius: 4px;
-      font-size: 0.85em;
-    }
-
-    /* ── Toast demo grid ── */
-    .toast-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      width: 100%;
-    }
-
-    .toast-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      padding: 12px 14px;
-      background: var(--bg);
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-
-    .toast-row-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      min-width: 100px;
-    }
-
-    .toast-buttons {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      flex: 1;
-    }
-
-    .toast-buttons .btn {
-      font-size: 0.78rem;
-      padding: 6px 12px;
-    }
-
-    /* ── Error animation grid ── */
-    .anim-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-    }
-
-    .anim-card {
-      padding: 18px 16px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .anim-label {
-      text-align: center;
-    }
-
-    .anim-label strong {
-      display: block;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.95rem;
-      color: var(--accent);
-      letter-spacing: -0.02em;
-    }
-
-    .anim-label span {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .anim-controls {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .anim-controls .btn {
-      font-size: 0.78rem;
-      padding: 6px 12px;
-    }
-
-    /* Smaller inputs in animation cards so 4 fit comfortably */
-    .anim-card .otp-root {
-      --otp-input-width: 38px;
-      --otp-input-height: 46px;
-      --otp-font-size: 1.1rem;
-      --otp-gap: 6px;
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 760px) {
-      body.nav-open {
-        overflow: hidden;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>otp-input-kit — Full Feature Demo</title>
+    <meta
+      name="description"
+      content="Explore otp-input-kit, a customizable OTP input library with RTL support, i18n, accessibility, timer, toast, and Web Component support." />
+    <meta name="theme-color" content="#1797d6" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link
+      rel="canonical"
+      href="https://fadyehabamer.github.io/otp-input-kit/demo/" />
+    <!-- Replace with your absolute URL -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="otp-input-kit" />
+    <meta property="og:title" content="otp-input-kit — Full Feature Demo" />
+    <meta
+      property="og:description"
+      content="A customizable OTP input library with RTL support, i18n, accessibility, timer, toast notifications, and Web Component support." />
+    <meta
+      property="og:url"
+      content="https://fadyehabamer.github.io/otp-input-kit/demo/" />
+    <!-- Replace with your absolute URL -->
+    <meta property="og:image" content="../social-preview.svg" />
+    <meta property="og:image:alt" content="otp-input-kit demo preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="otp-input-kit — Full Feature Demo" />
+    <meta
+      name="twitter:description"
+      content="A customizable OTP input library with RTL support, i18n, accessibility, timer, toast notifications, and Web Component support." />
+    <meta name="twitter:image" content="../social-preview.svg" />
+    <style>
+      /* ── Reset & base ── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
+      :root {
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --border: #e2e8f0;
+        --text: #0f172a;
+        --muted: #64748b;
+        --accent: #3b82f6;
+        --code-bg: #1e293b;
+        --code-text: #94a3b8;
+        --radius: 16px;
+      }
+
+      html {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(255, 255, 255, 0.28),
+            transparent 36%
+          ),
+          radial-gradient(
+            circle at 85% 18%,
+            rgba(255, 255, 255, 0.18),
+            transparent 22%
+          ),
+          linear-gradient(180deg, #1797d6 0%, #2eb4e4 42%, #7ed9cb 100%);
+        color: var(--text);
+        min-height: 100vh;
+        line-height: 1.6;
+        padding: 34px 24px 56px;
+        overflow-x: clip;
+      }
+
+      /* ── Nav ── */
       .nav {
-        gap: 10px;
-        padding-bottom: 14px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px 20px;
+        padding: 0 0 18px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
       }
 
       .nav-menu-toggle {
-        display: inline-flex;
-        margin-inline-start: auto;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 36px;
+        min-width: 36px;
+        padding: 6px 10px;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.82);
+        color: #0f172a;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .nav-menu-icon {
+        width: 16px;
+        height: 2px;
+        background: currentColor;
+        border-radius: 2px;
+        position: relative;
+        display: inline-block;
+      }
+
+      .nav-menu-icon::before,
+      .nav-menu-icon::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 16px;
+        height: 2px;
+        background: currentColor;
+        border-radius: 2px;
+      }
+
+      .nav-menu-icon::before {
+        top: -5px;
+      }
+
+      .nav-menu-icon::after {
+        top: 5px;
       }
 
       .nav-collapsible {
+        display: none;
+      }
+
+      .nav-desktop-only {
         display: flex;
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        inset-inline-start: 0;
-        z-index: 1000;
-        width: 280px;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-        padding: 40px 20px;
-        background: #fff;
-        border-inline-end: 1px solid var(--border);
-        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.1);
-        transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow-y: auto;
+        align-items: center;
+        flex: 1 0 100%;
+        order: 3;
+        min-width: 0;
+        justify-content: center;
       }
 
-      html[dir="rtl"] .nav-collapsible {
-        transform: translateX(100%);
+      @media (max-width: 760px) {
+        .nav-desktop-only {
+          display: none !important;
+        }
       }
 
-      .nav-collapsible.is-open {
-        transform: translateX(0);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        background: rgba(255, 255, 255, 0.98);
+      .nav-backdrop {
+        display: none;
+      }
+
+      .nav-brand {
+        font-weight: 800;
+        font-size: 1.05rem;
+        color: #2563eb;
+        text-decoration: none;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
       }
 
       .nav-links {
-        flex-direction: column;
+        display: flex;
         gap: 4px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .nav-links::-webkit-scrollbar {
+        display: none;
       }
 
       .nav-link {
-        text-align: start;
-        padding: 12px 16px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        border-radius: 12px;
-        background: transparent;
-        border: none;
+        font-size: 0.8rem;
+        color: #64748b;
+        text-decoration: none;
+        padding: 6px 10px;
+        border-radius: 999px;
+        transition:
+          background 0.15s,
+          color 0.15s,
+          transform 0.15s;
       }
 
       .nav-link:hover {
         background: rgba(59, 130, 246, 0.1);
-        transform: none;
-      }
-
-      .nav-backdrop {
-        display: block;
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.45);
-        opacity: 0;
-        pointer-events: none;
-        z-index: 30;
-        transition: opacity 0.2s ease;
-      }
-
-      .nav-backdrop.is-open {
-        opacity: 1;
-        pointer-events: auto;
+        color: #2563eb;
+        transform: translateY(-1px);
       }
 
       .nav-actions {
-        margin-inline-start: 0;
-        width: 100%;
         display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 16px 12px 32px;
+        align-items: center;
+        gap: 10px;
       }
 
+      .nav-actions-header {
+        margin-inline-start: auto;
+        order: 2;
+      }
+
+      @media (max-width: 760px) {
+        .nav-actions-header {
+          display: none !important;
+        }
+      }
+
+      /* ── Layout ── */
       .page {
-        padding: 18px 16px 28px;
-        border-radius: 26px;
+        position: relative;
+        z-index: 1;
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 28px 28px 44px;
+        background: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 34px;
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.24);
+        overflow: clip;
+      }
+
+      .page::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.7),
+            rgba(255, 255, 255, 0)
+          ),
+          radial-gradient(
+            circle at top center,
+            rgba(99, 102, 241, 0.08),
+            transparent 42%
+          );
+        pointer-events: none;
+      }
+
+      .page > * {
+        position: relative;
+        z-index: 1;
       }
 
       .hero {
-        padding: 28px 0 26px;
+        text-align: center;
+        padding: 44px 0 36px;
+        max-width: 840px;
+        margin: 0 auto;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.8rem, 7vw, 4.8rem);
+        font-weight: 900;
+        letter-spacing: -0.06em;
+        line-height: 0.95;
+        background: linear-gradient(
+          135deg,
+          #6d5efc 0%,
+          #5b7cff 42%,
+          #2ec2d7 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       .hero p {
-        margin-top: 14px;
+        margin-top: 18px;
+        font-size: clamp(1rem, 1.55vw, 1.18rem);
+        color: #64748b;
+        max-width: 760px;
+        margin-inline: auto;
+      }
+
+      .badge-row {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
       }
 
       .badge {
-        padding: 6px 12px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        padding: 7px 14px;
+        border-radius: 999px;
+        background: rgba(77, 124, 255, 0.12);
+        color: #3b82f6;
+        border: 1px solid rgba(77, 124, 255, 0.08);
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.08);
+      }
+
+      /* ── Demo card ── */
+      .demo-grid {
+        display: grid;
+        gap: 28px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: clip;
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+        content-visibility: auto;
+        contain-intrinsic-size: auto 500px;
+      }
+
+      .card-header {
+        padding: 18px 24px 0;
+      }
+
+      .card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .card-desc {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin-top: 4px;
       }
 
       .card-body {
-        padding: 20px 16px;
+        padding: 30px 28px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+      }
+
+      .card-footer {
+        border-top: 1px solid var(--border);
+        background: var(--code-bg);
+        padding: 14px 20px;
+      }
+
+      .card-footer pre {
+        font-size: 0.78rem;
+        color: var(--code-text);
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-family: "SF Mono", "Fira Code", monospace;
+      }
+
+      /* ── Controls ── */
+      .controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .btn {
+        padding: 8px 18px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .btn:hover {
+        background: rgba(59, 130, 246, 0.08);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .btn.btn-primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      .btn.btn-primary:hover {
+        opacity: 0.88;
+      }
+
+      .btn.btn-danger {
+        background: #ef4444;
+        color: #fff;
+        border-color: #ef4444;
+      }
+
+      .output {
+        min-height: 28px;
+        font-size: 0.875rem;
+        color: var(--muted);
+        text-align: center;
+        padding: 6px 14px;
+        border-radius: 8px;
+        background: rgba(59, 130, 246, 0.06);
+        transition: all 0.2s;
+      }
+
+      .output.success {
+        color: #22c55e;
+        background: rgba(34, 197, 94, 0.08);
+        font-weight: 600;
+      }
+
+      .output.error {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.08);
+        font-weight: 600;
+      }
+
+      /* ── Section header ── */
+      .section-header {
+        margin: 48px 0 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
       }
 
       .section-header h2 {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .section-header .line {
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── RTL demo ── */
+      .rtl-demo {
+        direction: rtl;
+        text-align: right;
+      }
+
+      /* ── Theme showcase ── */
+      .theme-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+      }
+
+      .theme-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .theme-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      /* ── API table ── */
+      .api-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+
+      .api-table th,
+      .api-table td {
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .api-table th {
+        font-weight: 600;
+        color: var(--muted);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+
+      .api-table td:first-child {
+        font-family: monospace;
+        color: var(--accent);
+        font-size: 0.82rem;
+      }
+
+      .api-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .code {
+        font-family: monospace;
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 0.85em;
+      }
+
+      /* ── Toast demo grid ── */
+      .toast-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        width: 100%;
+      }
+
+      .toast-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 12px 14px;
+        background: var(--bg);
+        border-radius: 10px;
+        border: 1px solid var(--border);
       }
 
       .toast-row-label {
-        min-width: auto;
-        flex-basis: 100%;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        min-width: 100px;
       }
-    }
 
-    @media (max-width: 420px) {
-      .nav-actions { display: flex; flex-direction: column; }
-    }
+      .toast-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex: 1;
+      }
 
-    /* ── Copy button ── */
-    .card-footer, .card-body .card-footer { position: relative; }
-    .copy-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 5px 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.9);
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    html[dir="rtl"] .copy-btn { right: auto; left: 10px; }
-    .copy-btn:hover { background: rgba(255, 255, 255, 0.18); color: #fff; transform: translateY(-1px); }
-    .copy-btn:active { transform: translateY(0); }
-    .copy-btn.copied { background: #22c55e; color: #fff; border-color: #22c55e; }
-  </style>
-</head>
+      .toast-buttons .btn {
+        font-size: 0.78rem;
+        padding: 6px 12px;
+      }
 
-<body>
+      /* ── Error animation grid ── */
+      .anim-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+      }
 
-  <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
+      .anim-card {
+        padding: 18px 16px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
 
-  <div class="nav-collapsible" id="nav-collapsible">
-    <div class="nav-links">
-      <a href="#basic" class="nav-link">Basic</a>
-      <a href="#rtl" class="nav-link">RTL / Arabic</a>
-      <a href="#secure" class="nav-link">Secure</a>
-      <a href="#timer" class="nav-link">Timer</a>
-      <a href="#validation" class="nav-link">Validation</a>
-      <a href="#themes" class="nav-link">Themes</a>
-      <a href="#toasts" class="nav-link">Toasts</a>
-      <a href="#separator" class="nav-link">Separator</a>
-      <a href="#web-component" class="nav-link">Web Component</a>
-      <a href="#api" class="nav-link">API</a>
+      .anim-label {
+        text-align: center;
+      }
+
+      .anim-label strong {
+        display: block;
+        font-family: "SF Mono", "Fira Code", monospace;
+        font-size: 0.95rem;
+        color: var(--accent);
+        letter-spacing: -0.02em;
+      }
+
+      .anim-label span {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .anim-controls {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .anim-controls .btn {
+        font-size: 0.78rem;
+        padding: 6px 12px;
+      }
+
+      /* Smaller inputs in animation cards so 4 fit comfortably */
+      .anim-card .otp-root {
+        --otp-input-width: 38px;
+        --otp-input-height: 46px;
+        --otp-font-size: 1.1rem;
+        --otp-gap: 6px;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 760px) {
+        body.nav-open {
+          overflow: hidden;
+        }
+
+        .nav {
+          gap: 10px;
+          padding-bottom: 14px;
+        }
+
+        .nav-menu-toggle {
+          display: inline-flex;
+          margin-inline-start: auto;
+        }
+
+        .nav-collapsible {
+          display: flex;
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          inset-inline-start: 0;
+          z-index: 1000;
+          width: 280px;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+          padding: 40px 20px;
+          background: #fff;
+          border-inline-end: 1px solid var(--border);
+          box-shadow: 20px 0 50px rgba(0, 0, 0, 0.1);
+          transform: translateX(-100%);
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow-y: auto;
+        }
+
+        html[dir="rtl"] .nav-collapsible {
+          transform: translateX(100%);
+        }
+
+        .nav-collapsible.is-open {
+          transform: translateX(0);
+          backdrop-filter: blur(15px);
+          -webkit-backdrop-filter: blur(15px);
+          background: rgba(255, 255, 255, 0.98);
+        }
+
+        .nav-links {
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .nav-link {
+          text-align: start;
+          padding: 12px 16px;
+          font-size: 0.9rem;
+          font-weight: 500;
+          border-radius: 12px;
+          background: transparent;
+          border: none;
+        }
+
+        .nav-link:hover {
+          background: rgba(59, 130, 246, 0.1);
+          transform: none;
+        }
+
+        .nav-backdrop {
+          display: block;
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.45);
+          opacity: 0;
+          pointer-events: none;
+          z-index: 30;
+          transition: opacity 0.2s ease;
+        }
+
+        .nav-backdrop.is-open {
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        .nav-actions {
+          margin-inline-start: 0;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 16px 12px 32px;
+        }
+
+        .page {
+          padding: 18px 16px 28px;
+          border-radius: 26px;
+        }
+
+        .hero {
+          padding: 28px 0 26px;
+        }
+
+        .hero p {
+          margin-top: 14px;
+        }
+
+        .badge {
+          padding: 6px 12px;
+        }
+
+        .card-body {
+          padding: 20px 16px;
+        }
+
+        .section-header h2 {
+          font-size: 1.1rem;
+        }
+
+        .toast-row-label {
+          min-width: auto;
+          flex-basis: 100%;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .nav-actions {
+          display: flex;
+          flex-direction: column;
+        }
+      }
+
+      /* ── Copy button ── */
+      .card-footer,
+      .card-body .card-footer {
+        position: relative;
+      }
+      .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(15, 23, 42, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      html[dir="rtl"] .copy-btn {
+        right: auto;
+        left: 10px;
+      }
+      .copy-btn:hover {
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+        transform: translateY(-1px);
+      }
+      .copy-btn:active {
+        transform: translateY(0);
+      }
+      .copy-btn.copied {
+        background: #22c55e;
+        color: #fff;
+        border-color: #22c55e;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
+
+    <div class="nav-collapsible" id="nav-collapsible" inert>
+      <div class="nav-links">
+        <a href="#basic" class="nav-link">Basic</a>
+        <a href="#rtl" class="nav-link">RTL / Arabic</a>
+        <a href="#secure" class="nav-link">Secure</a>
+        <a href="#timer" class="nav-link">Timer</a>
+        <a href="#validation" class="nav-link">Validation</a>
+        <a href="#themes" class="nav-link">Themes</a>
+        <a href="#toasts" class="nav-link">Toasts</a>
+        <a href="#separator" class="nav-link">Separator</a>
+        <a href="#web-component" class="nav-link">Web Component</a>
+        <a href="#api" class="nav-link">API</a>
+      </div>
+      <div
+        class="nav-actions"
+        style="
+          margin-top: auto;
+          padding-top: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        ">
+        <a
+          href="index.ar.html"
+          class="nav-link"
+          style="
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+            font-weight: 600;
+            text-align: center;
+          "
+          >🇸🇦 العربية</a
+        >
+        <a
+          href="https://github.com/fadyehabamer/otp-input-kit"
+          class="nav-link"
+          style="
+            background: rgba(15, 23, 42, 0.05);
+            font-weight: 600;
+            text-align: center;
+          "
+          >GitHub</a
+        >
+      </div>
     </div>
-    <div class="nav-actions"
-      style="margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-      <a href="index.ar.html" class="nav-link"
-        style="background: rgba(59, 130, 246, 0.1); color: #2563eb; font-weight: 600; text-align: center;">🇸🇦
-        العربية</a>
-      <a href="https://github.com/fadyehabamer/otp-input-kit" class="nav-link"
-        style="background: rgba(15, 23, 42, 0.05); font-weight: 600; text-align: center;">GitHub</a>
-    </div>
-  </div>
 
-  <div class="page">
+    <div class="page">
+      <!-- Navigation -->
+      <nav class="nav">
+        <a href="#" class="nav-brand">⌨️ otp-input-kit</a>
+        <button
+          class="nav-menu-toggle"
+          id="nav-menu-toggle"
+          aria-expanded="false"
+          aria-controls="nav-collapsible"
+          aria-label="Toggle navigation menu">
+          <span class="nav-menu-icon" aria-hidden="true"></span>
+          <span>Menu</span>
+        </button>
 
-    <!-- Navigation -->
-    <nav class="nav">
-      <a href="#" class="nav-brand">⌨️ otp-input-kit</a>
-      <button class="nav-menu-toggle" id="nav-menu-toggle" aria-expanded="false" aria-controls="nav-collapsible"
-        aria-label="Toggle navigation menu">
-        <span class="nav-menu-icon" aria-hidden="true"></span>
-        <span>Menu</span>
-      </button>
-
-      <div class="nav-desktop-only">
-        <div class="nav-links">
-          <a href="#installation" class="nav-link">Installation</a>
-          <a href="#usage" class="nav-link">Usage</a>
-          <a href="#basic" class="nav-link">Basic</a>
-          <a href="#rtl" class="nav-link">RTL / Arabic</a>
-          <a href="#secure" class="nav-link">Secure</a>
-          <a href="#timer" class="nav-link">Timer</a>
-          <a href="#validation" class="nav-link">Validation</a>
-          <a href="#themes" class="nav-link">Themes</a>
-          <a href="#toasts" class="nav-link">Toasts</a>
-          <a href="#separator" class="nav-link">Separator</a>
-          <a href="#web-component" class="nav-link">Web Component</a>
-          <a href="#api" class="nav-link">API</a>
+        <div class="nav-desktop-only">
+          <div class="nav-links">
+            <a href="#installation" class="nav-link">Installation</a>
+            <a href="#usage" class="nav-link">Usage</a>
+            <a href="#basic" class="nav-link">Basic</a>
+            <a href="#rtl" class="nav-link">RTL / Arabic</a>
+            <a href="#secure" class="nav-link">Secure</a>
+            <a href="#timer" class="nav-link">Timer</a>
+            <a href="#validation" class="nav-link">Validation</a>
+            <a href="#themes" class="nav-link">Themes</a>
+            <a href="#toasts" class="nav-link">Toasts</a>
+            <a href="#separator" class="nav-link">Separator</a>
+            <a href="#web-component" class="nav-link">Web Component</a>
+            <a href="#api" class="nav-link">API</a>
+          </div>
         </div>
-      </div>
 
-      <div class="nav-actions nav-actions-header">
-        <a href="index.ar.html" class="nav-link"
-          style="background: rgba(59, 130, 246, 0.1); color: #2563eb; font-weight: 600;">🇸🇦 العربية</a>
-        <a href="https://github.com/fadyehabamer/otp-input-kit" class="nav-link"
-          style="background: rgba(15, 23, 42, 0.05); font-weight: 600;">GitHub</a>
-      </div>
-    </nav>
+        <div class="nav-actions nav-actions-header">
+          <a
+            href="index.ar.html"
+            class="nav-link"
+            style="
+              background: rgba(59, 130, 246, 0.1);
+              color: #2563eb;
+              font-weight: 600;
+            "
+            >🇸🇦 العربية</a
+          >
+          <a
+            href="https://github.com/fadyehabamer/otp-input-kit"
+            class="nav-link"
+            style="background: rgba(15, 23, 42, 0.05); font-weight: 600"
+            >GitHub</a
+          >
+        </div>
+      </nav>
 
-    <script>
-      (function initMobileNav() {
-        const toggle = document.getElementById('nav-menu-toggle');
-        const panel = document.getElementById('nav-collapsible');
-        const backdrop = document.getElementById('nav-backdrop');
-        if (!toggle || !panel || !backdrop) return;
+      <script>
+        (function initMobileNav() {
+          const toggle = document.getElementById("nav-menu-toggle");
+          const panel = document.getElementById("nav-collapsible");
+          const backdrop = document.getElementById("nav-backdrop");
+          if (!toggle || !panel || !backdrop) return;
 
-        const closePanel = () => {
-          // Blur any focused element inside the panel (or the toggle) so the
-          // mobile keyboard doesn't open and the page doesn't scroll to the
-          // first OTP input after the menu is dismissed.
-          if (document.activeElement && (panel.contains(document.activeElement) || document.activeElement === toggle)) {
-            document.activeElement.blur();
-          }
-          panel.classList.remove('is-open');
-          backdrop.classList.remove('is-open');
-          document.body.classList.remove('nav-open');
-          toggle.setAttribute('aria-expanded', 'false');
-        };
+          const openPanel = () => {
+            panel.removeAttribute("inert");
+            panel.classList.add("is-open");
+            backdrop.classList.add("is-open");
+            document.body.classList.add("nav-open");
+            toggle.setAttribute("aria-expanded", "true");
+            requestAnimationFrame(() => panel.querySelector("a, button")?.focus());
+          };
 
-        toggle.addEventListener('click', () => {
-          const isOpen = panel.classList.toggle('is-open');
-          backdrop.classList.toggle('is-open', isOpen);
-          document.body.classList.toggle('nav-open', isOpen);
-          toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        });
+          const closePanel = (returnFocus = true) => {
+            panel.classList.remove("is-open");
+            backdrop.classList.remove("is-open");
+            document.body.classList.remove("nav-open");
+            toggle.setAttribute("aria-expanded", "false");
+            panel.setAttribute("inert", "");
+            if (returnFocus) toggle.focus();
+          };
 
-        backdrop.addEventListener('click', closePanel);
-
-        // Manual smooth scroll for internal links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-          anchor.addEventListener('click', function (e) {
-            const href = this.getAttribute('href');
-            if (href === '#') return;
-            e.preventDefault();
-            const target = document.querySelector(href);
-            if (target) {
-              target.scrollIntoView({ behavior: 'smooth' });
-              // Update URL hash without jumping
-              history.pushState(null, null, href);
+          toggle.addEventListener("click", () => {
+            if (panel.classList.contains("is-open")) {
+              closePanel();
+            } else {
+              openPanel();
             }
           });
-        });
 
-        panel.querySelectorAll('.nav-link').forEach((link) => {
-          link.addEventListener('click', closePanel);
-        });
+          backdrop.addEventListener("click", closePanel);
 
-        panel.querySelectorAll('.rtl-toggle').forEach((action) => {
-          action.addEventListener('click', closePanel);
-        });
+          // Manual smooth scroll for internal links
+          document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+            anchor.addEventListener("click", function (e) {
+              const href = this.getAttribute("href");
+              if (href === "#") return;
+              e.preventDefault();
+              const target = document.querySelector(href);
+              if (target) {
+                target.scrollIntoView({ behavior: "smooth" });
+                // Update URL hash without jumping
+                history.pushState(null, null, href);
+              }
+            });
+          });
 
-        window.addEventListener('keydown', (event) => {
-          if (event.key === 'Escape') closePanel();
-        });
+          panel.querySelectorAll(".nav-link").forEach((link) => {
+            link.addEventListener("click", closePanel);
+          });
 
-        window.addEventListener('resize', () => {
-          if (window.innerWidth > 760) closePanel();
-        });
-      })();
+          panel.querySelectorAll(".rtl-toggle").forEach((action) => {
+            action.addEventListener("click", closePanel);
+          });
 
-    </script>
+          window.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") closePanel();
+          });
 
-    <!-- Hero -->
-    <section class="hero">
-      <h1>otp-input-kit</h1>
-      <p>A highly customizable, framework-agnostic OTP input library with full RTL support, accessibility, i18n, timer,
-        and Web Component.</p>
-      <div class="badge-row">
-        <span class="badge">Zero dependencies</span>
-        <span class="badge">ES Module + UMD</span>
-        <span class="badge">Full RTL &amp; i18n</span>
-        <span class="badge">WCAG 2.1 AA</span>
-        <span class="badge">Web Component</span>
-        <span class="badge">Dark mode</span>
-      </div>
-    </section>
+          window.addEventListener("resize", () => {
+            if (window.innerWidth > 760) closePanel(false);
+          });
+        })();
+      </script>
 
-    <!-- ── Installation ── -->
-    <section id="installation" style="margin-bottom: 40px;">
-      <div class="section-header">
-        <div class="line"></div>
-        <h2>Installation</h2>
-        <div class="line"></div>
-      </div>
-      <div class="demo-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">📦 NPM</div>
-          </div>
-          <div class="card-body" style="align-items: stretch; padding: 20px;">
-            <div class="card-footer" style="border-radius: 8px; border-top: none;">
-              <pre>npm install otp-input-kit</pre>
+      <!-- Hero -->
+      <section class="hero">
+        <h1>otp-input-kit</h1>
+        <p>
+          A highly customizable, framework-agnostic OTP input library with full
+          RTL support, accessibility, i18n, timer, and Web Component.
+        </p>
+        <div class="badge-row">
+          <span class="badge">Zero dependencies</span>
+          <span class="badge">ES Module + UMD</span>
+          <span class="badge">Full RTL &amp; i18n</span>
+          <span class="badge">WCAG 2.1 AA</span>
+          <span class="badge">Web Component</span>
+          <span class="badge">Dark mode</span>
+        </div>
+      </section>
+
+      <!-- ── Installation ── -->
+      <section id="installation" style="margin-bottom: 40px">
+        <div class="section-header">
+          <div class="line"></div>
+          <h2>Installation</h2>
+          <div class="line"></div>
+        </div>
+        <div
+          class="demo-grid"
+          style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📦 NPM</div>
             </div>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 12px;">Import in your project:</p>
-            <div class="card-footer" style="border-radius: 8px; border-top: none;">
-              <pre>import OTPInput from 'otp-input-kit';
-// No separate CSS import needed — it's auto-injected! 🚀</pre>
+            <div class="card-body" style="align-items: stretch; padding: 20px">
+              <div
+                class="card-footer"
+                style="border-radius: 8px; border-top: none">
+                <pre>npm install otp-input-kit</pre>
+              </div>
+              <p
+                style="
+                  font-size: 0.85rem;
+                  color: var(--muted);
+                  margin-top: 12px;
+                ">
+                Import in your project:
+              </p>
+              <div
+                class="card-footer"
+                style="border-radius: 8px; border-top: none">
+                <pre>
+import OTPInput from 'otp-input-kit';
+// No separate CSS import needed — it's auto-injected! 🚀</pre
+                >
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🌐 CDN (UMD)</div>
+            </div>
+            <div class="card-body" style="align-items: stretch; padding: 20px">
+              <div
+                class="card-footer"
+                style="border-radius: 8px; border-top: none">
+                <pre>
+&lt;script src="https://unpkg.com/otp-input-kit/dist/otp-input.umd.min.js"&gt;&lt;/script&gt;</pre
+                >
+              </div>
+              <p
+                style="
+                  font-size: 0.85rem;
+                  color: var(--muted);
+                  margin-top: 12px;
+                ">
+                Then use global variable:
+              </p>
+              <div
+                class="card-footer"
+                style="border-radius: 8px; border-top: none; margin-top: 8px">
+                <pre>const otp = OTPInput.create('#container', { ... });</pre>
+              </div>
             </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">🌐 CDN (UMD)</div>
-          </div>
-          <div class="card-body" style="align-items: stretch; padding: 20px;">
-            <div class="card-footer" style="border-radius: 8px; border-top: none;">
-              <pre>&lt;script src="https://unpkg.com/otp-input-kit/dist/otp-input.umd.min.js"&gt;&lt;/script&gt;</pre>
-            </div>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-top: 12px;">Then use global variable:</p>
-            <div class="card-footer" style="border-radius: 8px; border-top: none; margin-top: 8px;">
-              <pre>const otp = OTPInput.create('#container', { ... });</pre>
-            </div>
-          </div>
+      </section>
+
+      <!-- ── Usage ── -->
+      <section id="usage" style="margin-bottom: 40px">
+        <div class="section-header">
+          <div class="line"></div>
+          <h2>Basic Usage</h2>
+          <div class="line"></div>
         </div>
-      </div>
-    </section>
+        <div class="card">
+          <div class="card-body" style="padding: 24px">
+            <p style="margin-bottom: 24px; color: var(--muted)">
+              Choose your preferred way to integrate the library into your
+              project.
+            </p>
 
-    <!-- ── Usage ── -->
-    <section id="usage" style="margin-bottom: 40px;">
-      <div class="section-header">
-        <div class="line"></div>
-        <h2>Basic Usage</h2>
-        <div class="line"></div>
-      </div>
-      <div class="card">
-        <div class="card-body" style="padding: 24px;">
-          <p style="margin-bottom: 24px; color: var(--muted);">Choose your preferred way to integrate the library into
-            your project.</p>
-
-          <div class="demo-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
-            <!-- JS API -->
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-              <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text);">🚀 JavaScript API</h3>
-              <div class="card-footer"
-                style="border-radius: 12px; border-top: none; background: #1e293b; padding: 20px; flex: 1;">
-                <pre style="color: #e2e8f0; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5;"><span style="color: #94a3b8;">// 1. Container</span>
+            <div
+              class="demo-grid"
+              style="
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                gap: 24px;
+              ">
+              <!-- JS API -->
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <h3
+                  style="
+                    font-size: 0.95rem;
+                    font-weight: 700;
+                    color: var(--text);
+                  ">
+                  🚀 JavaScript API
+                </h3>
+                <div
+                  class="card-footer"
+                  style="
+                    border-radius: 12px;
+                    border-top: none;
+                    background: #1e293b;
+                    padding: 20px;
+                    flex: 1;
+                  ">
+                  <pre
+                    style="
+                      color: #e2e8f0;
+                      font-family: &quot;Fira Code&quot;, monospace;
+                      font-size: 0.85rem;
+                      line-height: 1.5;
+                    "><span style="color: #94a3b8;">// 1. Container</span>
 &lt;div id="otp-container"&gt;&lt;/div&gt;
 
 <span style="color: #94a3b8;">// 2. Initialize</span>
@@ -952,15 +1097,35 @@
     onComplete: (v) => console.log(v)
   });
 &lt;/script&gt;</pre>
+                </div>
               </div>
-            </div>
 
-            <!-- Web Component -->
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-              <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text);">🧩 Web Component</h3>
-              <div class="card-footer"
-                style="border-radius: 12px; border-top: none; background: #1e293b; padding: 20px; flex: 1;">
-                <pre style="color: #e2e8f0; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5;"><span style="color: #94a3b8;">&lt;!-- 1. Declare custom element --&gt;</span>
+              <!-- Web Component -->
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <h3
+                  style="
+                    font-size: 0.95rem;
+                    font-weight: 700;
+                    color: var(--text);
+                  ">
+                  🧩 Web Component
+                </h3>
+                <div
+                  class="card-footer"
+                  style="
+                    border-radius: 12px;
+                    border-top: none;
+                    background: #1e293b;
+                    padding: 20px;
+                    flex: 1;
+                  ">
+                  <pre
+                    style="
+                      color: #e2e8f0;
+                      font-family: &quot;Fira Code&quot;, monospace;
+                      font-size: 0.85rem;
+                      line-height: 1.5;
+                    "><span style="color: #94a3b8;">&lt;!-- 1. Declare custom element --&gt;</span>
 &lt;otp-input length="6" type="numeric"&gt;&lt;/otp-input&gt;
 
 <span style="color: #94a3b8;">&lt;!-- 2. Listen for events --&gt;</span>
@@ -970,127 +1135,165 @@
     console.log('OTP:', e.detail);
   });
 &lt;/script&gt;</pre>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <div class="demo-grid">
-
-      <!-- ── 1. Basic 6-digit ── -->
-      <div id="basic" class="card">
-        <div class="card-header">
-          <div class="card-title">🔢 Basic 6-Digit Numeric</div>
-          <div class="card-desc">Auto-focus, smart paste, backspace navigation, undo/redo (Ctrl+Z / Ctrl+Shift+Z)</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-basic"></div>
-          <div id="out-basic" class="output">Enter your 6-digit code</div>
-          <div class="controls">
-            <button class="btn" onclick="otpBasic.clear()">Clear</button>
-            <button class="btn" onclick="otpBasic.setValue('123456')">Set 123456</button>
-            <button class="btn" onclick="otpBasic.focus()">Focus</button>
-            <button class="btn btn-danger" onclick="otpBasic.setError('Invalid code. Try again.')">Simulate
-              Error</button>
+      <div class="demo-grid">
+        <!-- ── 1. Basic 6-digit ── -->
+        <div id="basic" class="card">
+          <div class="card-header">
+            <div class="card-title">🔢 Basic 6-Digit Numeric</div>
+            <div class="card-desc">
+              Auto-focus, smart paste, backspace navigation, undo/redo (Ctrl+Z /
+              Ctrl+Shift+Z)
+            </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <pre>const otp = OTPInput.create('#container', {
+          <div class="card-body">
+            <div id="otp-basic"></div>
+            <div id="out-basic" class="output">Enter your 6-digit code</div>
+            <div class="controls">
+              <button class="btn" onclick="otpBasic.clear()">Clear</button>
+              <button class="btn" onclick="otpBasic.setValue('123456')">
+                Set 123456
+              </button>
+              <button class="btn" onclick="otpBasic.focus()">Focus</button>
+              <button
+                class="btn btn-danger"
+                onclick="otpBasic.setError('Invalid code. Try again.')">
+                Simulate Error
+              </button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+const otp = OTPInput.create('#container', {
   length: 6,
   onComplete: (value) => console.log('OTP:', value),
-});</pre>
-        </div>
-      </div>
-
-      <!-- ── 2. RTL Arabic ── -->
-      <div id="rtl" class="card">
-        <div class="card-header rtl-demo">
-          <div class="card-title">🔤 RTL — Arabic (العربية)</div>
-          <div class="card-desc">اتجاه من اليمين إلى اليسار مع الأرقام العربية-الهندية وحركة المؤشر المعكوسة</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-rtl" dir="rtl"></div>
-          <div id="out-rtl" class="output">أدخل رمز التحقق</div>
-          <div class="controls">
-            <button class="btn" onclick="otpRTL.clear()">مسح</button>
-            <button class="btn" onclick="otpRTL.setValue('654321')">تعيين ٦٥٤٣٢١</button>
+});</pre
+            >
           </div>
         </div>
-        <div class="card-footer">
-          <pre>OTPInput.create('#container', {
+
+        <!-- ── 2. RTL Arabic ── -->
+        <div id="rtl" class="card">
+          <div class="card-header rtl-demo">
+            <div class="card-title">🔤 RTL — Arabic (العربية)</div>
+            <div class="card-desc">
+              اتجاه من اليمين إلى اليسار مع الأرقام العربية-الهندية وحركة المؤشر
+              المعكوسة
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="otp-rtl" dir="rtl"></div>
+            <div id="out-rtl" class="output">أدخل رمز التحقق</div>
+            <div class="controls">
+              <button class="btn" onclick="otpRTL.clear()">مسح</button>
+              <button class="btn" onclick="otpRTL.setValue('654321')">
+                تعيين ٦٥٤٣٢١
+              </button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+OTPInput.create('#container', {
   length: 6,
   direction: 'rtl',
   locale: 'ar',
   nativeNumerals: true,   // renders ٠١٢٣٤٥٦٧٨٩
   onComplete: v => verify(v),
-});</pre>
-        </div>
-      </div>
-
-      <!-- ── 3. Persian RTL ── -->
-      <div class="card">
-        <div class="card-header" dir="rtl">
-          <div class="card-title">🇮🇷 RTL — Persian (فارسی)</div>
-          <div class="card-desc">اعداد فارسی با پشتیبانی کامل RTL</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-fa" dir="rtl"></div>
-          <div id="out-fa" class="output">کد خود را وارد کنید</div>
-          <div class="controls">
-            <button class="btn" onclick="otpFa.clear()">پاک کردن</button>
-            <button class="btn" onclick="otpFa.setValue('246810')">تنظیم</button>
+});</pre
+            >
           </div>
         </div>
-        <div class="card-footer">
-          <pre>OTPInput.create('#container', {
+
+        <!-- ── 3. Persian RTL ── -->
+        <div class="card">
+          <div class="card-header" dir="rtl">
+            <div class="card-title">🇮🇷 RTL — Persian (فارسی)</div>
+            <div class="card-desc">اعداد فارسی با پشتیبانی کامل RTL</div>
+          </div>
+          <div class="card-body">
+            <div id="otp-fa" dir="rtl"></div>
+            <div id="out-fa" class="output">کد خود را وارد کنید</div>
+            <div class="controls">
+              <button class="btn" onclick="otpFa.clear()">پاک کردن</button>
+              <button class="btn" onclick="otpFa.setValue('246810')">
+                تنظیم
+              </button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+OTPInput.create('#container', {
   length: 6, direction: 'rtl',
   locale: 'fa', nativeNumerals: true,
-});</pre>
-        </div>
-      </div>
-
-      <!-- ── 4. Secure / masked ── -->
-      <div id="secure" class="card">
-        <div class="card-header">
-          <div class="card-title">🔒 Secure Mode (Masked)</div>
-          <div class="card-desc">Input masked like a password field — prevents shoulder-surfing</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-secure"></div>
-          <div id="out-secure" class="output">Enter PIN (masked)</div>
-          <div class="controls">
-            <button class="btn"
-              onclick="document.getElementById('out-secure').textContent = 'Value: ' + otpSecure.getValue()">Reveal</button>
-            <button class="btn" onclick="otpSecure.clear()">Clear</button>
+});</pre
+            >
           </div>
         </div>
-        <div class="card-footer">
-          <pre>OTPInput.create('#container', {
+
+        <!-- ── 4. Secure / masked ── -->
+        <div id="secure" class="card">
+          <div class="card-header">
+            <div class="card-title">🔒 Secure Mode (Masked)</div>
+            <div class="card-desc">
+              Input masked like a password field — prevents shoulder-surfing
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="otp-secure"></div>
+            <div id="out-secure" class="output">Enter PIN (masked)</div>
+            <div class="controls">
+              <button
+                class="btn"
+                onclick="
+                  document.getElementById('out-secure').textContent =
+                    'Value: ' + otpSecure.getValue()
+                ">
+                Reveal
+              </button>
+              <button class="btn" onclick="otpSecure.clear()">Clear</button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+OTPInput.create('#container', {
   length: 4,
   type: 'numeric',
   secure: true,   // type="password" masking
-});</pre>
-        </div>
-      </div>
-
-      <!-- ── 5. Auto-submit with Timer ── -->
-      <div id="timer" class="card">
-        <div class="card-header">
-          <div class="card-title">⏱ Timer + Resend + Auto-submit</div>
-          <div class="card-desc">Countdown with progress bar — expires, disables inputs, shows resend button</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-timer"></div>
-          <div id="out-timer" class="output">Enter code within the time limit</div>
-          <div class="controls">
-            <button class="btn" onclick="otpTimer.resetTimer(30)">Reset Timer (30s)</button>
-            <button class="btn" onclick="otpTimer.clear()">Clear</button>
+});</pre
+            >
           </div>
         </div>
-        <div class="card-footer">
-          <pre>OTPInput.create('#container', {
+
+        <!-- ── 5. Auto-submit with Timer ── -->
+        <div id="timer" class="card">
+          <div class="card-header">
+            <div class="card-title">⏱ Timer + Resend + Auto-submit</div>
+            <div class="card-desc">
+              Countdown with progress bar — expires, disables inputs, shows
+              resend button
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="otp-timer"></div>
+            <div id="out-timer" class="output">
+              Enter code within the time limit
+            </div>
+            <div class="controls">
+              <button class="btn" onclick="otpTimer.resetTimer(30)">
+                Reset Timer (30s)
+              </button>
+              <button class="btn" onclick="otpTimer.clear()">Clear</button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+OTPInput.create('#container', {
   length: 6,
   autoSubmit: true,
   timer: {
@@ -1101,124 +1304,204 @@
     enabled: true, cooldown: 30, label: 'Resend code',
     onResend: () => fetchNewOTP(),
   },
-});</pre>
-        </div>
-      </div>
-
-      <!-- ── 6. Alphanumeric ── -->
-      <div id="validation" class="card">
-        <div class="card-header">
-          <div class="card-title">🔡 Alphanumeric + Custom Validation</div>
-          <div class="card-desc">Accepts A–Z and 0–9; custom validator rejects patterns starting with "00"</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-alpha"></div>
-          <div id="out-alpha" class="output">Enter 6-character alphanumeric code</div>
-          <div class="controls">
-            <button class="btn" onclick="otpAlpha.setValue('AB1234')">Set AB1234</button>
-            <button class="btn" onclick="otpAlpha.clear()">Clear</button>
+});</pre
+            >
           </div>
         </div>
-        <div class="card-footer">
-          <pre>OTPInput.create('#container', {
+
+        <!-- ── 6. Alphanumeric ── -->
+        <div id="validation" class="card">
+          <div class="card-header">
+            <div class="card-title">🔡 Alphanumeric + Custom Validation</div>
+            <div class="card-desc">
+              Accepts A–Z and 0–9; custom validator rejects patterns starting
+              with "00"
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="otp-alpha"></div>
+            <div id="out-alpha" class="output">
+              Enter 6-character alphanumeric code
+            </div>
+            <div class="controls">
+              <button class="btn" onclick="otpAlpha.setValue('AB1234')">
+                Set AB1234
+              </button>
+              <button class="btn" onclick="otpAlpha.clear()">Clear</button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+OTPInput.create('#container', {
   length: 6,
   type: 'alphanumeric',
   validate: (v) => v.startsWith('00') ? 'Cannot start with 00' : null,
   animation: { error: 'both' },
-});</pre>
-        </div>
-      </div>
-
-      <!-- ── 6b. Error Animations Showcase ── -->
-      <div id="error-animations" class="card">
-        <div class="card-header">
-          <div class="card-title">💥 Error Animation Styles</div>
-          <div class="card-desc">Three built-in error animations — click any button to see them in action. Type a wrong
-            code or use the buttons below.</div>
-        </div>
-        <div class="card-body" style="align-items:stretch;">
-
-          <div class="anim-grid">
-            <!-- Shake -->
-            <div class="anim-card">
-              <div class="anim-label">
-                <strong>shake</strong>
-                <span>Horizontal wobble — most familiar feedback pattern</span>
-              </div>
-              <div id="otp-anim-shake"></div>
-              <div class="anim-controls">
-                <button class="btn btn-danger" onclick="otpAnimShake.setError('Invalid code')">Trigger shake</button>
-                <button class="btn" onclick="otpAnimShake.clear()">Reset</button>
-              </div>
-            </div>
-
-            <!-- Highlight -->
-            <div class="anim-card">
-              <div class="anim-label">
-                <strong>highlight</strong>
-                <span>Subtle red flash — less intrusive, good for partial errors</span>
-              </div>
-              <div id="otp-anim-highlight"></div>
-              <div class="anim-controls">
-                <button class="btn btn-danger" onclick="otpAnimHighlight.setError('Invalid code')">Trigger
-                  highlight</button>
-                <button class="btn" onclick="otpAnimHighlight.clear()">Reset</button>
-              </div>
-            </div>
-
-            <!-- Both -->
-            <div class="anim-card">
-              <div class="anim-label">
-                <strong>both</strong>
-                <span>Combines shake + highlight + haptic vibration on mobile</span>
-              </div>
-              <div id="otp-anim-both"></div>
-              <div class="anim-controls">
-                <button class="btn btn-danger" onclick="otpAnimBoth.setError('Invalid code')">Trigger both</button>
-                <button class="btn" onclick="otpAnimBoth.clear()">Reset</button>
-              </div>
-            </div>
-
-            <!-- None -->
-            <div class="anim-card">
-              <div class="anim-label">
-                <strong>false</strong>
-                <span>No animation — just the red border state (a11y-only)</span>
-              </div>
-              <div id="otp-anim-none"></div>
-              <div class="anim-controls">
-                <button class="btn btn-danger" onclick="otpAnimNone.setError('Invalid code')">Trigger error
-                  state</button>
-                <button class="btn" onclick="otpAnimNone.clear()">Reset</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Live validation example -->
-          <div
-            style="margin-top:18px;padding:18px;border:1px dashed var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:14px;">
-            <div style="text-align:center;">
-              <strong style="font-size:0.9rem;">Live validation</strong>
-              <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">Type any code starting with <code
-                  class="code">000</code> to trigger the error animation automatically.</div>
-            </div>
-            <div id="otp-anim-live"></div>
-            <div id="out-anim-live" class="output">Try entering "000000" or any code starting with 0</div>
-          </div>
-
-          <!-- Per-character invalid input demo -->
-          <div
-            style="margin-top:8px;padding:18px;border:1px dashed var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:14px;">
-            <div style="text-align:center;">
-              <strong style="font-size:0.9rem;">Single-digit shake on invalid character</strong>
-              <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">Numeric-only input — try typing a
-                letter; only that one cell shakes.</div>
-            </div>
-            <div id="otp-anim-perchar"></div>
+});</pre
+            >
           </div>
         </div>
-        <div class="card-footer">
-          <pre>// Three error animation modes
+
+        <!-- ── 6b. Error Animations Showcase ── -->
+        <div id="error-animations" class="card">
+          <div class="card-header">
+            <div class="card-title">💥 Error Animation Styles</div>
+            <div class="card-desc">
+              Three built-in error animations — click any button to see them in
+              action. Type a wrong code or use the buttons below.
+            </div>
+          </div>
+          <div class="card-body" style="align-items: stretch">
+            <div class="anim-grid">
+              <!-- Shake -->
+              <div class="anim-card">
+                <div class="anim-label">
+                  <strong>shake</strong>
+                  <span
+                    >Horizontal wobble — most familiar feedback pattern</span
+                  >
+                </div>
+                <div id="otp-anim-shake"></div>
+                <div class="anim-controls">
+                  <button
+                    class="btn btn-danger"
+                    onclick="otpAnimShake.setError('Invalid code')">
+                    Trigger shake
+                  </button>
+                  <button class="btn" onclick="otpAnimShake.clear()">
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Highlight -->
+              <div class="anim-card">
+                <div class="anim-label">
+                  <strong>highlight</strong>
+                  <span
+                    >Subtle red flash — less intrusive, good for partial
+                    errors</span
+                  >
+                </div>
+                <div id="otp-anim-highlight"></div>
+                <div class="anim-controls">
+                  <button
+                    class="btn btn-danger"
+                    onclick="otpAnimHighlight.setError('Invalid code')">
+                    Trigger highlight
+                  </button>
+                  <button class="btn" onclick="otpAnimHighlight.clear()">
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Both -->
+              <div class="anim-card">
+                <div class="anim-label">
+                  <strong>both</strong>
+                  <span
+                    >Combines shake + highlight + haptic vibration on
+                    mobile</span
+                  >
+                </div>
+                <div id="otp-anim-both"></div>
+                <div class="anim-controls">
+                  <button
+                    class="btn btn-danger"
+                    onclick="otpAnimBoth.setError('Invalid code')">
+                    Trigger both
+                  </button>
+                  <button class="btn" onclick="otpAnimBoth.clear()">
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- None -->
+              <div class="anim-card">
+                <div class="anim-label">
+                  <strong>false</strong>
+                  <span
+                    >No animation — just the red border state (a11y-only)</span
+                  >
+                </div>
+                <div id="otp-anim-none"></div>
+                <div class="anim-controls">
+                  <button
+                    class="btn btn-danger"
+                    onclick="otpAnimNone.setError('Invalid code')">
+                    Trigger error state
+                  </button>
+                  <button class="btn" onclick="otpAnimNone.clear()">
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live validation example -->
+            <div
+              style="
+                margin-top: 18px;
+                padding: 18px;
+                border: 1px dashed var(--border);
+                border-radius: 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 14px;
+              ">
+              <div style="text-align: center">
+                <strong style="font-size: 0.9rem">Live validation</strong>
+                <div
+                  style="
+                    font-size: 0.78rem;
+                    color: var(--muted);
+                    margin-top: 2px;
+                  ">
+                  Type any code starting with <code class="code">000</code> to
+                  trigger the error animation automatically.
+                </div>
+              </div>
+              <div id="otp-anim-live"></div>
+              <div id="out-anim-live" class="output">
+                Try entering "000000" or any code starting with 0
+              </div>
+            </div>
+
+            <!-- Per-character invalid input demo -->
+            <div
+              style="
+                margin-top: 8px;
+                padding: 18px;
+                border: 1px dashed var(--border);
+                border-radius: 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 14px;
+              ">
+              <div style="text-align: center">
+                <strong style="font-size: 0.9rem"
+                  >Single-digit shake on invalid character</strong
+                >
+                <div
+                  style="
+                    font-size: 0.78rem;
+                    color: var(--muted);
+                    margin-top: 2px;
+                  ">
+                  Numeric-only input — try typing a letter; only that one cell
+                  shakes.
+                </div>
+              </div>
+              <div id="otp-anim-perchar"></div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+// Three error animation modes
 OTPInput.create('#otp', { animation: { error: 'shake'     } });  // default
 OTPInput.create('#otp', { animation: { error: 'highlight' } });  // red flash
 OTPInput.create('#otp', { animation: { error: 'both'      } });  // shake + flash + haptic
@@ -1228,246 +1511,399 @@ OTPInput.create('#otp', { animation: { error: false       } });  // disabled
 otp.setError('That code is incorrect');
 
 // RTL: shake direction is automatically mirrored to feel natural in rtl layouts.
-// Reduced-motion users (prefers-reduced-motion: reduce) get no animation.</pre>
-        </div>
-      </div>
-
-      <!-- ── 7. 4-digit PIN ── -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">📱 4-Digit PIN (Mobile-optimized)</div>
-          <div class="card-desc">Haptic feedback, numeric keyboard, mobile auto-fill (autocomplete="one-time-code")
+// Reduced-motion users (prefers-reduced-motion: reduce) get no animation.</pre
+            >
           </div>
         </div>
-        <div class="card-body">
-          <div id="otp-pin"></div>
-          <div id="out-pin" class="output">Enter your 4-digit PIN</div>
-        </div>
-        <div class="card-footer">
-          <pre>OTPInput.create('#container', {
+
+        <!-- ── 7. 4-digit PIN ── -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📱 4-Digit PIN (Mobile-optimized)</div>
+            <div class="card-desc">
+              Haptic feedback, numeric keyboard, mobile auto-fill
+              (autocomplete="one-time-code")
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="otp-pin"></div>
+            <div id="out-pin" class="output">Enter your 4-digit PIN</div>
+          </div>
+          <div class="card-footer">
+            <pre>
+OTPInput.create('#container', {
   length: 4,
   haptic: true,           // vibration on fill/error
   clipboardDetection: true, // suggests pasting if OTP in clipboard
   autoSubmit: false,
-});</pre>
-        </div>
-      </div>
-
-      <!-- ── 8. 8-digit hex ── -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">🧩 8-Digit Hex Code</div>
-          <div class="card-desc">Accepts 0-9, A-F only — useful for activation keys</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-hex"></div>
-          <div id="out-hex" class="output">Enter 8-character hex code</div>
-          <div class="controls">
-            <button class="btn" onclick="otpHex.setValue('DEADBEEF')">Set DEADBEEF</button>
-            <button class="btn" onclick="otpHex.clear()">Clear</button>
+});</pre
+            >
           </div>
         </div>
-        <div class="card-footer">
-          <pre>OTPInput.create('#container', {
+
+        <!-- ── 8. 8-digit hex ── -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🧩 8-Digit Hex Code</div>
+            <div class="card-desc">
+              Accepts 0-9, A-F only — useful for activation keys
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="otp-hex"></div>
+            <div id="out-hex" class="output">Enter 8-character hex code</div>
+            <div class="controls">
+              <button class="btn" onclick="otpHex.setValue('DEADBEEF')">
+                Set DEADBEEF
+              </button>
+              <button class="btn" onclick="otpHex.clear()">Clear</button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+OTPInput.create('#container', {
   length: 8,
   type: 'hex',     // accepts [0-9a-fA-F]
   placeholder: '0',
-});</pre>
+});</pre
+            >
+          </div>
         </div>
-      </div>
 
-      <!-- ── 9. Event log ── -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">📋 Live Event Log</div>
-          <div class="card-desc">See every event as it fires in real time</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-events"></div>
-          <div id="event-log"
-            style="width:100%;max-height:140px;overflow-y:auto;font-size:0.78rem;font-family:monospace;background:var(--code-bg);color:var(--code-text);padding:12px;border-radius:8px;">
+        <!-- ── 9. Event log ── -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Live Event Log</div>
+            <div class="card-desc">
+              See every event as it fires in real time
+            </div>
           </div>
-          <div class="controls">
-            <button class="btn" onclick="document.getElementById('event-log').innerHTML=''">Clear log</button>
+          <div class="card-body">
+            <div id="otp-events"></div>
+            <div
+              id="event-log"
+              style="
+                width: 100%;
+                max-height: 140px;
+                overflow-y: auto;
+                font-size: 0.78rem;
+                font-family: monospace;
+                background: var(--code-bg);
+                color: var(--code-text);
+                padding: 12px;
+                border-radius: 8px;
+              "></div>
+            <div class="controls">
+              <button
+                class="btn"
+                onclick="document.getElementById('event-log').innerHTML = ''">
+                Clear log
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <pre>const otp = OTPInput.create('#container', { length: 6 });
+          <div class="card-footer">
+            <pre>
+const otp = OTPInput.create('#container', { length: 6 });
 otp.on('change',   v    => console.log('change', v));
 otp.on('complete', v    => console.log('complete', v));
 otp.on('error',    errs => console.log('error', errs));
 otp.on('focus',    info => console.log('focus', info));
-otp.on('blur',     info => console.log('blur', info));</pre>
+otp.on('blur',     info => console.log('blur', info));</pre
+            >
+          </div>
+        </div>
+      </div>
+      <!-- /demo-grid -->
+
+      <!-- ── Input Themes ── -->
+      <div class="section-header" id="themes">
+        <h2>Input Themes</h2>
+        <div class="line"></div>
+      </div>
+      <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 20px">
+        Use <code class="code">theme: 'soft'</code> in options or
+        <code class="code">data-theme="soft"</code> on the container.
+      </p>
+      <div class="theme-row">
+        <div class="theme-card">
+          <div class="theme-label">Default</div>
+          <div id="theme-default"></div>
+        </div>
+        <div class="theme-card">
+          <div class="theme-label">Underline</div>
+          <div id="theme-underline"></div>
+        </div>
+        <div class="theme-card">
+          <div class="theme-label">Rounded</div>
+          <div id="theme-rounded"></div>
+        </div>
+        <div class="theme-card">
+          <div class="theme-label">Pill</div>
+          <div id="theme-pill"></div>
+        </div>
+        <div class="theme-card">
+          <div class="theme-label">Ghost</div>
+          <div id="theme-ghost"></div>
+        </div>
+        <div class="theme-card">
+          <div class="theme-label">Filled</div>
+          <div id="theme-filled"></div>
+        </div>
+        <div class="theme-card">
+          <div class="theme-label">Soft (Purple)</div>
+          <div id="theme-soft"></div>
+        </div>
+        <div
+          class="theme-card"
+          style="background: #0b0f1a; border-color: #1e293b">
+          <div class="theme-label" style="color: #06ffa5">Neon</div>
+          <div id="theme-neon"></div>
+        </div>
+        <div class="theme-card">
+          <div class="theme-label">Gradient</div>
+          <div id="theme-gradient"></div>
+        </div>
+        <div class="theme-card">
+          <div class="theme-label">Elevated 3D</div>
+          <div id="theme-elevated"></div>
+        </div>
+        <div class="theme-card">
+          <div class="theme-label">Custom CSS Vars</div>
+          <div
+            id="theme-custom"
+            style="
+              --otp-focus-color: #ec4899;
+              --otp-focus-shadow: 0 0 0 3px rgba(236, 72, 153, 0.25);
+              --otp-filled-bg: #fdf2f8;
+              --otp-border-radius: 6px;
+              --otp-border-color: #fbcfe8;
+              --otp-success-color: #ec4899;
+            "></div>
+        </div>
+        <div
+          class="theme-card"
+          style="background: #1e293b; border-color: #334155">
+          <div class="theme-label" style="color: #94a3b8">Dark</div>
+          <div
+            id="theme-dark"
+            style="
+              --otp-bg: #0f172a;
+              --otp-filled-bg: #1e3a5f;
+              --otp-border-color: #334155;
+              --otp-text-color: #f1f5f9;
+              --otp-placeholder-color: #475569;
+            "></div>
         </div>
       </div>
 
-    </div><!-- /demo-grid -->
+      <!-- ── Toast Notifications ── -->
+      <div class="section-header" id="toasts">
+        <h2>Toast Notifications</h2>
+        <div class="line"></div>
+      </div>
+      <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 20px">
+        6 toast themes × 4 types (success / error / warning / info).
+        Auto-dismiss with progress bar, pause on hover, RTL-aware, and
+        accessible (ARIA live regions).
+      </p>
 
-    <!-- ── Input Themes ── -->
-    <div class="section-header" id="themes">
-      <h2>Input Themes</h2>
-      <div class="line"></div>
-    </div>
-    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:20px;">
-      Use <code class="code">theme: 'soft'</code> in options or <code class="code">data-theme="soft"</code> on the
-      container.
-    </p>
-    <div class="theme-row">
-      <div class="theme-card">
-        <div class="theme-label">Default</div>
-        <div id="theme-default"></div>
-      </div>
-      <div class="theme-card">
-        <div class="theme-label">Underline</div>
-        <div id="theme-underline"></div>
-      </div>
-      <div class="theme-card">
-        <div class="theme-label">Rounded</div>
-        <div id="theme-rounded"></div>
-      </div>
-      <div class="theme-card">
-        <div class="theme-label">Pill</div>
-        <div id="theme-pill"></div>
-      </div>
-      <div class="theme-card">
-        <div class="theme-label">Ghost</div>
-        <div id="theme-ghost"></div>
-      </div>
-      <div class="theme-card">
-        <div class="theme-label">Filled</div>
-        <div id="theme-filled"></div>
-      </div>
-      <div class="theme-card">
-        <div class="theme-label">Soft (Purple)</div>
-        <div id="theme-soft"></div>
-      </div>
-      <div class="theme-card" style="background:#0b0f1a;border-color:#1e293b;">
-        <div class="theme-label" style="color:#06ffa5;">Neon</div>
-        <div id="theme-neon"></div>
-      </div>
-      <div class="theme-card">
-        <div class="theme-label">Gradient</div>
-        <div id="theme-gradient"></div>
-      </div>
-      <div class="theme-card">
-        <div class="theme-label">Elevated 3D</div>
-        <div id="theme-elevated"></div>
-      </div>
-      <div class="theme-card">
-        <div class="theme-label">Custom CSS Vars</div>
-        <div id="theme-custom" style="
-      --otp-focus-color: #ec4899;
-      --otp-focus-shadow: 0 0 0 3px rgba(236,72,153,0.25);
-      --otp-filled-bg: #fdf2f8;
-      --otp-border-radius: 6px;
-      --otp-border-color: #fbcfe8;
-      --otp-success-color: #ec4899;
-    "></div>
-      </div>
-      <div class="theme-card" style="background:#1e293b; border-color:#334155;">
-        <div class="theme-label" style="color:#94a3b8;">Dark</div>
-        <div id="theme-dark" style="
-      --otp-bg: #0f172a;
-      --otp-filled-bg: #1e3a5f;
-      --otp-border-color: #334155;
-      --otp-text-color: #f1f5f9;
-      --otp-placeholder-color: #475569;
-    "></div>
-      </div>
-    </div>
-
-    <!-- ── Toast Notifications ── -->
-    <div class="section-header" id="toasts">
-      <h2>Toast Notifications</h2>
-      <div class="line"></div>
-    </div>
-    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:20px;">
-      6 toast themes × 4 types (success / error / warning / info). Auto-dismiss with progress bar, pause on hover,
-      RTL-aware, and accessible (ARIA live regions).
-    </p>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🍞 Toast Theme Showcase</div>
-        <div class="card-desc">Click any chip to fire a toast. Hover to pause auto-dismiss.</div>
-      </div>
-      <div class="card-body" style="align-items:stretch;">
-        <div class="toast-grid">
-
-          <div class="toast-row">
-            <span class="toast-row-label">Default</span>
-            <div class="toast-buttons">
-              <button class="btn" data-toast="success" data-toast-theme="default">Success</button>
-              <button class="btn" data-toast="error" data-toast-theme="default">Error</button>
-              <button class="btn" data-toast="warning" data-toast-theme="default">Warning</button>
-              <button class="btn" data-toast="info" data-toast-theme="default">Info</button>
-            </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🍞 Toast Theme Showcase</div>
+          <div class="card-desc">
+            Click any chip to fire a toast. Hover to pause auto-dismiss.
           </div>
-
-          <div class="toast-row">
-            <span class="toast-row-label">Glass (frosted)</span>
-            <div class="toast-buttons">
-              <button class="btn" data-toast="success" data-toast-theme="glass">Success</button>
-              <button class="btn" data-toast="error" data-toast-theme="glass">Error</button>
-              <button class="btn" data-toast="warning" data-toast-theme="glass">Warning</button>
-              <button class="btn" data-toast="info" data-toast-theme="glass">Info</button>
-            </div>
-          </div>
-
-          <div class="toast-row">
-            <span class="toast-row-label">Solid</span>
-            <div class="toast-buttons">
-              <button class="btn" data-toast="success" data-toast-theme="solid">Success</button>
-              <button class="btn" data-toast="error" data-toast-theme="solid">Error</button>
-              <button class="btn" data-toast="warning" data-toast-theme="solid">Warning</button>
-              <button class="btn" data-toast="info" data-toast-theme="solid">Info</button>
-            </div>
-          </div>
-
-          <div class="toast-row">
-            <span class="toast-row-label">Gradient</span>
-            <div class="toast-buttons">
-              <button class="btn" data-toast="success" data-toast-theme="gradient">Success</button>
-              <button class="btn" data-toast="error" data-toast-theme="gradient">Error</button>
-              <button class="btn" data-toast="warning" data-toast-theme="gradient">Warning</button>
-              <button class="btn" data-toast="info" data-toast-theme="gradient">Info</button>
-            </div>
-          </div>
-
-          <div class="toast-row">
-            <span class="toast-row-label">Minimal</span>
-            <div class="toast-buttons">
-              <button class="btn" data-toast="success" data-toast-theme="minimal">Success</button>
-              <button class="btn" data-toast="error" data-toast-theme="minimal">Error</button>
-              <button class="btn" data-toast="warning" data-toast-theme="minimal">Warning</button>
-              <button class="btn" data-toast="info" data-toast-theme="minimal">Info</button>
-            </div>
-          </div>
-
-          <div class="toast-row">
-            <span class="toast-row-label">Pill (compact)</span>
-            <div class="toast-buttons">
-              <button class="btn" data-toast="success" data-toast-theme="pill">Success</button>
-              <button class="btn" data-toast="error" data-toast-theme="pill">Error</button>
-              <button class="btn" data-toast="warning" data-toast-theme="pill">Warning</button>
-              <button class="btn" data-toast="info" data-toast-theme="pill">Info</button>
-            </div>
-          </div>
-
         </div>
+        <div class="card-body" style="align-items: stretch">
+          <div class="toast-grid">
+            <div class="toast-row">
+              <span class="toast-row-label">Default</span>
+              <div class="toast-buttons">
+                <button
+                  class="btn"
+                  data-toast="success"
+                  data-toast-theme="default">
+                  Success
+                </button>
+                <button
+                  class="btn"
+                  data-toast="error"
+                  data-toast-theme="default">
+                  Error
+                </button>
+                <button
+                  class="btn"
+                  data-toast="warning"
+                  data-toast-theme="default">
+                  Warning
+                </button>
+                <button
+                  class="btn"
+                  data-toast="info"
+                  data-toast-theme="default">
+                  Info
+                </button>
+              </div>
+            </div>
 
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center;">
-          <strong style="font-size:0.8rem;color:var(--muted);align-self:center;">Position:</strong>
-          <button class="btn" data-pos="top-left">↖ Top-Left</button>
-          <button class="btn" data-pos="top-center">↑ Top-Center</button>
-          <button class="btn" data-pos="top-right">↗ Top-Right</button>
-          <button class="btn" data-pos="bottom-left">↙ Bottom-Left</button>
-          <button class="btn" data-pos="bottom-center">↓ Bottom-Center</button>
-          <button class="btn" data-pos="bottom-right">↘ Bottom-Right</button>
+            <div class="toast-row">
+              <span class="toast-row-label">Glass (frosted)</span>
+              <div class="toast-buttons">
+                <button
+                  class="btn"
+                  data-toast="success"
+                  data-toast-theme="glass">
+                  Success
+                </button>
+                <button class="btn" data-toast="error" data-toast-theme="glass">
+                  Error
+                </button>
+                <button
+                  class="btn"
+                  data-toast="warning"
+                  data-toast-theme="glass">
+                  Warning
+                </button>
+                <button class="btn" data-toast="info" data-toast-theme="glass">
+                  Info
+                </button>
+              </div>
+            </div>
+
+            <div class="toast-row">
+              <span class="toast-row-label">Solid</span>
+              <div class="toast-buttons">
+                <button
+                  class="btn"
+                  data-toast="success"
+                  data-toast-theme="solid">
+                  Success
+                </button>
+                <button class="btn" data-toast="error" data-toast-theme="solid">
+                  Error
+                </button>
+                <button
+                  class="btn"
+                  data-toast="warning"
+                  data-toast-theme="solid">
+                  Warning
+                </button>
+                <button class="btn" data-toast="info" data-toast-theme="solid">
+                  Info
+                </button>
+              </div>
+            </div>
+
+            <div class="toast-row">
+              <span class="toast-row-label">Gradient</span>
+              <div class="toast-buttons">
+                <button
+                  class="btn"
+                  data-toast="success"
+                  data-toast-theme="gradient">
+                  Success
+                </button>
+                <button
+                  class="btn"
+                  data-toast="error"
+                  data-toast-theme="gradient">
+                  Error
+                </button>
+                <button
+                  class="btn"
+                  data-toast="warning"
+                  data-toast-theme="gradient">
+                  Warning
+                </button>
+                <button
+                  class="btn"
+                  data-toast="info"
+                  data-toast-theme="gradient">
+                  Info
+                </button>
+              </div>
+            </div>
+
+            <div class="toast-row">
+              <span class="toast-row-label">Minimal</span>
+              <div class="toast-buttons">
+                <button
+                  class="btn"
+                  data-toast="success"
+                  data-toast-theme="minimal">
+                  Success
+                </button>
+                <button
+                  class="btn"
+                  data-toast="error"
+                  data-toast-theme="minimal">
+                  Error
+                </button>
+                <button
+                  class="btn"
+                  data-toast="warning"
+                  data-toast-theme="minimal">
+                  Warning
+                </button>
+                <button
+                  class="btn"
+                  data-toast="info"
+                  data-toast-theme="minimal">
+                  Info
+                </button>
+              </div>
+            </div>
+
+            <div class="toast-row">
+              <span class="toast-row-label">Pill (compact)</span>
+              <div class="toast-buttons">
+                <button
+                  class="btn"
+                  data-toast="success"
+                  data-toast-theme="pill">
+                  Success
+                </button>
+                <button class="btn" data-toast="error" data-toast-theme="pill">
+                  Error
+                </button>
+                <button
+                  class="btn"
+                  data-toast="warning"
+                  data-toast-theme="pill">
+                  Warning
+                </button>
+                <button class="btn" data-toast="info" data-toast-theme="pill">
+                  Info
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              gap: 8px;
+              flex-wrap: wrap;
+              margin-top: 14px;
+              justify-content: center;
+            ">
+            <strong
+              style="font-size: 0.8rem; color: var(--muted); align-self: center"
+              >Position:</strong
+            >
+            <button class="btn" data-pos="top-left">↖ Top-Left</button>
+            <button class="btn" data-pos="top-center">↑ Top-Center</button>
+            <button class="btn" data-pos="top-right">↗ Top-Right</button>
+            <button class="btn" data-pos="bottom-left">↙ Bottom-Left</button>
+            <button class="btn" data-pos="bottom-center">
+              ↓ Bottom-Center
+            </button>
+            <button class="btn" data-pos="bottom-right">↘ Bottom-Right</button>
+          </div>
         </div>
-      </div>
-      <div class="card-footer">
-        <pre>// Standalone toast manager
+        <div class="card-footer">
+          <pre>
+// Standalone toast manager
 import { ToastManager } from 'otp-input-js';
 
 const toast = new ToastManager({ position: 'top-right', theme: 'glass' });
@@ -1481,30 +1917,53 @@ OTPInput.create('#otp', {
   length: 6,
   toast: { enabled: true, theme: 'gradient', position: 'top-center',
     successMessage: 'Verified!', errorMessage: 'Invalid code' },
-});</pre>
-      </div>
-    </div>
-
-    <!-- ── Combined OTP + Auto Toast ── -->
-    <div class="card" style="margin-top:20px;">
-      <div class="card-header">
-        <div class="card-title">🎯 OTP with Auto-Toast Integration</div>
-        <div class="card-desc">Toast fires automatically on complete / error / expire / resend</div>
-      </div>
-      <div class="card-body">
-        <div id="otp-with-toast"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-          <button class="btn" onclick="otpWithToast.setValue('123456')">Set valid</button>
-          <button class="btn btn-danger" onclick="otpWithToast.setError('Invalid verification code')">Trigger
-            error</button>
-          <button class="btn" onclick="otpWithToast.clear()">Clear</button>
-          <button class="btn" onclick="otpWithToast.setToastTheme('glass')">Glass theme</button>
-          <button class="btn" onclick="otpWithToast.setToastTheme('gradient')">Gradient theme</button>
-          <button class="btn" onclick="otpWithToast.setToastTheme('minimal')">Minimal theme</button>
+});</pre
+          >
         </div>
       </div>
-      <div class="card-footer">
-        <pre>const otp = OTPInput.create('#otp', {
+
+      <!-- ── Combined OTP + Auto Toast ── -->
+      <div class="card" style="margin-top: 20px">
+        <div class="card-header">
+          <div class="card-title">🎯 OTP with Auto-Toast Integration</div>
+          <div class="card-desc">
+            Toast fires automatically on complete / error / expire / resend
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="otp-with-toast"></div>
+          <div
+            style="
+              display: flex;
+              gap: 8px;
+              flex-wrap: wrap;
+              justify-content: center;
+            ">
+            <button class="btn" onclick="otpWithToast.setValue('123456')">
+              Set valid
+            </button>
+            <button
+              class="btn btn-danger"
+              onclick="otpWithToast.setError('Invalid verification code')">
+              Trigger error
+            </button>
+            <button class="btn" onclick="otpWithToast.clear()">Clear</button>
+            <button class="btn" onclick="otpWithToast.setToastTheme('glass')">
+              Glass theme
+            </button>
+            <button
+              class="btn"
+              onclick="otpWithToast.setToastTheme('gradient')">
+              Gradient theme
+            </button>
+            <button class="btn" onclick="otpWithToast.setToastTheme('minimal')">
+              Minimal theme
+            </button>
+          </div>
+        </div>
+        <div class="card-footer">
+          <pre>
+const otp = OTPInput.create('#otp', {
   length: 6,
   theme: 'soft',
   toast: {
@@ -1514,46 +1973,82 @@ OTPInput.create('#otp', {
     successMessage: 'Code verified!',
     errorMessage:   'That code is invalid',
   },
-});</pre>
-      </div>
-    </div>
-
-    <!-- ── Separator ── -->
-    <div class="section-header" id="separator">
-      <h2>Digit Separators</h2>
-      <div class="line"></div>
-    </div>
-
-    <div class="demo-grid">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">➖ Custom Digit Separators</div>
-          <div class="card-desc">Visual separators between digit groups — dash, dot, space, or any character</div>
+});</pre
+          >
         </div>
-        <div class="card-body">
-          <div style="display:flex;flex-direction:column;gap:18px;align-items:center;width:100%">
-            <div>
-              <div
-                style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">
-                Dash ( 3 + 3 )</div>
-              <div id="otp-sep-dash"></div>
-            </div>
-            <div>
-              <div
-                style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">
-                Bullet ( 2 + 2 + 2 )</div>
-              <div id="otp-sep-dot"></div>
-            </div>
-            <div>
-              <div
-                style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">
-                Em dash ( 4 + 4 )</div>
-              <div id="otp-sep-em"></div>
+      </div>
+
+      <!-- ── Separator ── -->
+      <div class="section-header" id="separator">
+        <h2>Digit Separators</h2>
+        <div class="line"></div>
+      </div>
+
+      <div class="demo-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">➖ Custom Digit Separators</div>
+            <div class="card-desc">
+              Visual separators between digit groups — dash, dot, space, or any
+              character
             </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <pre>// Dash separator after 3rd digit (3+3)
+          <div class="card-body">
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+                align-items: center;
+                width: 100%;
+              ">
+              <div>
+                <div
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--muted);
+                    text-align: center;
+                    margin-bottom: 8px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                  ">
+                  Dash ( 3 + 3 )
+                </div>
+                <div id="otp-sep-dash"></div>
+              </div>
+              <div>
+                <div
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--muted);
+                    text-align: center;
+                    margin-bottom: 8px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                  ">
+                  Bullet ( 2 + 2 + 2 )
+                </div>
+                <div id="otp-sep-dot"></div>
+              </div>
+              <div>
+                <div
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--muted);
+                    text-align: center;
+                    margin-bottom: 8px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                  ">
+                  Em dash ( 4 + 4 )
+                </div>
+                <div id="otp-sep-em"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+// Dash separator after 3rd digit (3+3)
 OTPInput.create('#otp', {
   length: 6,
   separator: { char: '-', after: [3] },
@@ -1563,73 +2058,116 @@ OTPInput.create('#otp', {
 OTPInput.create('#otp', {
   length: 6,
   separator: { char: '·', after: [2, 4] },
-});</pre>
+});</pre
+            >
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- ── SMS OTP Auto-Read ── -->
-    <div class="section-header" id="sms-auto-read">
-      <h2>SMS OTP Auto-Read</h2>
-      <div class="line"></div>
-    </div>
+      <!-- ── SMS OTP Auto-Read ── -->
+      <div class="section-header" id="sms-auto-read">
+        <h2>SMS OTP Auto-Read</h2>
+        <div class="line"></div>
+      </div>
 
-    <div class="demo-grid">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">📱 Web OTP API — Auto-Fill from SMS</div>
-          <div class="card-desc">On Android Chrome, the browser reads the OTP from an incoming SMS and fills the inputs
-            automatically</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-sms"></div>
-          <div id="out-sms" class="output">Waiting for SMS… (requires Android + Chrome + HTTPS)</div>
-          <div class="controls">
-            <button class="btn" onclick="otpSms.clear()">Clear</button>
-            <button class="btn btn-primary" onclick="simulateSmsAutoFill()">Simulate Auto-Fill</button>
+      <div class="demo-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📱 Web OTP API — Auto-Fill from SMS</div>
+            <div class="card-desc">
+              On Android Chrome, the browser reads the OTP from an incoming SMS
+              and fills the inputs automatically
+            </div>
           </div>
-          <div style="font-size:0.78rem;color:var(--muted);text-align:center;max-width:380px;line-height:1.5;">
-            Required SMS format:<br>
-            <code
-              style="background:var(--code-bg);color:var(--code-text);padding:6px 10px;border-radius:6px;display:inline-block;margin-top:6px;font-size:0.78rem;">Your code is 123456<br><br>@yourdomain.com #123456</code>
+          <div class="card-body">
+            <div id="otp-sms"></div>
+            <div id="out-sms" class="output">
+              Waiting for SMS… (requires Android + Chrome + HTTPS)
+            </div>
+            <div class="controls">
+              <button class="btn" onclick="otpSms.clear()">Clear</button>
+              <button class="btn btn-primary" onclick="simulateSmsAutoFill()">
+                Simulate Auto-Fill
+              </button>
+            </div>
+            <div
+              style="
+                font-size: 0.78rem;
+                color: var(--muted);
+                text-align: center;
+                max-width: 380px;
+                line-height: 1.5;
+              ">
+              Required SMS format:<br />
+              <code
+                style="
+                  background: var(--code-bg);
+                  color: var(--code-text);
+                  padding: 6px 10px;
+                  border-radius: 6px;
+                  display: inline-block;
+                  margin-top: 6px;
+                  font-size: 0.78rem;
+                "
+                >Your code is 123456<br /><br />@yourdomain.com #123456</code
+              >
+            </div>
           </div>
-        </div>
-        <div class="card-footer">
-          <pre>// Automatically fills when SMS arrives (Android Chrome + HTTPS)
+          <div class="card-footer">
+            <pre>
+// Automatically fills when SMS arrives (Android Chrome + HTTPS)
 OTPInput.create('#otp', {
   length: 6,
   smsAutoRead: true,   // uses navigator.credentials.get({ otp: … })
   onComplete: (v) => verify(v),
-});</pre>
+});</pre
+            >
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- ── Biometric Confirm ── -->
-    <div class="section-header" id="biometric">
-      <h2>Biometric Confirm</h2>
-      <div class="line"></div>
-    </div>
+      <!-- ── Biometric Confirm ── -->
+      <div class="section-header" id="biometric">
+        <h2>Biometric Confirm</h2>
+        <div class="line"></div>
+      </div>
 
-    <div class="demo-grid">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">🔐 Biometric Confirm Step (WebAuthn)</div>
-          <div class="card-desc">After the OTP is accepted, request fingerprint / Face ID / Windows Hello as a second
-            factor</div>
-        </div>
-        <div class="card-body">
-          <div id="otp-bio"></div>
-          <div id="out-bio" class="output">Fill the OTP — then approve the biometric prompt</div>
-          <div class="controls">
-            <button class="btn" onclick="otpBio.clear()">Clear</button>
-            <button class="btn btn-primary" onclick="otpBio.setValue('123456')">Auto-fill &amp; trigger</button>
+      <div class="demo-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔐 Biometric Confirm Step (WebAuthn)</div>
+            <div class="card-desc">
+              After the OTP is accepted, request fingerprint / Face ID / Windows
+              Hello as a second factor
+            </div>
           </div>
-          <div id="bio-support" style="font-size:0.78rem;color:var(--muted);text-align:center;margin-top:4px;">Checking
-            platform authenticator…</div>
-        </div>
-        <div class="card-footer">
-          <pre>OTPInput.create('#otp', {
+          <div class="card-body">
+            <div id="otp-bio"></div>
+            <div id="out-bio" class="output">
+              Fill the OTP — then approve the biometric prompt
+            </div>
+            <div class="controls">
+              <button class="btn" onclick="otpBio.clear()">Clear</button>
+              <button
+                class="btn btn-primary"
+                onclick="otpBio.setValue('123456')">
+                Auto-fill &amp; trigger
+              </button>
+            </div>
+            <div
+              id="bio-support"
+              style="
+                font-size: 0.78rem;
+                color: var(--muted);
+                text-align: center;
+                margin-top: 4px;
+              ">
+              Checking platform authenticator…
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+OTPInput.create('#otp', {
   length: 6,
   biometric: {
     enabled: true,
@@ -1641,34 +2179,55 @@ OTPInput.create('#otp', {
     // fires only AFTER biometric passes
     verify(v);
   },
-});</pre>
+});</pre
+            >
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- ── Web Component ── -->
-    <div class="section-header" id="web-component">
-      <h2>Web Component</h2>
-      <div class="line"></div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🧱 &lt;otp-input&gt; Custom Element</div>
-        <div class="card-desc">Drop in anywhere — no JavaScript required in markup</div>
+      <!-- ── Web Component ── -->
+      <div class="section-header" id="web-component">
+        <h2>Web Component</h2>
+        <div class="line"></div>
       </div>
-      <div class="card-body">
-        <!-- Using the web component declaratively -->
-        <otp-input id="wc-demo" length="6" direction="auto" placeholder="·"></otp-input>
-        <div id="out-wc" class="output">Waiting for web component input…</div>
-        <div class="controls">
-          <button class="btn" onclick="document.getElementById('wc-demo').clear()">Clear</button>
-          <button class="btn" onclick="document.getElementById('wc-demo').setValue('987654')">Set 987654</button>
-          <button class="btn" onclick="alert('Value: ' + document.getElementById('wc-demo').getValue())">Get
-            Value</button>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🧱 &lt;otp-input&gt; Custom Element</div>
+          <div class="card-desc">
+            Drop in anywhere — no JavaScript required in markup
+          </div>
         </div>
-      </div>
-      <div class="card-footer">
-        <pre>&lt;!-- Pure HTML — zero JavaScript needed --&gt;
+        <div class="card-body">
+          <!-- Using the web component declaratively -->
+          <otp-input
+            id="wc-demo"
+            length="6"
+            direction="auto"
+            placeholder="·"></otp-input>
+          <div id="out-wc" class="output">Waiting for web component input…</div>
+          <div class="controls">
+            <button
+              class="btn"
+              onclick="document.getElementById('wc-demo').clear()">
+              Clear
+            </button>
+            <button
+              class="btn"
+              onclick="document.getElementById('wc-demo').setValue('987654')">
+              Set 987654
+            </button>
+            <button
+              class="btn"
+              onclick="
+                alert('Value: ' + document.getElementById('wc-demo').getValue())
+              ">
+              Get Value
+            </button>
+          </div>
+        </div>
+        <div class="card-footer">
+          <pre>
+&lt;!-- Pure HTML — zero JavaScript needed --&gt;
 &lt;otp-input length="6" direction="auto" placeholder="·"&gt;&lt;/otp-input&gt;
 
 &lt;!-- RTL Arabic web component --&gt;
@@ -1678,679 +2237,731 @@ OTPInput.create('#otp', {
   const el = document.querySelector('otp-input');
   el.addEventListener('otp-complete', e => verify(e.detail));
   el.addEventListener('otp-expire',   () => showResend());
-&lt;/script&gt;</pre>
+&lt;/script&gt;</pre
+          >
+        </div>
+      </div>
+
+      <!-- ── API Reference ── -->
+      <div class="section-header" id="api">
+        <h2>API Reference</h2>
+        <div class="line"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" style="padding-bottom: 4px">
+          <div class="card-title">Methods</div>
+        </div>
+        <div style="overflow-x: auto">
+          <table class="api-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>getValue()</td>
+                <td>Returns current OTP value as western-digit string</td>
+              </tr>
+              <tr>
+                <td>setValue(value)</td>
+                <td>Programmatically set OTP value</td>
+              </tr>
+              <tr>
+                <td>clear()</td>
+                <td>Clear all inputs and re-focus first</td>
+              </tr>
+              <tr>
+                <td>focus(index)</td>
+                <td>Focus a specific digit by index</td>
+              </tr>
+              <tr>
+                <td>disable()</td>
+                <td>Disable all inputs</td>
+              </tr>
+              <tr>
+                <td>enable()</td>
+                <td>Re-enable inputs</td>
+              </tr>
+              <tr>
+                <td>setError(msg)</td>
+                <td>Trigger error animation + announce to screen reader</td>
+              </tr>
+              <tr>
+                <td>clearError()</td>
+                <td>Remove error state from all inputs</td>
+              </tr>
+              <tr>
+                <td>resetTimer(dur)</td>
+                <td>Reset and restart countdown</td>
+              </tr>
+              <tr>
+                <td>setDirection(dir)</td>
+                <td>
+                  Dynamically switch <code class="code">'ltr'</code> /
+                  <code class="code">'rtl'</code>
+                </td>
+              </tr>
+              <tr>
+                <td>setLocale(locale)</td>
+                <td>Switch locale (updates numeral rendering)</td>
+              </tr>
+              <tr>
+                <td>on(event, fn)</td>
+                <td>Subscribe to events. Returns unsubscribe function.</td>
+              </tr>
+              <tr>
+                <td>destroy()</td>
+                <td>Destroy instance, clean up all DOM and listeners</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px">
+        <div class="card-header" style="padding-bottom: 4px">
+          <div class="card-title">Events</div>
+        </div>
+        <div style="overflow-x: auto">
+          <table class="api-table">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Payload</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>change</td>
+                <td><code class="code">string</code></td>
+                <td>Fires on every keystroke with current value</td>
+              </tr>
+              <tr>
+                <td>complete</td>
+                <td><code class="code">string</code></td>
+                <td>All digits filled and validation passed</td>
+              </tr>
+              <tr>
+                <td>error</td>
+                <td><code class="code">Error[]</code></td>
+                <td>Validation failed</td>
+              </tr>
+              <tr>
+                <td>focus</td>
+                <td><code class="code">{ index, input }</code></td>
+                <td>A digit gained focus</td>
+              </tr>
+              <tr>
+                <td>blur</td>
+                <td><code class="code">{ index, input }</code></td>
+                <td>A digit lost focus</td>
+              </tr>
+              <tr>
+                <td>expire</td>
+                <td>—</td>
+                <td>Timer reached zero</td>
+              </tr>
+              <tr>
+                <td>resend</td>
+                <td>—</td>
+                <td>User clicked resend button</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px">
+        <div class="card-header" style="padding-bottom: 4px">
+          <div class="card-title">Key Options</div>
+        </div>
+        <div style="overflow-x: auto">
+          <table class="api-table">
+            <thead>
+              <tr>
+                <th>Option</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>length</td>
+                <td>number</td>
+                <td>6</td>
+                <td>Number of OTP digits</td>
+              </tr>
+              <tr>
+                <td>type</td>
+                <td>string</td>
+                <td>'numeric'</td>
+                <td>'numeric' | 'alpha' | 'alphanumeric' | 'hex' | 'custom'</td>
+              </tr>
+              <tr>
+                <td>pattern</td>
+                <td>RegExp</td>
+                <td>null</td>
+                <td>Custom character pattern (when type='custom')</td>
+              </tr>
+              <tr>
+                <td>secure</td>
+                <td>boolean</td>
+                <td>false</td>
+                <td>Mask input values (type="password")</td>
+              </tr>
+              <tr>
+                <td>direction</td>
+                <td>string</td>
+                <td>'auto'</td>
+                <td>'ltr' | 'rtl' | 'auto' (reads from DOM)</td>
+              </tr>
+              <tr>
+                <td>locale</td>
+                <td>string</td>
+                <td>null</td>
+                <td>BCP 47 locale for number rendering + direction</td>
+              </tr>
+              <tr>
+                <td>nativeNumerals</td>
+                <td>boolean</td>
+                <td>false</td>
+                <td>Render locale-native digits (Arabic-Indic, etc.)</td>
+              </tr>
+              <tr>
+                <td>autoSubmit</td>
+                <td>boolean</td>
+                <td>false</td>
+                <td>Submit closest form on completion</td>
+              </tr>
+              <tr>
+                <td>haptic</td>
+                <td>boolean</td>
+                <td>true</td>
+                <td>Vibration API feedback on mobile</td>
+              </tr>
+              <tr>
+                <td>clipboardDetection</td>
+                <td>boolean</td>
+                <td>true</td>
+                <td>Suggest pasting if OTP-like text in clipboard</td>
+              </tr>
+              <tr>
+                <td>validate</td>
+                <td>function</td>
+                <td>null</td>
+                <td><code class="code">(value) =&gt; errorMsg | null</code></td>
+              </tr>
+              <tr>
+                <td>animation.error</td>
+                <td>string</td>
+                <td>'shake'</td>
+                <td>'shake' | 'highlight' | 'both' | false</td>
+              </tr>
+              <tr>
+                <td>timer.enabled</td>
+                <td>boolean</td>
+                <td>false</td>
+                <td>Show countdown timer</td>
+              </tr>
+              <tr>
+                <td>timer.duration</td>
+                <td>number</td>
+                <td>60</td>
+                <td>Timer duration in seconds</td>
+              </tr>
+              <tr>
+                <td>resend.enabled</td>
+                <td>boolean</td>
+                <td>false</td>
+                <td>Show resend button after expiry</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+    <!-- /page -->
 
-    <!-- ── API Reference ── -->
-    <div class="section-header" id="api">
-      <h2>API Reference</h2>
-      <div class="line"></div>
-    </div>
+    <!-- Load the library (inline bundle for demo — in production use dist/otp-input.umd.js) -->
+    <script type="module">
+      // Import from src directly (works with any dev server or as a module)
+      import OTPInput, {
+        registerOTPInputElement,
+        ToastManager,
+      } from "../dist/otp-input.esm.js";
 
-    <div class="card">
-      <div class="card-header" style="padding-bottom:4px;">
-        <div class="card-title">Methods</div>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="api-table">
-          <thead>
-            <tr>
-              <th>Method</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>getValue()</td>
-              <td>Returns current OTP value as western-digit string</td>
-            </tr>
-            <tr>
-              <td>setValue(value)</td>
-              <td>Programmatically set OTP value</td>
-            </tr>
-            <tr>
-              <td>clear()</td>
-              <td>Clear all inputs and re-focus first</td>
-            </tr>
-            <tr>
-              <td>focus(index)</td>
-              <td>Focus a specific digit by index</td>
-            </tr>
-            <tr>
-              <td>disable()</td>
-              <td>Disable all inputs</td>
-            </tr>
-            <tr>
-              <td>enable()</td>
-              <td>Re-enable inputs</td>
-            </tr>
-            <tr>
-              <td>setError(msg)</td>
-              <td>Trigger error animation + announce to screen reader</td>
-            </tr>
-            <tr>
-              <td>clearError()</td>
-              <td>Remove error state from all inputs</td>
-            </tr>
-            <tr>
-              <td>resetTimer(dur)</td>
-              <td>Reset and restart countdown</td>
-            </tr>
-            <tr>
-              <td>setDirection(dir)</td>
-              <td>Dynamically switch <code class="code">'ltr'</code> / <code class="code">'rtl'</code></td>
-            </tr>
-            <tr>
-              <td>setLocale(locale)</td>
-              <td>Switch locale (updates numeral rendering)</td>
-            </tr>
-            <tr>
-              <td>on(event, fn)</td>
-              <td>Subscribe to events. Returns unsubscribe function.</td>
-            </tr>
-            <tr>
-              <td>destroy()</td>
-              <td>Destroy instance, clean up all DOM and listeners</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      // Ensure web component is registered
+      registerOTPInputElement();
 
-    <div class="card" style="margin-top:20px;">
-      <div class="card-header" style="padding-bottom:4px;">
-        <div class="card-title">Events</div>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="api-table">
-          <thead>
-            <tr>
-              <th>Event</th>
-              <th>Payload</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>change</td>
-              <td><code class="code">string</code></td>
-              <td>Fires on every keystroke with current value</td>
-            </tr>
-            <tr>
-              <td>complete</td>
-              <td><code class="code">string</code></td>
-              <td>All digits filled and validation passed</td>
-            </tr>
-            <tr>
-              <td>error</td>
-              <td><code class="code">Error[]</code></td>
-              <td>Validation failed</td>
-            </tr>
-            <tr>
-              <td>focus</td>
-              <td><code class="code">{ index, input }</code></td>
-              <td>A digit gained focus</td>
-            </tr>
-            <tr>
-              <td>blur</td>
-              <td><code class="code">{ index, input }</code></td>
-              <td>A digit lost focus</td>
-            </tr>
-            <tr>
-              <td>expire</td>
-              <td>—</td>
-              <td>Timer reached zero</td>
-            </tr>
-            <tr>
-              <td>resend</td>
-              <td>—</td>
-              <td>User clicked resend button</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:20px;">
-      <div class="card-header" style="padding-bottom:4px;">
-        <div class="card-title">Key Options</div>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="api-table">
-          <thead>
-            <tr>
-              <th>Option</th>
-              <th>Type</th>
-              <th>Default</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>length</td>
-              <td>number</td>
-              <td>6</td>
-              <td>Number of OTP digits</td>
-            </tr>
-            <tr>
-              <td>type</td>
-              <td>string</td>
-              <td>'numeric'</td>
-              <td>'numeric' | 'alpha' | 'alphanumeric' | 'hex' | 'custom'</td>
-            </tr>
-            <tr>
-              <td>pattern</td>
-              <td>RegExp</td>
-              <td>null</td>
-              <td>Custom character pattern (when type='custom')</td>
-            </tr>
-            <tr>
-              <td>secure</td>
-              <td>boolean</td>
-              <td>false</td>
-              <td>Mask input values (type="password")</td>
-            </tr>
-            <tr>
-              <td>direction</td>
-              <td>string</td>
-              <td>'auto'</td>
-              <td>'ltr' | 'rtl' | 'auto' (reads from DOM)</td>
-            </tr>
-            <tr>
-              <td>locale</td>
-              <td>string</td>
-              <td>null</td>
-              <td>BCP 47 locale for number rendering + direction</td>
-            </tr>
-            <tr>
-              <td>nativeNumerals</td>
-              <td>boolean</td>
-              <td>false</td>
-              <td>Render locale-native digits (Arabic-Indic, etc.)</td>
-            </tr>
-            <tr>
-              <td>autoSubmit</td>
-              <td>boolean</td>
-              <td>false</td>
-              <td>Submit closest form on completion</td>
-            </tr>
-            <tr>
-              <td>haptic</td>
-              <td>boolean</td>
-              <td>true</td>
-              <td>Vibration API feedback on mobile</td>
-            </tr>
-            <tr>
-              <td>clipboardDetection</td>
-              <td>boolean</td>
-              <td>true</td>
-              <td>Suggest pasting if OTP-like text in clipboard</td>
-            </tr>
-            <tr>
-              <td>validate</td>
-              <td>function</td>
-              <td>null</td>
-              <td><code class="code">(value) =&gt; errorMsg | null</code></td>
-            </tr>
-            <tr>
-              <td>animation.error</td>
-              <td>string</td>
-              <td>'shake'</td>
-              <td>'shake' | 'highlight' | 'both' | false</td>
-            </tr>
-            <tr>
-              <td>timer.enabled</td>
-              <td>boolean</td>
-              <td>false</td>
-              <td>Show countdown timer</td>
-            </tr>
-            <tr>
-              <td>timer.duration</td>
-              <td>number</td>
-              <td>60</td>
-              <td>Timer duration in seconds</td>
-            </tr>
-            <tr>
-              <td>resend.enabled</td>
-              <td>boolean</td>
-              <td>false</td>
-              <td>Show resend button after expiry</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </div><!-- /page -->
-
-  <!-- Load the library (inline bundle for demo — in production use dist/otp-input.umd.js) -->
-  <script type="module">
-    // Import from src directly (works with any dev server or as a module)
-    import OTPInput, { registerOTPInputElement, ToastManager } from '../dist/otp-input.esm.js';
-
-    // Ensure web component is registered
-    registerOTPInputElement();
-
-    // Standalone toast instance for demo buttons
-    let demoToast = new ToastManager({ position: 'top-right', theme: 'default' });
-    window.demoToast = demoToast;
-
-    // ── 1. Basic ──────────────────────────────────────────────────────────────
-    window.otpBasic = OTPInput.create('#otp-basic', {
-      length: 6,
-      onChange: (v) => {
-        const el = document.getElementById('out-basic');
-        el.textContent = v ? `Value: ${v}` : 'Enter your 6-digit code';
-        el.className = 'output';
-      },
-      onComplete: (v) => {
-        const el = document.getElementById('out-basic');
-        el.textContent = `✓ Complete: ${v}`;
-        el.className = 'output success';
-      },
-      onError: (errs) => {
-        const el = document.getElementById('out-basic');
-        el.textContent = `✗ ${errs.map(e => e.message).join(', ')}`;
-        el.className = 'output error';
-      },
-    });
-
-    // ── 2. RTL Arabic ─────────────────────────────────────────────────────────
-    window.otpRTL = OTPInput.create('#otp-rtl', {
-      length: 6,
-      direction: 'rtl',
-      locale: 'ar',
-      nativeNumerals: true,
-      onChange: (v) => {
-        const el = document.getElementById('out-rtl');
-        el.textContent = v ? `القيمة: ${v}` : 'أدخل رمز التحقق';
-        el.className = 'output';
-      },
-      onComplete: (v) => {
-        const el = document.getElementById('out-rtl');
-        el.textContent = `✓ مكتمل: ${v}`;
-        el.className = 'output success';
-      },
-    });
-
-    // ── 3. Persian RTL ────────────────────────────────────────────────────────
-    window.otpFa = OTPInput.create('#otp-fa', {
-      length: 6,
-      direction: 'rtl',
-      locale: 'fa',
-      nativeNumerals: true,
-      onChange: (v) => {
-        const el = document.getElementById('out-fa');
-        el.textContent = v ? `مقدار: ${v}` : 'کد خود را وارد کنید';
-        el.className = 'output';
-      },
-      onComplete: (v) => {
-        const el = document.getElementById('out-fa');
-        el.textContent = `✓ تکمیل شد: ${v}`;
-        el.className = 'output success';
-      },
-    });
-
-    // ── 4. Secure ─────────────────────────────────────────────────────────────
-    window.otpSecure = OTPInput.create('#otp-secure', {
-      length: 4,
-      secure: true,
-      onComplete: (v) => {
-        const el = document.getElementById('out-secure');
-        el.textContent = '✓ PIN entered (masked)';
-        el.className = 'output success';
-      },
-    });
-
-    // ── 5. Timer + Resend ─────────────────────────────────────────────────────
-    window.otpTimer = OTPInput.create('#otp-timer', {
-      length: 6,
-      timer: {
-        enabled: true,
-        duration: 30,
-        showProgress: true,
-        onExpire: () => {
-          const el = document.getElementById('out-timer');
-          el.textContent = '✗ Code expired. Please request a new one.';
-          el.className = 'output error';
-        },
-      },
-      resend: {
-        enabled: true,
-        cooldown: 30,
-        label: 'Resend code',
-        onResend: () => {
-          const el = document.getElementById('out-timer');
-          el.textContent = '↺ New code sent. Enter it within 30 seconds.';
-          el.className = 'output';
-        },
-      },
-      onComplete: (v) => {
-        const el = document.getElementById('out-timer');
-        el.textContent = `✓ Code verified: ${v}`;
-        el.className = 'output success';
-      },
-    });
-
-    // ── 6. Alphanumeric + custom validator ────────────────────────────────────
-    window.otpAlpha = OTPInput.create('#otp-alpha', {
-      length: 6,
-      type: 'alphanumeric',
-      validate: (v) => v.length === 6 && v.startsWith('00') ? 'Code cannot start with "00"' : null,
-      animation: { error: 'both' },
-      onChange: (v) => {
-        const el = document.getElementById('out-alpha');
-        el.textContent = v ? `Value: ${v}` : 'Enter 6-character alphanumeric code';
-        el.className = 'output';
-      },
-      onComplete: (v) => {
-        const el = document.getElementById('out-alpha');
-        el.textContent = `✓ Valid code: ${v}`;
-        el.className = 'output success';
-      },
-      onError: (errs) => {
-        const el = document.getElementById('out-alpha');
-        el.textContent = `✗ ${errs.map(e => e.message).join(', ')}`;
-        el.className = 'output error';
-      },
-    });
-
-    // ── 6b. Error animation showcase ──────────────────────────────────────────
-    window.otpAnimShake = OTPInput.create('#otp-anim-shake', {
-      length: 4,
-      autoFocus: false,
-      animation: { error: 'shake' },
-    });
-
-    window.otpAnimHighlight = OTPInput.create('#otp-anim-highlight', {
-      length: 4,
-      autoFocus: false,
-      animation: { error: 'highlight' },
-    });
-
-    window.otpAnimBoth = OTPInput.create('#otp-anim-both', {
-      length: 4,
-      autoFocus: false,
-      animation: { error: 'both' },
-    });
-
-    window.otpAnimNone = OTPInput.create('#otp-anim-none', {
-      length: 4,
-      autoFocus: false,
-      animation: { error: false },
-    });
-
-    // Live validation: any 6-digit code starting with "0" triggers an error animation
-    window.otpAnimLive = OTPInput.create('#otp-anim-live', {
-      length: 6,
-      autoFocus: false,
-      animation: { error: 'both' },
-      validate: (v) => v.startsWith('0') ? 'Code cannot start with 0' : null,
-      onChange: (v) => {
-        const el = document.getElementById('out-anim-live');
-        if (!v) {
-          el.textContent = 'Try entering "000000" or any code starting with 0';
-          el.className = 'output';
-        } else {
-          el.textContent = `Typed: ${v}`;
-          el.className = 'output';
-        }
-      },
-      onComplete: (v) => {
-        const el = document.getElementById('out-anim-live');
-        el.textContent = `✓ Accepted: ${v}`;
-        el.className = 'output success';
-      },
-      onError: (errs) => {
-        const el = document.getElementById('out-anim-live');
-        el.textContent = `✗ ${errs.map(e => e.message).join(', ')}`;
-        el.className = 'output error';
-      },
-    });
-
-    // Per-character: numeric-only — typing a letter shakes only that single input
-    window.otpAnimPerchar = OTPInput.create('#otp-anim-perchar', {
-      length: 4,
-      autoFocus: false,
-      type: 'numeric',
-    });
-
-    // ── 7. 4-digit PIN ────────────────────────────────────────────────────────
-    window.otpPin = OTPInput.create('#otp-pin', {
-      length: 4,
-      haptic: true,
-      clipboardDetection: true,
-      onComplete: (v) => {
-        const el = document.getElementById('out-pin');
-        el.textContent = `✓ PIN: ${v}`;
-        el.className = 'output success';
-        setTimeout(() => {
-          el.textContent = 'Enter your 4-digit PIN';
-          el.className = 'output';
-          window.otpPin.clear();
-        }, 1800);
-      },
-    });
-
-    // ── 8. Hex ────────────────────────────────────────────────────────────────
-    window.otpHex = OTPInput.create('#otp-hex', {
-      length: 8,
-      type: 'hex',
-      placeholder: '0',
-      onChange: (v) => {
-        const el = document.getElementById('out-hex');
-        el.textContent = v ? `Hex: 0x${v.toUpperCase()}` : 'Enter 8-character hex code';
-        el.className = 'output';
-      },
-      onComplete: (v) => {
-        const el = document.getElementById('out-hex');
-        el.textContent = `✓ Hex code: 0x${v.toUpperCase()}`;
-        el.className = 'output success';
-      },
-    });
-
-    // ── 9. Event log ──────────────────────────────────────────────────────────
-    const logEl = document.getElementById('event-log');
-    const log = (ev, data) => {
-      const line = document.createElement('div');
-      line.textContent = `[${new Date().toLocaleTimeString()}] ${ev}: ${typeof data === 'object' ? JSON.stringify(data) : data}`;
-      logEl.prepend(line);
-    };
-
-    window.otpEvents = OTPInput.create('#otp-events', { length: 6, autoFocus: false });
-    otpEvents.on('change', v => log('change', v));
-    otpEvents.on('complete', v => log('complete ✓', v));
-    otpEvents.on('error', errs => log('error ✗', errs));
-    otpEvents.on('focus', i => log('focus', `index=${i.index}`));
-    otpEvents.on('blur', i => log('blur', `index=${i.index}`));
-
-    // ── Input Themes ──────────────────────────────────────────────────────────
-    const themeMap = {
-      'theme-default': 'default',
-      'theme-underline': 'underline',
-      'theme-rounded': 'rounded',
-      'theme-pill': 'pill',
-      'theme-ghost': 'ghost',
-      'theme-filled': 'filled',
-      'theme-soft': 'soft',
-      'theme-neon': 'neon',
-      'theme-gradient': 'gradient',
-      'theme-elevated': 'elevated',
-      'theme-custom': null,
-      'theme-dark': null,
-    };
-    Object.entries(themeMap).forEach(([id, theme]) => {
-      const opts = { length: 4, autoFocus: false };
-      if (theme) opts.theme = theme;
-      OTPInput.create(`#${id}`, opts);
-    });
-
-    // ── Toast demo handlers ───────────────────────────────────────────────────
-    document.querySelectorAll('[data-toast]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const type = btn.dataset.toast;
-        const theme = btn.dataset.toastTheme;
-        const messages = {
-          success: { title: 'Success', message: 'OTP code verified successfully!' },
-          error: { title: 'Error', message: 'Invalid verification code. Please try again.' },
-          warning: { title: 'Warning', message: 'Code expires in 10 seconds.' },
-          info: { title: 'Info', message: 'A new code has been sent to your phone.' },
-        };
-        demoToast[type](messages[type].message, { title: messages[type].title, theme });
+      // Standalone toast instance for demo buttons
+      let demoToast = new ToastManager({
+        position: "top-right",
+        theme: "default",
       });
-    });
+      window.demoToast = demoToast;
 
-    document.querySelectorAll('[data-pos]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const pos = btn.dataset.pos;
-        demoToast = new ToastManager({ position: pos, theme: 'default' });
-        window.demoToast = demoToast;
-        demoToast.success(`Toasts now appearing at: ${pos}`, { title: 'Position changed' });
-      });
-    });
-
-    // ── OTP with auto-toast ───────────────────────────────────────────────────
-    window.otpWithToast = OTPInput.create('#otp-with-toast', {
-      length: 6,
-      autoFocus: false,
-      theme: 'soft',
-      validate: (v) => v === '000000' ? 'This code is blacklisted' : null,
-      toast: {
-        enabled: true,
-        theme: 'minimal',
-        position: 'top-right',
-        successMessage: 'Code verified! Redirecting…',
-        errorMessage: 'That code is invalid',
-      },
-    });
-
-    // ── Web Component events ──────────────────────────────────────────────────
-    const wcEl = document.getElementById('wc-demo');
-    wcEl.addEventListener('otp-complete', (e) => {
-      const el = document.getElementById('out-wc');
-      el.textContent = `✓ Web Component complete: ${e.detail}`;
-      el.className = 'output success';
-    });
-    wcEl.addEventListener('otp-change', (e) => {
-      if (!e.detail) {
-        const el = document.getElementById('out-wc');
-        el.textContent = 'Waiting for web component input…';
-        el.className = 'output';
-      }
-    });
-
-    // ── Separator examples ────────────────────────────────────────────────────
-    OTPInput.create('#otp-sep-dash', {
-      length: 6, autoFocus: false, theme: 'rounded',
-      separator: { char: '—', after: [3] },
-    });
-    OTPInput.create('#otp-sep-dot', {
-      length: 6, autoFocus: false, theme: 'rounded',
-      separator: { char: '·', after: [2, 4] },
-    });
-    OTPInput.create('#otp-sep-em', {
-      length: 8, autoFocus: false, theme: 'rounded',
-      separator: { char: '–', after: [4] },
-    });
-
-    // ── SMS Auto-Read ─────────────────────────────────────────────────────────
-    window.otpSms = OTPInput.create('#otp-sms', {
-      length: 6,
-      autoFocus: false,
-      theme: 'soft',
-      smsAutoRead: true,
-      onComplete: (v) => {
-        const el = document.getElementById('out-sms');
-        el.textContent = `✓ Auto-filled: ${v}`;
-        el.className = 'output success';
-      },
-      onChange: (v) => {
-        if (!v) {
-          const el = document.getElementById('out-sms');
-          el.textContent = 'Waiting for SMS… (requires Android + Chrome + HTTPS)';
-          el.className = 'output';
-        }
-      },
-    });
-    window.simulateSmsAutoFill = () => {
-      otpSms.setValue('246810');
-      const el = document.getElementById('out-sms');
-      el.textContent = '✓ Auto-filled via simulated SMS: 246810';
-      el.className = 'output success';
-    };
-
-    // ── Biometric confirm ─────────────────────────────────────────────────────
-    window.otpBio = OTPInput.create('#otp-bio', {
-      length: 6,
-      autoFocus: false,
-      theme: 'soft',
-      biometric: {
-        enabled: true,
-        promptText: 'Verify your identity to continue',
-        onConfirmed: () => {
-          const el = document.getElementById('out-bio');
-          el.textContent = '✓ Biometric confirmed — OTP accepted!';
-          el.className = 'output success';
+      // ── 1. Basic ──────────────────────────────────────────────────────────────
+      window.otpBasic = OTPInput.create("#otp-basic", {
+        length: 6,
+        onChange: (v) => {
+          const el = document.getElementById("out-basic");
+          el.textContent = v ? `Value: ${v}` : "Enter your 6-digit code";
+          el.className = "output";
         },
-        onCancelled: () => {
-          const el = document.getElementById('out-bio');
-          el.textContent = '✗ Biometric cancelled';
-          el.className = 'output error';
+        onComplete: (v) => {
+          const el = document.getElementById("out-basic");
+          el.textContent = `✓ Complete: ${v}`;
+          el.className = "output success";
         },
-      },
-      onComplete: (v) => {
-        const el = document.getElementById('out-bio');
-        el.textContent = `✓ OTP complete: ${v}`;
-        el.className = 'output success';
-      },
-    });
-    // Check platform authenticator availability for the info label
-    if (window.PublicKeyCredential) {
-      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(ok => {
-        document.getElementById('bio-support').textContent = ok
-          ? '✓ Platform authenticator available (fingerprint / Face ID / Windows Hello)'
-          : '✗ No platform authenticator found on this device';
-      }).catch(() => {
-        document.getElementById('bio-support').textContent = 'WebAuthn not available in this context';
+        onError: (errs) => {
+          const el = document.getElementById("out-basic");
+          el.textContent = `✗ ${errs.map((e) => e.message).join(", ")}`;
+          el.className = "output error";
+        },
       });
-    } else {
-      document.getElementById('bio-support').textContent = '✗ WebAuthn not supported in this browser';
-    }
 
-    // ── Scroll to top — double rAF ensures it fires after all autoFocus rAFs ──
-    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'instant' })));
+      // ── 2. RTL Arabic ─────────────────────────────────────────────────────────
+      window.otpRTL = OTPInput.create("#otp-rtl", {
+        length: 6,
+        direction: "rtl",
+        locale: "ar",
+        nativeNumerals: true,
+        onChange: (v) => {
+          const el = document.getElementById("out-rtl");
+          el.textContent = v ? `القيمة: ${v}` : "أدخل رمز التحقق";
+          el.className = "output";
+        },
+        onComplete: (v) => {
+          const el = document.getElementById("out-rtl");
+          el.textContent = `✓ مكتمل: ${v}`;
+          el.className = "output success";
+        },
+      });
 
-    (function initCopyButtons() {
-      document.querySelectorAll('pre').forEach(pre => {
-        const container = pre.parentElement;
-        if (!container || !container.classList.contains('card-footer')) return;
+      // ── 3. Persian RTL ────────────────────────────────────────────────────────
+      window.otpFa = OTPInput.create("#otp-fa", {
+        length: 6,
+        direction: "rtl",
+        locale: "fa",
+        nativeNumerals: true,
+        onChange: (v) => {
+          const el = document.getElementById("out-fa");
+          el.textContent = v ? `مقدار: ${v}` : "کد خود را وارد کنید";
+          el.className = "output";
+        },
+        onComplete: (v) => {
+          const el = document.getElementById("out-fa");
+          el.textContent = `✓ تکمیل شد: ${v}`;
+          el.className = "output success";
+        },
+      });
 
-        container.style.position = 'relative';
+      // ── 4. Secure ─────────────────────────────────────────────────────────────
+      window.otpSecure = OTPInput.create("#otp-secure", {
+        length: 4,
+        secure: true,
+        onComplete: (v) => {
+          const el = document.getElementById("out-secure");
+          el.textContent = "✓ PIN entered (masked)";
+          el.className = "output success";
+        },
+      });
 
-        const btn = document.createElement('button');
-        btn.className = 'copy-btn';
-        btn.innerHTML = '<span>Copy</span>';
-        btn.setAttribute('aria-label', 'Copy code to clipboard');
+      // ── 5. Timer + Resend ─────────────────────────────────────────────────────
+      window.otpTimer = OTPInput.create("#otp-timer", {
+        length: 6,
+        timer: {
+          enabled: true,
+          duration: 30,
+          showProgress: true,
+          onExpire: () => {
+            const el = document.getElementById("out-timer");
+            el.textContent = "✗ Code expired. Please request a new one.";
+            el.className = "output error";
+          },
+        },
+        resend: {
+          enabled: true,
+          cooldown: 30,
+          label: "Resend code",
+          onResend: () => {
+            const el = document.getElementById("out-timer");
+            el.textContent = "↺ New code sent. Enter it within 30 seconds.";
+            el.className = "output";
+          },
+        },
+        onComplete: (v) => {
+          const el = document.getElementById("out-timer");
+          el.textContent = `✓ Code verified: ${v}`;
+          el.className = "output success";
+        },
+      });
 
-        btn.addEventListener('click', () => {
-          const text = pre.innerText;
-          navigator.clipboard.writeText(text).then(() => {
-            btn.classList.add('copied');
-            btn.innerHTML = '<span>✓ Copied</span>';
-            setTimeout(() => {
-              btn.classList.remove('copied');
-              btn.innerHTML = '<span>Copy</span>';
-            }, 2000);
+      // ── 6. Alphanumeric + custom validator ────────────────────────────────────
+      window.otpAlpha = OTPInput.create("#otp-alpha", {
+        length: 6,
+        type: "alphanumeric",
+        validate: (v) =>
+          v.length === 6 && v.startsWith("00")
+            ? 'Code cannot start with "00"'
+            : null,
+        animation: { error: "both" },
+        onChange: (v) => {
+          const el = document.getElementById("out-alpha");
+          el.textContent = v
+            ? `Value: ${v}`
+            : "Enter 6-character alphanumeric code";
+          el.className = "output";
+        },
+        onComplete: (v) => {
+          const el = document.getElementById("out-alpha");
+          el.textContent = `✓ Valid code: ${v}`;
+          el.className = "output success";
+        },
+        onError: (errs) => {
+          const el = document.getElementById("out-alpha");
+          el.textContent = `✗ ${errs.map((e) => e.message).join(", ")}`;
+          el.className = "output error";
+        },
+      });
+
+      // ── 6b. Error animation showcase ──────────────────────────────────────────
+      window.otpAnimShake = OTPInput.create("#otp-anim-shake", {
+        length: 4,
+        autoFocus: false,
+        animation: { error: "shake" },
+      });
+
+      window.otpAnimHighlight = OTPInput.create("#otp-anim-highlight", {
+        length: 4,
+        autoFocus: false,
+        animation: { error: "highlight" },
+      });
+
+      window.otpAnimBoth = OTPInput.create("#otp-anim-both", {
+        length: 4,
+        autoFocus: false,
+        animation: { error: "both" },
+      });
+
+      window.otpAnimNone = OTPInput.create("#otp-anim-none", {
+        length: 4,
+        autoFocus: false,
+        animation: { error: false },
+      });
+
+      // Live validation: any 6-digit code starting with "0" triggers an error animation
+      window.otpAnimLive = OTPInput.create("#otp-anim-live", {
+        length: 6,
+        autoFocus: false,
+        animation: { error: "both" },
+        validate: (v) =>
+          v.startsWith("0") ? "Code cannot start with 0" : null,
+        onChange: (v) => {
+          const el = document.getElementById("out-anim-live");
+          if (!v) {
+            el.textContent =
+              'Try entering "000000" or any code starting with 0';
+            el.className = "output";
+          } else {
+            el.textContent = `Typed: ${v}`;
+            el.className = "output";
+          }
+        },
+        onComplete: (v) => {
+          const el = document.getElementById("out-anim-live");
+          el.textContent = `✓ Accepted: ${v}`;
+          el.className = "output success";
+        },
+        onError: (errs) => {
+          const el = document.getElementById("out-anim-live");
+          el.textContent = `✗ ${errs.map((e) => e.message).join(", ")}`;
+          el.className = "output error";
+        },
+      });
+
+      // Per-character: numeric-only — typing a letter shakes only that single input
+      window.otpAnimPerchar = OTPInput.create("#otp-anim-perchar", {
+        length: 4,
+        autoFocus: false,
+        type: "numeric",
+      });
+
+      // ── 7. 4-digit PIN ────────────────────────────────────────────────────────
+      window.otpPin = OTPInput.create("#otp-pin", {
+        length: 4,
+        haptic: true,
+        clipboardDetection: true,
+        onComplete: (v) => {
+          const el = document.getElementById("out-pin");
+          el.textContent = `✓ PIN: ${v}`;
+          el.className = "output success";
+          setTimeout(() => {
+            el.textContent = "Enter your 4-digit PIN";
+            el.className = "output";
+            window.otpPin.clear();
+          }, 1800);
+        },
+      });
+
+      // ── 8. Hex ────────────────────────────────────────────────────────────────
+      window.otpHex = OTPInput.create("#otp-hex", {
+        length: 8,
+        type: "hex",
+        placeholder: "0",
+        onChange: (v) => {
+          const el = document.getElementById("out-hex");
+          el.textContent = v
+            ? `Hex: 0x${v.toUpperCase()}`
+            : "Enter 8-character hex code";
+          el.className = "output";
+        },
+        onComplete: (v) => {
+          const el = document.getElementById("out-hex");
+          el.textContent = `✓ Hex code: 0x${v.toUpperCase()}`;
+          el.className = "output success";
+        },
+      });
+
+      // ── 9. Event log ──────────────────────────────────────────────────────────
+      const logEl = document.getElementById("event-log");
+      const log = (ev, data) => {
+        const line = document.createElement("div");
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${ev}: ${typeof data === "object" ? JSON.stringify(data) : data}`;
+        logEl.prepend(line);
+      };
+
+      window.otpEvents = OTPInput.create("#otp-events", {
+        length: 6,
+        autoFocus: false,
+      });
+      otpEvents.on("change", (v) => log("change", v));
+      otpEvents.on("complete", (v) => log("complete ✓", v));
+      otpEvents.on("error", (errs) => log("error ✗", errs));
+      otpEvents.on("focus", (i) => log("focus", `index=${i.index}`));
+      otpEvents.on("blur", (i) => log("blur", `index=${i.index}`));
+
+      // ── Input Themes ──────────────────────────────────────────────────────────
+      const themeMap = {
+        "theme-default": "default",
+        "theme-underline": "underline",
+        "theme-rounded": "rounded",
+        "theme-pill": "pill",
+        "theme-ghost": "ghost",
+        "theme-filled": "filled",
+        "theme-soft": "soft",
+        "theme-neon": "neon",
+        "theme-gradient": "gradient",
+        "theme-elevated": "elevated",
+        "theme-custom": null,
+        "theme-dark": null,
+      };
+      Object.entries(themeMap).forEach(([id, theme]) => {
+        const opts = { length: 4, autoFocus: false };
+        if (theme) opts.theme = theme;
+        OTPInput.create(`#${id}`, opts);
+      });
+
+      // ── Toast demo handlers ───────────────────────────────────────────────────
+      document.querySelectorAll("[data-toast]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const type = btn.dataset.toast;
+          const theme = btn.dataset.toastTheme;
+          const messages = {
+            success: {
+              title: "Success",
+              message: "OTP code verified successfully!",
+            },
+            error: {
+              title: "Error",
+              message: "Invalid verification code. Please try again.",
+            },
+            warning: {
+              title: "Warning",
+              message: "Code expires in 10 seconds.",
+            },
+            info: {
+              title: "Info",
+              message: "A new code has been sent to your phone.",
+            },
+          };
+          demoToast[type](messages[type].message, {
+            title: messages[type].title,
+            theme,
           });
         });
-
-        container.appendChild(btn);
       });
-    })();
-  </script>
 
+      document.querySelectorAll("[data-pos]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const pos = btn.dataset.pos;
+          demoToast = new ToastManager({ position: pos, theme: "default" });
+          window.demoToast = demoToast;
+          demoToast.success(`Toasts now appearing at: ${pos}`, {
+            title: "Position changed",
+          });
+        });
+      });
 
-</body>
+      // ── OTP with auto-toast ───────────────────────────────────────────────────
+      window.otpWithToast = OTPInput.create("#otp-with-toast", {
+        length: 6,
+        autoFocus: false,
+        theme: "soft",
+        validate: (v) => (v === "000000" ? "This code is blacklisted" : null),
+        toast: {
+          enabled: true,
+          theme: "minimal",
+          position: "top-right",
+          successMessage: "Code verified! Redirecting…",
+          errorMessage: "That code is invalid",
+        },
+      });
 
+      // ── Web Component events ──────────────────────────────────────────────────
+      const wcEl = document.getElementById("wc-demo");
+      wcEl.addEventListener("otp-complete", (e) => {
+        const el = document.getElementById("out-wc");
+        el.textContent = `✓ Web Component complete: ${e.detail}`;
+        el.className = "output success";
+      });
+      wcEl.addEventListener("otp-change", (e) => {
+        if (!e.detail) {
+          const el = document.getElementById("out-wc");
+          el.textContent = "Waiting for web component input…";
+          el.className = "output";
+        }
+      });
+
+      // ── Separator examples ────────────────────────────────────────────────────
+      OTPInput.create("#otp-sep-dash", {
+        length: 6,
+        autoFocus: false,
+        theme: "rounded",
+        separator: { char: "—", after: [3] },
+      });
+      OTPInput.create("#otp-sep-dot", {
+        length: 6,
+        autoFocus: false,
+        theme: "rounded",
+        separator: { char: "·", after: [2, 4] },
+      });
+      OTPInput.create("#otp-sep-em", {
+        length: 8,
+        autoFocus: false,
+        theme: "rounded",
+        separator: { char: "–", after: [4] },
+      });
+
+      // ── SMS Auto-Read ─────────────────────────────────────────────────────────
+      window.otpSms = OTPInput.create("#otp-sms", {
+        length: 6,
+        autoFocus: false,
+        theme: "soft",
+        smsAutoRead: true,
+        onComplete: (v) => {
+          const el = document.getElementById("out-sms");
+          el.textContent = `✓ Auto-filled: ${v}`;
+          el.className = "output success";
+        },
+        onChange: (v) => {
+          if (!v) {
+            const el = document.getElementById("out-sms");
+            el.textContent =
+              "Waiting for SMS… (requires Android + Chrome + HTTPS)";
+            el.className = "output";
+          }
+        },
+      });
+      window.simulateSmsAutoFill = () => {
+        otpSms.setValue("246810");
+        const el = document.getElementById("out-sms");
+        el.textContent = "✓ Auto-filled via simulated SMS: 246810";
+        el.className = "output success";
+      };
+
+      // ── Biometric confirm ─────────────────────────────────────────────────────
+      window.otpBio = OTPInput.create("#otp-bio", {
+        length: 6,
+        autoFocus: false,
+        theme: "soft",
+        biometric: {
+          enabled: true,
+          promptText: "Verify your identity to continue",
+          onConfirmed: () => {
+            const el = document.getElementById("out-bio");
+            el.textContent = "✓ Biometric confirmed — OTP accepted!";
+            el.className = "output success";
+          },
+          onCancelled: () => {
+            const el = document.getElementById("out-bio");
+            el.textContent = "✗ Biometric cancelled";
+            el.className = "output error";
+          },
+        },
+        onComplete: (v) => {
+          const el = document.getElementById("out-bio");
+          el.textContent = `✓ OTP complete: ${v}`;
+          el.className = "output success";
+        },
+      });
+      // Check platform authenticator availability for the info label
+      if (window.PublicKeyCredential) {
+        PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+          .then((ok) => {
+            document.getElementById("bio-support").textContent = ok
+              ? "✓ Platform authenticator available (fingerprint / Face ID / Windows Hello)"
+              : "✗ No platform authenticator found on this device";
+          })
+          .catch(() => {
+            document.getElementById("bio-support").textContent =
+              "WebAuthn not available in this context";
+          });
+      } else {
+        document.getElementById("bio-support").textContent =
+          "✗ WebAuthn not supported in this browser";
+      }
+
+      // ── Scroll to top — double rAF ensures it fires after all autoFocus rAFs ──
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() =>
+          window.scrollTo({ top: 0, behavior: "instant" }),
+        ),
+      );
+
+      (function initCopyButtons() {
+        document.querySelectorAll("pre").forEach((pre) => {
+          const container = pre.parentElement;
+          if (!container || !container.classList.contains("card-footer"))
+            return;
+
+          container.style.position = "relative";
+
+          const btn = document.createElement("button");
+          btn.className = "copy-btn";
+          btn.innerHTML = "<span>Copy</span>";
+          btn.setAttribute("aria-label", "Copy code to clipboard");
+
+          btn.addEventListener("click", () => {
+            const text = pre.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+              btn.classList.add("copied");
+              btn.innerHTML = "<span>✓ Copied</span>";
+              setTimeout(() => {
+                btn.classList.remove("copied");
+                btn.innerHTML = "<span>Copy</span>";
+              }, 2000);
+            });
+          });
+
+          container.appendChild(btn);
+        });
+      })();
+    </script>
+  </body>
 </html>

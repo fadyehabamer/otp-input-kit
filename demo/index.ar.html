@@ -524,7 +524,7 @@
 
   <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
 
-  <div class="nav-collapsible" id="nav-collapsible">
+  <div class="nav-collapsible" id="nav-collapsible" inert>
     <div class="nav-links">
       <a href="#installation" class="nav-link">التثبيت</a>
       <a href="#ar-basic" class="nav-link">أساسي</a>
@@ -578,24 +578,30 @@
       const backdrop = document.getElementById('nav-backdrop');
       if (!toggle || !panel || !backdrop) return;
 
-      const closePanel = () => {
-        // Blur any focused element inside the panel (or the toggle) so the
-        // mobile keyboard doesn't open and the page doesn't scroll to the
-        // first OTP input after the menu is dismissed.
-        if (document.activeElement && (panel.contains(document.activeElement) || document.activeElement === toggle)) {
-          document.activeElement.blur();
-        }
+      const openPanel = () => {
+        panel.removeAttribute('inert');
+        panel.classList.add('is-open');
+        backdrop.classList.add('is-open');
+        document.body.classList.add('nav-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(() => panel.querySelector('a, button')?.focus());
+      };
+
+      const closePanel = (returnFocus = true) => {
         panel.classList.remove('is-open');
         backdrop.classList.remove('is-open');
         document.body.classList.remove('nav-open');
         toggle.setAttribute('aria-expanded', 'false');
+        panel.setAttribute('inert', '');
+        if (returnFocus) toggle.focus();
       };
 
       toggle.addEventListener('click', () => {
-        const isOpen = panel.classList.toggle('is-open');
-        backdrop.classList.toggle('is-open', isOpen);
-        document.body.classList.toggle('nav-open', isOpen);
-        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        if (panel.classList.contains('is-open')) {
+          closePanel();
+        } else {
+          openPanel();
+        }
       });
 
       backdrop.addEventListener('click', closePanel);
@@ -628,7 +634,7 @@
       });
 
       window.addEventListener('resize', () => {
-        if (window.innerWidth > 760) closePanel();
+        if (window.innerWidth > 760) closePanel(false);
       });
     })();
 
