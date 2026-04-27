@@ -317,7 +317,7 @@
       font-size: 0.8125rem;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: background-color 0.15s, color 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
       font-family: inherit;
     }
 
@@ -334,7 +334,7 @@
       padding: 6px 14px;
       border-radius: 8px;
       background: rgba(59,130,246,0.06);
-      transition: all 0.2s;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s, opacity 0.2s;
     }
 
     .output.success { color: #22c55e; background: rgba(34,197,94,0.08); font-weight: 600; }
@@ -508,7 +508,7 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s, opacity 0.2s;
       z-index: 10;
       display: flex;
       align-items: center;
@@ -579,6 +579,11 @@
       if (!toggle || !panel || !backdrop) return;
 
       const openPanel = () => {
+        // Blur any currently focused element (e.g. OTP input)
+        // so the mobile keyboard closes when the menu opens.
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+          document.activeElement.blur();
+        }
         panel.removeAttribute('inert');
         panel.classList.add('is-open');
         backdrop.classList.add('is-open');
@@ -595,6 +600,14 @@
         panel.setAttribute('inert', '');
         if (returnFocus) toggle.focus();
       };
+
+      toggle.addEventListener('pointerdown', () => {
+        // Blur focused inputs before the click so the mobile keyboard
+        // dismisses immediately rather than after the panel animates in.
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+          document.activeElement.blur();
+        }
+      });
 
       toggle.addEventListener('click', () => {
         if (panel.classList.contains('is-open')) {
@@ -1042,6 +1055,7 @@ OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
 
   // ── 2. Separator ──────────────────────────────────────────────────────────
   window.otpArSep = OTPInput.create('#otp-ar-sep', {
+    autoFocus: false,
     ...rtlOpts,
     length: 6,
     theme: 'rounded',
@@ -1059,12 +1073,14 @@ OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
   });
 
   // ── 3. Types ──────────────────────────────────────────────────────────────
-  OTPInput.create('#otp-ar-num', { ...rtlOpts, length: 6, theme: 'soft' });
+  OTPInput.create('#otp-ar-num', {
+        autoFocus: false, ...rtlOpts, length: 6, theme: 'soft' });
   OTPInput.create('#otp-ar-alpha', { direction: 'rtl', locale: 'ar', autoFocus: false, length: 6, type: 'alpha', theme: 'soft' });
   OTPInput.create('#otp-ar-hex', { direction: 'rtl', locale: 'ar', autoFocus: false, length: 6, type: 'hex', placeholder: '0', theme: 'soft' });
 
   // ── 4. Secure ─────────────────────────────────────────────────────────────
   window.otpArSecure = OTPInput.create('#otp-ar-secure', {
+    autoFocus: false,
     ...rtlOpts, length: 4, secure: true,
     onComplete: (v) => {
       const el = document.getElementById('out-ar-secure');
@@ -1075,6 +1091,7 @@ OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
 
   // ── 5. Timer ──────────────────────────────────────────────────────────────
   window.otpArTimer = OTPInput.create('#otp-ar-timer', {
+    autoFocus: false,
     ...rtlOpts,
     length: 6,
     timer: {

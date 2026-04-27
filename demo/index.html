@@ -373,7 +373,7 @@
         font-size: 0.8125rem;
         font-weight: 500;
         cursor: pointer;
-        transition: all 0.15s;
+        transition: background-color 0.15s, color 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
       }
 
       .btn:hover {
@@ -406,7 +406,7 @@
         padding: 6px 14px;
         border-radius: 8px;
         background: rgba(59, 130, 246, 0.06);
-        transition: all 0.2s;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s, opacity 0.2s;
       }
 
       .output.success {
@@ -763,7 +763,7 @@
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 8px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s, opacity 0.2s;
         z-index: 10;
         display: flex;
         align-items: center;
@@ -897,6 +897,11 @@
           if (!toggle || !panel || !backdrop) return;
 
           const openPanel = () => {
+            // Blur any currently focused element (e.g. OTP input)
+            // so the mobile keyboard closes when the menu opens.
+            if (document.activeElement && typeof document.activeElement.blur === 'function') {
+              document.activeElement.blur();
+            }
             panel.removeAttribute("inert");
             panel.classList.add("is-open");
             backdrop.classList.add("is-open");
@@ -913,6 +918,14 @@
             panel.setAttribute("inert", "");
             if (returnFocus) toggle.focus();
           };
+
+          toggle.addEventListener("pointerdown", () => {
+            // Blur focused inputs before the click so the mobile keyboard
+            // dismisses immediately rather than after the panel animates in.
+            if (document.activeElement && typeof document.activeElement.blur === "function") {
+              document.activeElement.blur();
+            }
+          });
 
           toggle.addEventListener("click", () => {
             if (panel.classList.contains("is-open")) {
@@ -2507,6 +2520,7 @@ OTPInput.create('#otp', {
 
       // ── 1. Basic ──────────────────────────────────────────────────────────────
       window.otpBasic = OTPInput.create("#otp-basic", {
+        autoFocus: false,
         length: 6,
         onChange: (v) => {
           const el = document.getElementById("out-basic");
@@ -2527,6 +2541,7 @@ OTPInput.create('#otp', {
 
       // ── 2. RTL Arabic ─────────────────────────────────────────────────────────
       window.otpRTL = OTPInput.create("#otp-rtl", {
+        autoFocus: false,
         length: 6,
         direction: "rtl",
         locale: "ar",
@@ -2545,6 +2560,7 @@ OTPInput.create('#otp', {
 
       // ── 3. Persian RTL ────────────────────────────────────────────────────────
       window.otpFa = OTPInput.create("#otp-fa", {
+        autoFocus: false,
         length: 6,
         direction: "rtl",
         locale: "fa",
@@ -2563,6 +2579,7 @@ OTPInput.create('#otp', {
 
       // ── 4. Secure ─────────────────────────────────────────────────────────────
       window.otpSecure = OTPInput.create("#otp-secure", {
+        autoFocus: false,
         length: 4,
         secure: true,
         onComplete: (v) => {
@@ -2574,6 +2591,7 @@ OTPInput.create('#otp', {
 
       // ── 5. Timer + Resend ─────────────────────────────────────────────────────
       window.otpTimer = OTPInput.create("#otp-timer", {
+        autoFocus: false,
         length: 6,
         timer: {
           enabled: true,
@@ -2604,6 +2622,7 @@ OTPInput.create('#otp', {
 
       // ── 6. Alphanumeric + custom validator ────────────────────────────────────
       window.otpAlpha = OTPInput.create("#otp-alpha", {
+        autoFocus: false,
         length: 6,
         type: "alphanumeric",
         validate: (v) =>
@@ -2694,6 +2713,7 @@ OTPInput.create('#otp', {
 
       // ── 7. 4-digit PIN ────────────────────────────────────────────────────────
       window.otpPin = OTPInput.create("#otp-pin", {
+        autoFocus: false,
         length: 4,
         haptic: true,
         clipboardDetection: true,
@@ -2711,6 +2731,7 @@ OTPInput.create('#otp', {
 
       // ── 8. Hex ────────────────────────────────────────────────────────────────
       window.otpHex = OTPInput.create("#otp-hex", {
+        autoFocus: false,
         length: 8,
         type: "hex",
         placeholder: "0",
@@ -2765,7 +2786,8 @@ OTPInput.create('#otp', {
         const opts = { length: 4, autoFocus: false };
         if (theme) opts.theme = theme;
         OTPInput.create(`#${id}`, opts);
-      });
+      
+      })
 
       // ── Toast demo handlers ───────────────────────────────────────────────────
       document.querySelectorAll("[data-toast]").forEach((btn) => {
