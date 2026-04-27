@@ -478,6 +478,7 @@ class TimerManager {
 
   buildUI(wrapperEl) {
     const { timer, resend } = this.instance.options;
+    this._wrapperEl = wrapperEl;
 
     if (timer?.enabled || resend?.enabled) {
       const footer = document.createElement('div');
@@ -532,19 +533,50 @@ class TimerManager {
     }
 
     this._tick();
-    this._interval = setInterval(() => this._tick(), 1000);
+    this._isVisible = true;
+    this._isOnScreen = true;
+    this._startInterval();
 
     if (!this._visibilityHandler) {
       this._visibilityHandler = () => {
-        if (document.hidden) {
-          clearInterval(this._interval);
-          this._interval = null;
-        } else if (this._remaining > 0) {
-          this._interval = setInterval(() => this._tick(), 1000);
-        }
+        this._isVisible = !document.hidden;
+        this._syncRunState();
       };
       document.addEventListener('visibilitychange', this._visibilityHandler);
     }
+
+    // Pause ticking and progress-bar animation when scrolled off-screen.
+    if (!this._intersectionObserver && this._wrapperEl && typeof IntersectionObserver !== 'undefined') {
+      this._intersectionObserver = new IntersectionObserver((entries) => {
+        this._isOnScreen = entries[0].isIntersecting;
+        this._syncRunState();
+      });
+      this._intersectionObserver.observe(this._wrapperEl);
+    }
+  }
+
+  _startInterval() {
+    if (this._interval) return;
+    this._interval = setInterval(() => this._tick(), 1000);
+    if (this._progressBar) {
+      this._progressBar.style.animationPlayState = 'running';
+    }
+  }
+
+  _stopInterval() {
+    if (this._interval) {
+      clearInterval(this._interval);
+      this._interval = null;
+    }
+    if (this._progressBar) {
+      this._progressBar.style.animationPlayState = 'paused';
+    }
+  }
+
+  _syncRunState() {
+    if (this._remaining <= 0) return;
+    if (this._isVisible && this._isOnScreen) this._startInterval();
+    else this._stopInterval();
   }
 
   _tick() {
@@ -610,6 +642,10 @@ class TimerManager {
     if (this._visibilityHandler) {
       document.removeEventListener('visibilitychange', this._visibilityHandler);
       this._visibilityHandler = null;
+    }
+    if (this._intersectionObserver) {
+      this._intersectionObserver.disconnect();
+      this._intersectionObserver = null;
     }
   }
 }
