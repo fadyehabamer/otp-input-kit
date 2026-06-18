@@ -861,8 +861,38 @@ OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
         <pre>OTPInput.create('#otp', {
   length: 4,
   secure: true,
+  revealToggle: true,   // زر 👁 لكشف الرمز
   direction: 'rtl',
   locale: 'ar',
+});</pre>
+      </div>
+    </div>
+
+    <!-- ── 4b. قفل المحاولات ── -->
+    <div id="ar-lockout" class="card">
+      <div class="card-header">
+        <div class="card-title">🔐 قفل المحاولات</div>
+        <div class="card-desc">
+          يُقفل الإدخال بعد محاولات خاطئة كثيرة مع عدّاد تنازلي. هنا:
+          <strong>٣</strong> محاولات خاطئة ← قفل لمدة <strong>١٠</strong> ثوانٍ.
+          الرمز الصحيح هو <strong>٤٢٤٢</strong>.
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="otp-ar-lockout" dir="rtl"></div>
+        <div id="out-ar-lockout" class="output">
+          أدخل ٤٢٤٢ (صحيح) أو أي رمز آخر لاستهلاك محاولة
+        </div>
+        <div class="controls">
+          <button class="btn" onclick="otpArLockout.clear()">مسح</button>
+          <button class="btn" onclick="otpArLockout.unlock()">فتح القفل</button>
+        </div>
+      </div>
+      <div class="card-footer">
+        <pre>OTPInput.create('#otp', {
+  length: 4, direction: 'rtl', locale: 'ar',
+  onVerify: (code) => code === '4242',
+  lockout: { enabled: true, maxAttempts: 3, duration: 10 },
 });</pre>
       </div>
     </div>
@@ -985,6 +1015,143 @@ OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
     </div>
   </div>
 
+  <!-- ── التحقق غير المتزامن ── -->
+  <div class="section-header" id="ar-async-verify">
+    <div class="line"></div>
+    <h2>التحقق غير المتزامن</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">⏳ onVerify — تحميل ← نجاح / خطأ</div>
+      <div class="card-desc">
+        مرِّر دالة <code>onVerify</code> فيعرض المكوّن مؤشّر تحميل، وينتظر الخادم،
+        ثم ينتقل تلقائياً إلى حالة نجاح أو خطأ. الرمز الصحيح هنا هو
+        <strong>١٢٣٤٥٦</strong> (مع تأخير شبكة محاكى ١٫٢ ثانية).
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="otp-ar-verify" dir="rtl"></div>
+      <div id="out-ar-verify" class="output">
+        أدخل الرمز — جرّب ١٢٣٤٥٦ (صحيح) أو أي رمز آخر
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="otpArVerify.clear()">مسح</button>
+        <button class="btn" onclick="otpArVerify.setValue('123456')">
+          تعبئة صحيحة
+        </button>
+        <button class="btn" onclick="otpArVerify.setValue('000000')">
+          تعبئة خاطئة
+        </button>
+      </div>
+    </div>
+    <div class="card-footer">
+      <pre>OTPInput.create('#otp', {
+  length: 6, direction: 'rtl', locale: 'ar',
+  onVerify: async (code) => (await api.verify(code)).ok,
+  onVerified: (code) => goHome(),
+  onFailed:   (msg)  => showError(msg),
+});</pre>
+    </div>
+  </div>
+
+  <!-- ── أنماط حركة الخطأ ── -->
+  <div class="section-header" id="ar-error-animations">
+    <div class="line"></div>
+    <h2>أنماط حركة الخطأ</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">💥 ثمانية أنماط لحركة الخطأ</div>
+      <div class="card-desc">
+        اضغط أي زر لمعاينة الحركة. تُطبَّق على كل الخلايا عند فشل التحقق.
+      </div>
+    </div>
+    <div class="card-body">
+      <div
+        style="
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+          justify-content: center;
+        ">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+          <div id="otp-ar-anim-shake" dir="rtl"></div>
+          <button class="btn" onclick="otpArAnimShake.setError('رمز غير صالح')">اهتزاز (shake)</button>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+          <div id="otp-ar-anim-highlight" dir="rtl"></div>
+          <button class="btn" onclick="otpArAnimHighlight.setError('رمز غير صالح')">وميض (highlight)</button>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+          <div id="otp-ar-anim-both" dir="rtl"></div>
+          <button class="btn" onclick="otpArAnimBoth.setError('رمز غير صالح')">الاثنان (both)</button>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+          <div id="otp-ar-anim-pulse" dir="rtl"></div>
+          <button class="btn" onclick="otpArAnimPulse.setError('رمز غير صالح')">نبض (pulse)</button>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+          <div id="otp-ar-anim-buzz" dir="rtl"></div>
+          <button class="btn" onclick="otpArAnimBuzz.setError('رمز غير صالح')">رجفة (buzz)</button>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+          <div id="otp-ar-anim-bounce" dir="rtl"></div>
+          <button class="btn" onclick="otpArAnimBounce.setError('رمز غير صالح')">ارتداد (bounce)</button>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+          <div id="otp-ar-anim-glow" dir="rtl"></div>
+          <button class="btn" onclick="otpArAnimGlow.setError('رمز غير صالح')">توهّج (glow)</button>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+          <div id="otp-ar-anim-wobble" dir="rtl"></div>
+          <button class="btn" onclick="otpArAnimWobble.setError('رمز غير صالح')">تمايل (wobble)</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <pre>OTPInput.create('#otp', { animation: { error: 'pulse' } });
+// shake · highlight · both · pulse · buzz · bounce · glow · wobble · false</pre>
+    </div>
+  </div>
+
+  <!-- ── محوّلات أطر العمل ── -->
+  <div class="section-header" id="ar-frameworks">
+    <div class="line"></div>
+    <h2>محوّلات أطر العمل</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">⚛️ React · 🟢 Vue · 🧡 Svelte · 🅰️ Angular</div>
+      <div class="card-desc">
+        غلافات جاهزة حول نفس النواة — ثبّت الحزمة مرة واحدة، ثم استورد المحوّل
+        المناسب لإطار عملك.
+      </div>
+    </div>
+    <div class="card-footer">
+      <pre>// React
+import { OtpInput } from 'otp-input-kit/react';
+&lt;OtpInput length={6} onVerify={verify} onVerified={goHome} /&gt;
+
+// Vue 3
+import { OtpInput } from 'otp-input-kit/vue';
+&lt;OtpInput :length="6" :on-verify="verify" @verified="goHome" /&gt;
+
+// Svelte
+import { otp } from 'otp-input-kit/svelte';
+&lt;div use:otp={{ length: 6, onVerify }} on:verified={goHome} /&gt;
+
+// Angular
+import { OtpInputDirective } from 'otp-input-kit/angular';
+&lt;div otpInput [length]="6" [onVerify]="verify" (verified)="goHome()"&gt;&lt;/div&gt;</pre>
+    </div>
+  </div>
+
   <!-- ── Web Component RTL ── -->
   <div class="section-header">
     <div class="line"></div>
@@ -1082,11 +1249,41 @@ OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
   window.otpArSecure = OTPInput.create('#otp-ar-secure', {
     autoFocus: false,
     ...rtlOpts, length: 4, secure: true,
+    revealToggle: true,
+    revealLabel: 'إظهار الرمز',
+    hideLabel: 'إخفاء الرمز',
     onComplete: (v) => {
       const el = document.getElementById('out-ar-secure');
       el.textContent = '✓ تم إدخال رمز PIN (مُقنَّع)';
       el.className = 'output success';
     },
+  });
+
+  // ── قفل المحاولات ────────────────────────────────────────────────────────
+  window.otpArLockout = OTPInput.create('#otp-ar-lockout', {
+    ...rtlOpts, length: 4,
+    onVerify: (code) => code === '4242',
+    lockout: {
+      enabled: true,
+      maxAttempts: 3,
+      duration: 10,
+      message: '🔒 مقفل. حاول مجدداً بعد {seconds} ثانية.',
+    },
+    onVerified: () => {
+      const el = document.getElementById('out-ar-lockout');
+      el.textContent = '✓ رمز صحيح — تم التحقق!';
+      el.className = 'output success';
+    },
+  });
+  otpArLockout.on('attempt', ({ attempts, max }) => {
+    const el = document.getElementById('out-ar-lockout');
+    el.textContent = `✗ رمز خاطئ — المحاولة ${attempts}/${max}.`;
+    el.className = 'output error';
+  });
+  otpArLockout.on('unlock', () => {
+    const el = document.getElementById('out-ar-lockout');
+    el.textContent = 'تم إلغاء القفل — يمكنك المحاولة مجدداً.';
+    el.className = 'output';
   });
 
   // ── 5. Timer ──────────────────────────────────────────────────────────────
@@ -1138,6 +1335,41 @@ OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
       errorMessage: 'رمز غير صالح، حاول مجدداً.',
     },
   });
+
+  // ── التحقق غير المتزامن ─────────────────────────────────────────────────────
+  window.otpArVerify = OTPInput.create('#otp-ar-verify', {
+    ...rtlOpts,
+    length: 6,
+    theme: 'rounded',
+    loading: { clearOnError: true, clearDelay: 1100 },
+    onVerify: (code) => new Promise((resolve) => {
+      const el = document.getElementById('out-ar-verify');
+      el.textContent = '⏳ جارٍ التحقق…';
+      el.className = 'output';
+      setTimeout(() => resolve(code === '123456' ? true : 'رمز غير صحيح — حاول مجدداً'), 1200);
+    }),
+    onVerified: (code) => {
+      const el = document.getElementById('out-ar-verify');
+      el.textContent = `✓ تم التحقق: ${code}`;
+      el.className = 'output success';
+    },
+    onFailed: (msg) => {
+      const el = document.getElementById('out-ar-verify');
+      el.textContent = `✗ ${msg}`;
+      el.className = 'output error';
+    },
+  });
+
+  // ── أنماط حركة الخطأ ────────────────────────────────────────────────────────
+  const arAnim = (id, error) => OTPInput.create(id, { ...rtlOpts, length: 4, animation: { error } });
+  window.otpArAnimShake     = arAnim('#otp-ar-anim-shake', 'shake');
+  window.otpArAnimHighlight = arAnim('#otp-ar-anim-highlight', 'highlight');
+  window.otpArAnimBoth      = arAnim('#otp-ar-anim-both', 'both');
+  window.otpArAnimPulse     = arAnim('#otp-ar-anim-pulse', 'pulse');
+  window.otpArAnimBuzz      = arAnim('#otp-ar-anim-buzz', 'buzz');
+  window.otpArAnimBounce    = arAnim('#otp-ar-anim-bounce', 'bounce');
+  window.otpArAnimGlow      = arAnim('#otp-ar-anim-glow', 'glow');
+  window.otpArAnimWobble    = arAnim('#otp-ar-anim-wobble', 'wobble');
 
   // ── Web Component events ──────────────────────────────────────────────────
   const wcArEl = document.getElementById('wc-ar-demo');

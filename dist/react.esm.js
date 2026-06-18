@@ -3,16 +3,7 @@
  * A highly customizable, framework-agnostic OTP input component
  * (c) 2026 — MIT License
  */
-const __css = ":root {\n--otp-gap: 10px;\n--otp-input-width: 52px;\n--otp-input-height: 60px;\n--otp-border-radius: 10px;\n--otp-border-width: 2px;\n--otp-border-color: #d1d5db;\n--otp-focus-color: #3b82f6;\n--otp-focus-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);\n--otp-error-color: #ef4444;\n--otp-error-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);\n--otp-success-color: #22c55e;\n--otp-success-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);\n--otp-bg: #ffffff;\n--otp-filled-bg: #f0f9ff;\n--otp-disabled-bg: #f3f4f6;\n--otp-text-color: #111827;\n--otp-placeholder-color: #d1d5db;\n--otp-font-size: 1.625rem;\n--otp-font-weight: 700;\n--otp-font-family: inherit;\n--otp-letter-spacing: 0.05em;\n--otp-transition: 0.18s ease;\n--otp-timer-color: #6b7280;\n--otp-timer-urgent-color: #ef4444;\n--otp-timer-font-size: 0.875rem;\n--otp-progress-height: 3px;\n--otp-progress-bg: #e5e7eb;\n--otp-progress-fill: #3b82f6;\n--otp-resend-color: #3b82f6;\n--otp-resend-disabled-color: #9ca3af;\n--otp-resend-font-size: 0.875rem;\n--otp-paste-bg: #eff6ff;\n--otp-paste-border: #bfdbfe;\n--otp-paste-color: #1d4ed8;\n--otp-paste-font-size: 0.8125rem;\n}\n@media (prefers-color-scheme: dark) {\n:root {\n--otp-bg: #1f2937;\n--otp-filled-bg: #1e3a5f;\n--otp-disabled-bg: #374151;\n--otp-border-color: #374151;\n--otp-text-color: #f9fafb;\n--otp-placeholder-color: #4b5563;\n--otp-progress-bg: #374151;\n--otp-paste-bg: #1e3a5f;\n--otp-paste-border: #1e40af;\n--otp-paste-color: #93c5fd;\n--otp-timer-color: #9ca3af;\n}\n}\n.otp-root {\nposition: relative;\ndisplay: inline-block;\nwidth: 100%;\n}\n.otp-wrapper {\ndisplay: flex;\nflex-direction: column;\nalign-items: center;\ngap: 12px;\nwidth: 100%;\n}\n.otp-inputs-row {\ndisplay: flex;\nflex-direction: row;\nalign-items: center;\njustify-content: center;\ngap: var(--otp-gap);\nwidth: 100%;\n}\n[dir=\"rtl\"] .otp-inputs-row {\nflex-direction: row;\n}\n.otp-separator {\ndisplay: flex;\nalign-items: center;\njustify-content: center;\ncolor: var(--otp-separator-color, var(--otp-border-color, #cbd5e1));\nfont-size: 1.2em;\nfont-weight: 300;\nletter-spacing: -0.02em;\nuser-select: none;\npadding: 0 2px;\nflex-shrink: 0;\ntransition: color 0.2s;\n}\n.otp-input {\nwidth: var(--otp-input-width);\nheight: var(--otp-input-height);\npadding: 0;\nborder: var(--otp-border-width) solid var(--otp-border-color);\nborder-radius: var(--otp-border-radius);\nbackground: var(--otp-bg);\ncolor: var(--otp-text-color);\nfont-size: var(--otp-font-size);\nfont-weight: var(--otp-font-weight);\nfont-family: var(--otp-font-family);\nletter-spacing: var(--otp-letter-spacing);\ntext-align: center;\noutline: none;\ncursor: text;\n-webkit-appearance: none;\nappearance: none;\ntransition:\nborder-color var(--otp-transition),\nbackground-color var(--otp-transition),\nbox-shadow var(--otp-transition),\ntransform var(--otp-transition);\nuser-select: text;\n}\n.otp-input[type=\"number\"]::-webkit-inner-spin-button,\n.otp-input[type=\"number\"]::-webkit-outer-spin-button {\n-webkit-appearance: none;\n}\n.otp-input::placeholder {\ncolor: var(--otp-placeholder-color);\nfont-size: calc(var(--otp-font-size) * 0.6);\nfont-weight: 400;\n}\n.otp-input--focused {\nborder-color: var(--otp-focus-color);\nbox-shadow: var(--otp-focus-shadow);\nz-index: 1;\n}\n.otp-input--filled {\nbackground: var(--otp-filled-bg);\nborder-color: var(--otp-border-color);\n}\n.otp-input--error {\nborder-color: var(--otp-error-color) !important;\nbox-shadow: var(--otp-error-shadow) !important;\nbackground: rgba(239, 68, 68, 0.04);\n}\n.otp-input--success {\nborder-color: var(--otp-success-color) !important;\nbox-shadow: var(--otp-success-shadow);\nbackground: rgba(34, 197, 94, 0.06);\n}\n.otp-root--disabled .otp-input,\n.otp-input:disabled {\nbackground: var(--otp-disabled-bg);\ncursor: not-allowed;\nopacity: 0.6;\n}\n.otp-root--expired .otp-input {\nopacity: 0.45;\ncursor: not-allowed;\n}\n.otp-timer-progress {\nwidth: 100%;\nmax-width: calc(var(--otp-input-width) * 6 + var(--otp-gap) * 5 + 20px);\nheight: var(--otp-progress-height);\nbackground: var(--otp-progress-bg);\nborder-radius: 999px;\noverflow: hidden;\n}\n.otp-timer-progress-bar {\nheight: 100%;\nbackground: var(--otp-progress-fill);\nborder-radius: 999px;\ntransition: background-color 0.3s ease;\nwidth: 100%;\n}\n.otp-timer-progress-bar.otp-timer-progress-bar--running {\nanimation: otpProgressCountdown linear forwards;\n}\n.otp-timer--urgent ~ .otp-timer-progress .otp-timer-progress-bar {\nbackground: var(--otp-error-color);\n}\n.otp-footer {\ndisplay: flex;\nalign-items: center;\njustify-content: space-between;\nwidth: 100%;\nmax-width: calc(var(--otp-input-width) * 6 + var(--otp-gap) * 5);\npadding: 0 2px;\ngap: 8px;\n}\n.otp-timer-wrap {\ndisplay: flex;\nalign-items: center;\ngap: 6px;\n}\n.otp-timer {\nfont-size: var(--otp-timer-font-size);\ncolor: var(--otp-timer-color);\nfont-variant-numeric: tabular-nums;\nletter-spacing: 0.02em;\nmin-width: 2.8em;\n}\n.otp-timer--urgent {\ncolor: var(--otp-timer-urgent-color);\nfont-weight: 600;\n}\n.otp-resend-btn {\nbackground: none;\nborder: none;\npadding: 4px 8px;\nfont-size: var(--otp-resend-font-size);\ncolor: var(--otp-resend-color);\ncursor: pointer;\nborder-radius: 6px;\nfont-weight: 500;\ntransition: opacity 0.15s, background-color 0.15s;\nwhite-space: nowrap;\n}\n.otp-resend-btn:hover:not(:disabled) {\nbackground: rgba(59, 130, 246, 0.1);\n}\n.otp-resend-btn:disabled {\ncolor: var(--otp-resend-disabled-color);\ncursor: not-allowed;\n}\n.otp-paste-suggestion {\ndisplay: flex;\nwidth: fit-content;\nalign-items: center;\njustify-content: center;\npadding: 8px 16px;\nmargin: 0 auto;\nbackground: var(--otp-paste-bg);\nborder: 1px solid var(--otp-paste-border);\nborder-radius: 8px;\ncolor: var(--otp-paste-color);\nfont-size: var(--otp-paste-font-size);\nfont-weight: 500;\ntext-align: center;\ncursor: pointer;\ntransition: opacity 0.2s;\nanimation: otpFadeInDown 0.25s ease;\n}\n.otp-paste-suggestion:hover {\nopacity: 0.85;\n}\n.otp-live-region {\nposition: absolute !important;\nwidth: 1px !important;\nheight: 1px !important;\npadding: 0 !important;\nmargin: -1px !important;\noverflow: hidden !important;\nclip: rect(0, 0, 0, 0) !important;\nwhite-space: nowrap !important;\nborder: 0 !important;\n}\n@keyframes otpProgressCountdown {\nfrom { width: 100%; }\nto   { width: 0%; }\n}\n@keyframes otpShake {\n0%, 100% { transform: translateX(0); }\n15%       { transform: translateX(-6px) rotate(-1deg); }\n30%       { transform: translateX(5px)  rotate(1deg); }\n45%       { transform: translateX(-4px); }\n60%       { transform: translateX(3px); }\n75%       { transform: translateX(-2px); }\n}\n@keyframes otpPop {\n0%   { transform: scale(1); }\n40%  { transform: scale(1.15); }\n70%  { transform: scale(0.95); }\n100% { transform: scale(1); }\n}\n@keyframes otpHighlight {\n0%, 100% { background-color: var(--otp-bg); }\n50%       { background-color: rgba(239, 68, 68, 0.15); }\n}\n@keyframes otpFadeInDown {\nfrom { opacity: 0; transform: translateY(-8px); }\nto   { opacity: 1; transform: translateY(0); }\n}\n.otp-anim-shake {\nanimation: otpShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);\n}\n.otp-anim-pop {\nanimation: otpPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.otp-anim-highlight {\nanimation: otpHighlight 0.5s ease;\n}\n[dir=\"rtl\"] .otp-anim-shake {\nanimation-name: otpShakeRTL;\n}\n@keyframes otpShakeRTL {\n0%, 100% { transform: translateX(0); }\n15%       { transform: translateX(6px) rotate(1deg); }\n30%       { transform: translateX(-5px) rotate(-1deg); }\n45%       { transform: translateX(4px); }\n60%       { transform: translateX(-3px); }\n75%       { transform: translateX(2px); }\n}\n.otp-anim-pulse {\nanimation: otpErrPulse 0.5s ease;\n}\n@keyframes otpErrPulse {\n0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }\n35%       { transform: scale(1.12); filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.7)); }\n70%       { transform: scale(0.97); }\n}\n.otp-anim-buzz {\nanimation: otpBuzz 0.4s linear;\n}\n@keyframes otpBuzz {\n0%, 100% { transform: translateX(0); }\n10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }\n20%, 40%, 60%, 80%       { transform: translateX(3px); }\n}\n.otp-anim-bounce {\nanimation: otpErrBounce 0.55s cubic-bezier(0.28, 0.84, 0.42, 1);\n}\n@keyframes otpErrBounce {\n0%, 100% { transform: translateY(0); }\n30%       { transform: translateY(-10px); }\n55%       { transform: translateY(0); }\n70%       { transform: translateY(-5px); }\n85%       { transform: translateY(0); }\n}\n.otp-anim-glow {\nanimation: otpGlow 0.7s ease;\n}\n@keyframes otpGlow {\n0%, 100% { filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }\n50%       { filter: drop-shadow(0 0 9px rgba(239, 68, 68, 0.9)); }\n}\n.otp-anim-wobble {\nanimation: otpWobble 0.6s ease;\n}\n@keyframes otpWobble {\n0%, 100% { transform: rotate(0) translateX(0); }\n15%       { transform: rotate(-5deg) translateX(-5px); }\n30%       { transform: rotate(4deg) translateX(4px); }\n45%       { transform: rotate(-3deg) translateX(-3px); }\n60%       { transform: rotate(2deg) translateX(2px); }\n75%       { transform: rotate(-1deg); }\n}\n@media (max-width: 420px) {\n:root {\n--otp-input-width: 42px;\n--otp-input-height: 50px;\n--otp-font-size: 1.35rem;\n--otp-gap: 7px;\n}\n}\n@media (max-width: 340px) {\n:root {\n--otp-input-width: 36px;\n--otp-input-height: 44px;\n--otp-font-size: 1.15rem;\n--otp-gap: 5px;\n--otp-border-radius: 7px;\n}\n}\n.otp-root[data-theme=\"underline\"] .otp-input {\nborder-width: 0;\nborder-bottom-width: var(--otp-border-width);\nborder-radius: 0;\nbackground: transparent;\nbox-shadow: none;\n}\n.otp-root[data-theme=\"underline\"] .otp-input--focused {\nborder-bottom-color: var(--otp-focus-color);\nbox-shadow: 0 2px 0 0 var(--otp-focus-color);\n}\n.otp-root[data-theme=\"rounded\"] .otp-input {\n--otp-border-radius: 999px;\n}\n.otp-root[data-theme=\"pill\"] .otp-input {\n--otp-border-radius: 999px;\n--otp-input-width: 56px;\n--otp-input-height: 56px;\nborder-width: 1.5px;\n}\n.otp-root[data-theme=\"pill\"] .otp-input--filled {\nbackground: var(--otp-focus-color);\ncolor: #fff;\nborder-color: var(--otp-focus-color);\n}\n.otp-root[data-theme=\"ghost\"] .otp-input {\nbackground: rgba(15, 23, 42, 0.05);\nborder-color: transparent;\n}\n.otp-root[data-theme=\"ghost\"] .otp-input--focused {\nbackground: transparent;\nborder-color: var(--otp-focus-color);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"ghost\"] .otp-input { background: rgba(255,255,255,0.06); }\n}\n.otp-root[data-theme=\"filled\"] .otp-input {\nbackground: #f1f5f9;\nborder-color: transparent;\nborder-bottom: 2px solid #cbd5e1;\nborder-radius: 8px 8px 0 0;\n}\n.otp-root[data-theme=\"filled\"] .otp-input--focused {\nbackground: #e0f2fe;\nborder-bottom-color: var(--otp-focus-color);\nbox-shadow: none;\n}\n.otp-root[data-theme=\"filled\"] .otp-input--filled {\nbackground: #dbeafe;\nborder-bottom-color: var(--otp-focus-color);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"filled\"] .otp-input { background: #334155; border-bottom-color: #475569; }\n.otp-root[data-theme=\"filled\"] .otp-input--focused { background: #1e3a5f; }\n.otp-root[data-theme=\"filled\"] .otp-input--filled  { background: #1e40af; color: #fff; }\n}\n.otp-root[data-theme=\"soft\"] .otp-input {\nbackground: #f5f3ff;\nborder-color: transparent;\n--otp-border-radius: 14px;\nbox-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.15);\n}\n.otp-root[data-theme=\"soft\"] .otp-input--focused {\nbackground: #ede9fe;\nbox-shadow: inset 0 0 0 2px #8b5cf6, 0 0 0 4px rgba(139, 92, 246, 0.15);\n}\n.otp-root[data-theme=\"soft\"] .otp-input--filled {\ncolor: #7c3aed;\nbackground: #ede9fe;\n}\n.otp-root[data-theme=\"neon\"] {\n--otp-focus-color: #06ffa5;\n--otp-focus-shadow: 0 0 16px rgba(6, 255, 165, 0.55), 0 0 0 2px rgba(6, 255, 165, 0.5);\n}\n.otp-root[data-theme=\"neon\"] .otp-input {\nbackground: #0b0f1a;\nborder-color: #1e293b;\ncolor: #06ffa5;\nfont-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;\ntext-shadow: 0 0 6px rgba(6, 255, 165, 0.6);\n}\n.otp-root[data-theme=\"neon\"] .otp-input--focused {\nborder-color: #06ffa5;\n}\n.otp-root[data-theme=\"neon\"] .otp-input--filled {\nbackground: #051219;\nborder-color: #06ffa5;\nbox-shadow: inset 0 0 8px rgba(6, 255, 165, 0.2);\n}\n.otp-root[data-theme=\"gradient\"] .otp-input {\nbackground: #fff;\nborder: none;\nposition: relative;\nbackground-image:\nlinear-gradient(#fff, #fff),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\nbackground-origin: border-box;\nbackground-clip: padding-box, border-box;\nborder: 2px solid transparent;\n}\n.otp-root[data-theme=\"gradient\"] .otp-input--focused {\nbox-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);\n}\n.otp-root[data-theme=\"gradient\"] .otp-input--filled {\nbackground-image:\nlinear-gradient(135deg, #eef2ff, #fdf2f8),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"gradient\"] .otp-input {\nbackground-image:\nlinear-gradient(#1e293b, #1e293b),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n.otp-root[data-theme=\"gradient\"] .otp-input--filled {\nbackground-image:\nlinear-gradient(135deg, #1e3a5f, #4c1d95),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n}\n.otp-root[data-theme=\"elevated\"] .otp-input {\nborder-color: transparent;\nbackground: #fff;\nbox-shadow:\n0 1px 2px rgba(0,0,0,0.06),\n0 4px 12px rgba(0,0,0,0.08);\n}\n.otp-root[data-theme=\"elevated\"] .otp-input--focused {\ntransform: translateY(-2px);\nbox-shadow:\n0 4px 6px rgba(59, 130, 246, 0.1),\n0 12px 24px rgba(59, 130, 246, 0.18),\n0 0 0 2px var(--otp-focus-color);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"elevated\"] .otp-input { background: #1e293b; }\n}\n@media (prefers-contrast: more) {\n.otp-input {\nborder-width: 3px;\n}\n.otp-input--focused {\noutline: 3px solid var(--otp-focus-color);\noutline-offset: 2px;\n}\n}\n@media (prefers-reduced-motion: reduce) {\n.otp-input,\n.otp-timer-progress-bar,\n.otp-paste-suggestion,\n.otp-toast {\ntransition: none !important;\nanimation: none !important;\n}\n}\n:root {\n--otp-toast-bg:           #ffffff;\n--otp-toast-text:         #0f172a;\n--otp-toast-muted:        #64748b;\n--otp-toast-border:       #e2e8f0;\n--otp-toast-radius:       12px;\n--otp-toast-padding:      14px 16px;\n--otp-toast-min-width:    300px;\n--otp-toast-max-width:    420px;\n--otp-toast-gap:          12px;\n--otp-toast-shadow:       0 10px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -2px rgba(0,0,0,0.06);\n--otp-toast-z:            10000;\n--otp-toast-success-bg:   #ecfdf5;\n--otp-toast-success-fg:   #065f46;\n--otp-toast-success-bar:  #10b981;\n--otp-toast-success-icon: #10b981;\n--otp-toast-error-bg:     #fef2f2;\n--otp-toast-error-fg:     #991b1b;\n--otp-toast-error-bar:    #ef4444;\n--otp-toast-error-icon:   #ef4444;\n--otp-toast-warning-bg:   #fffbeb;\n--otp-toast-warning-fg:   #92400e;\n--otp-toast-warning-bar:  #f59e0b;\n--otp-toast-warning-icon: #f59e0b;\n--otp-toast-info-bg:      #eff6ff;\n--otp-toast-info-fg:      #1e40af;\n--otp-toast-info-bar:     #3b82f6;\n--otp-toast-info-icon:    #3b82f6;\n}\n@media (prefers-color-scheme: dark) {\n:root {\n--otp-toast-bg:        #1e293b;\n--otp-toast-text:      #f1f5f9;\n--otp-toast-muted:     #94a3b8;\n--otp-toast-border:    #334155;\n--otp-toast-shadow:    0 10px 25px -5px rgba(0,0,0,0.5), 0 4px 10px -2px rgba(0,0,0,0.3);\n--otp-toast-success-bg: #022c22;\n--otp-toast-success-fg: #6ee7b7;\n--otp-toast-error-bg:   #2a0a0a;\n--otp-toast-error-fg:   #fca5a5;\n--otp-toast-warning-bg: #2a1a05;\n--otp-toast-warning-fg: #fcd34d;\n--otp-toast-info-bg:    #0f1e3d;\n--otp-toast-info-fg:    #93c5fd;\n}\n}\n.otp-toast-container {\nposition: fixed;\nz-index: var(--otp-toast-z);\ndisplay: flex;\nflex-direction: column;\ngap: 10px;\npadding: 16px;\npointer-events: none;\nmax-width: calc(100% - 32px);\n}\n.otp-toast-container > * { pointer-events: auto; }\n.otp-toast-container--top-left     { top: 0; left: 0; align-items: flex-start; }\n.otp-toast-container--top-center   { top: 0; left: 50%; transform: translateX(-50%); align-items: center; }\n.otp-toast-container--top-right    { top: 0; right: 0; align-items: flex-end; }\n.otp-toast-container--bottom-left  { bottom: 0; left: 0; align-items: flex-start; flex-direction: column-reverse; }\n.otp-toast-container--bottom-center{ bottom: 0; left: 50%; transform: translateX(-50%); align-items: center; flex-direction: column-reverse; }\n.otp-toast-container--bottom-right { bottom: 0; right: 0; align-items: flex-end; flex-direction: column-reverse; }\n[dir=\"rtl\"].otp-toast-container--top-left,\n[dir=\"rtl\"].otp-toast-container--bottom-left { left: auto; right: 0; align-items: flex-end; }\n[dir=\"rtl\"].otp-toast-container--top-right,\n[dir=\"rtl\"].otp-toast-container--bottom-right { right: auto; left: 0; align-items: flex-start; }\n.otp-toast {\ndisplay: flex;\nalign-items: flex-start;\ngap: var(--otp-toast-gap);\nmin-width: var(--otp-toast-min-width);\nmax-width: var(--otp-toast-max-width);\npadding: var(--otp-toast-padding);\nbackground: var(--otp-toast-bg);\ncolor: var(--otp-toast-text);\nborder-radius: var(--otp-toast-radius);\nborder: 1px solid var(--otp-toast-border);\nbox-shadow: var(--otp-toast-shadow);\nposition: relative;\noverflow: hidden;\nfont-size: 0.9rem;\nline-height: 1.45;\nopacity: 0;\ntransform: translateY(-12px) scale(0.97);\ntransition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.otp-toast-container--bottom-left .otp-toast,\n.otp-toast-container--bottom-center .otp-toast,\n.otp-toast-container--bottom-right .otp-toast {\ntransform: translateY(12px) scale(0.97);\n}\n.otp-toast--visible {\nopacity: 1;\ntransform: translateY(0) scale(1);\n}\n.otp-toast--leaving {\nopacity: 0;\ntransform: translateX(40px) scale(0.95);\n}\n[dir=\"rtl\"] .otp-toast--leaving { transform: translateX(-40px) scale(0.95); }\n.otp-toast-icon {\nflex-shrink: 0;\nwidth: 22px;\nheight: 22px;\nborder-radius: 50%;\ndisplay: inline-flex;\nalign-items: center;\njustify-content: center;\nfont-size: 0.78rem;\nfont-weight: 800;\ncolor: #fff;\nmargin-top: 1px;\n}\n.otp-toast-body { flex: 1; min-width: 0; }\n.otp-toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }\n.otp-toast-message { font-size: 0.875rem; word-break: break-word; }\n.otp-toast-actions { display: flex; gap: 8px; margin-top: 8px; }\n.otp-toast-action {\nbackground: transparent;\nborder: 1px solid currentColor;\ncolor: inherit;\npadding: 4px 10px;\nborder-radius: 6px;\nfont-size: 0.78rem;\nfont-weight: 600;\ncursor: pointer;\nopacity: 0.85;\ntransition: opacity 0.15s, background 0.15s;\n}\n.otp-toast-action:hover { opacity: 1; background: rgba(0,0,0,0.05); }\n.otp-toast-close {\nbackground: transparent;\nborder: none;\ncolor: var(--otp-toast-muted);\nfont-size: 1.25rem;\nline-height: 1;\ncursor: pointer;\npadding: 0;\nwidth: 22px;\nheight: 22px;\ndisplay: inline-flex;\nalign-items: center;\njustify-content: center;\nborder-radius: 4px;\nflex-shrink: 0;\nmargin-top: -2px;\ntransition: background 0.15s, color 0.15s;\n}\n.otp-toast-close:hover { background: rgba(0,0,0,0.06); color: var(--otp-toast-text); }\n.otp-toast-progress {\nposition: absolute;\nbottom: 0;\ninset-inline: 0;\nheight: 3px;\nbackground: rgba(0,0,0,0.06);\n}\n.otp-toast-progress-bar {\nheight: 100%;\nwidth: 100%;\nbackground: currentColor;\ntransition: width linear;\n}\n.otp-toast--success { background: var(--otp-toast-success-bg); color: var(--otp-toast-success-fg); border-color: rgba(16,185,129,0.25); }\n.otp-toast--success .otp-toast-icon          { background: var(--otp-toast-success-icon); }\n.otp-toast--success .otp-toast-progress-bar  { background: var(--otp-toast-success-bar); }\n.otp-toast--error { background: var(--otp-toast-error-bg); color: var(--otp-toast-error-fg); border-color: rgba(239,68,68,0.3); }\n.otp-toast--error .otp-toast-icon          { background: var(--otp-toast-error-icon); }\n.otp-toast--error .otp-toast-progress-bar  { background: var(--otp-toast-error-bar); }\n.otp-toast--error                          { animation: otpToastErrorPulse 0.4s ease; }\n.otp-toast--warning { background: var(--otp-toast-warning-bg); color: var(--otp-toast-warning-fg); border-color: rgba(245,158,11,0.3); }\n.otp-toast--warning .otp-toast-icon          { background: var(--otp-toast-warning-icon); }\n.otp-toast--warning .otp-toast-progress-bar  { background: var(--otp-toast-warning-bar); }\n.otp-toast--info { background: var(--otp-toast-info-bg); color: var(--otp-toast-info-fg); border-color: rgba(59,130,246,0.25); }\n.otp-toast--info .otp-toast-icon          { background: var(--otp-toast-info-icon); }\n.otp-toast--info .otp-toast-progress-bar  { background: var(--otp-toast-info-bar); }\n@keyframes otpToastErrorPulse {\n0%   { box-shadow: var(--otp-toast-shadow), 0 0 0 0 rgba(239,68,68,0.5); }\n50%  { box-shadow: var(--otp-toast-shadow), 0 0 0 8px rgba(239,68,68,0); }\n100% { box-shadow: var(--otp-toast-shadow), 0 0 0 0 rgba(239,68,68,0); }\n}\n.otp-toast--theme-glass {\nbackground: rgba(255, 255, 255, 0.72);\n-webkit-backdrop-filter: blur(14px) saturate(1.6);\nbackdrop-filter: blur(14px) saturate(1.6);\nborder: 1px solid rgba(255,255,255,0.5);\nbox-shadow:\n0 8px 32px rgba(0,0,0,0.12),\ninset 0 1px 0 rgba(255,255,255,0.6);\n}\n@media (prefers-color-scheme: dark) {\n.otp-toast--theme-glass {\nbackground: rgba(30, 41, 59, 0.65);\nborder: 1px solid rgba(255,255,255,0.08);\nbox-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);\n}\n}\n.otp-toast--theme-glass.otp-toast--success { background: rgba(236, 253, 245, 0.72); }\n.otp-toast--theme-glass.otp-toast--error   { background: rgba(254, 242, 242, 0.72); }\n.otp-toast--theme-glass.otp-toast--warning { background: rgba(255, 251, 235, 0.72); }\n.otp-toast--theme-glass.otp-toast--info    { background: rgba(239, 246, 255, 0.72); }\n.otp-toast--theme-solid           { color: #fff; border: none; }\n.otp-toast--theme-solid .otp-toast-close { color: rgba(255,255,255,0.85); }\n.otp-toast--theme-solid .otp-toast-close:hover { background: rgba(255,255,255,0.15); color:#fff; }\n.otp-toast--theme-solid .otp-toast-icon  { background: rgba(255,255,255,0.22); color:#fff; }\n.otp-toast--theme-solid.otp-toast--success { background: #10b981; }\n.otp-toast--theme-solid.otp-toast--error   { background: #ef4444; }\n.otp-toast--theme-solid.otp-toast--warning { background: #f59e0b; }\n.otp-toast--theme-solid.otp-toast--info    { background: #3b82f6; }\n.otp-toast--theme-solid .otp-toast-progress-bar { background: rgba(255,255,255,0.5); }\n.otp-toast--theme-gradient        { color: #fff; border: none; box-shadow: 0 12px 30px -8px rgba(0,0,0,0.35); }\n.otp-toast--theme-gradient .otp-toast-icon  { background: rgba(255,255,255,0.25); }\n.otp-toast--theme-gradient .otp-toast-close { color: rgba(255,255,255,0.9); }\n.otp-toast--theme-gradient.otp-toast--success { background: linear-gradient(135deg, #10b981, #059669); }\n.otp-toast--theme-gradient.otp-toast--error   { background: linear-gradient(135deg, #ef4444, #b91c1c); }\n.otp-toast--theme-gradient.otp-toast--warning { background: linear-gradient(135deg, #f59e0b, #d97706); }\n.otp-toast--theme-gradient.otp-toast--info    { background: linear-gradient(135deg, #3b82f6, #6366f1); }\n.otp-toast--theme-gradient .otp-toast-progress-bar { background: rgba(255,255,255,0.5); }\n.otp-toast--theme-minimal {\nbackground: var(--otp-toast-bg);\ncolor: var(--otp-toast-text);\nborder: 1px solid var(--otp-toast-border);\nborder-inline-start-width: 4px;\nbox-shadow: 0 4px 12px rgba(0,0,0,0.06);\n}\n.otp-toast--theme-minimal .otp-toast-icon          { background: transparent; color: currentColor; }\n.otp-toast--theme-minimal.otp-toast--success       { border-inline-start-color: var(--otp-toast-success-bar); }\n.otp-toast--theme-minimal.otp-toast--success .otp-toast-icon { color: var(--otp-toast-success-icon); }\n.otp-toast--theme-minimal.otp-toast--error         { border-inline-start-color: var(--otp-toast-error-bar); }\n.otp-toast--theme-minimal.otp-toast--error .otp-toast-icon   { color: var(--otp-toast-error-icon); }\n.otp-toast--theme-minimal.otp-toast--warning       { border-inline-start-color: var(--otp-toast-warning-bar); }\n.otp-toast--theme-minimal.otp-toast--warning .otp-toast-icon { color: var(--otp-toast-warning-icon); }\n.otp-toast--theme-minimal.otp-toast--info          { border-inline-start-color: var(--otp-toast-info-bar); }\n.otp-toast--theme-minimal.otp-toast--info .otp-toast-icon    { color: var(--otp-toast-info-icon); }\n.otp-toast--theme-pill {\nborder-radius: 999px;\npadding: 8px 16px 8px 10px;\nmin-width: auto;\nfont-size: 0.85rem;\ngap: 8px;\nborder: none;\nbackground: var(--otp-toast-bg);\n}\n.otp-toast--theme-pill .otp-toast-icon {\nwidth: 24px; height: 24px;\n}\n.otp-toast--theme-pill .otp-toast-close { display: none; }\n.otp-toast--theme-pill .otp-toast-progress { display: none; }\n.otp-toast--theme-pill .otp-toast-title { display: none; }\n.otp-toast--theme-pill.otp-toast--success { background: #10b981; color: #fff; }\n.otp-toast--theme-pill.otp-toast--error   { background: #ef4444; color: #fff; }\n.otp-toast--theme-pill.otp-toast--warning { background: #f59e0b; color: #fff; }\n.otp-toast--theme-pill.otp-toast--info    { background: #3b82f6; color: #fff; }\n.otp-toast--theme-pill .otp-toast-icon    { background: rgba(255,255,255,0.25); }\n@media (max-width: 480px) {\n.otp-toast-container {\ninset-inline: 0 !important;\nleft: 0 !important; right: 0 !important; transform: none !important;\nalign-items: stretch !important;\npadding: 10px;\n}\n.otp-toast {\nmin-width: 0;\nmax-width: 100%;\nwidth: 100%;\n}\n}\n.otp-spinner {\nposition: absolute;\ninset: 0;\ndisplay: none;\nalign-items: center;\njustify-content: center;\nz-index: 3;\npointer-events: none;\n}\n.otp-root--loading .otp-spinner {\ndisplay: flex;\n}\n.otp-root--loading .otp-inputs-row {\nopacity: 0.45;\nfilter: grayscale(0.2);\ntransition: opacity var(--otp-transition);\n}\n.otp-spinner__ring {\nwidth: 28px;\nheight: 28px;\nborder-radius: 50%;\nborder: 3px solid var(--otp-progress-bg, #e5e7eb);\nborder-top-color: var(--otp-focus-color, #3b82f6);\nanimation: otpSpin 0.7s linear infinite;\n}\n@keyframes otpSpin {\nto { transform: rotate(360deg); }\n}\n.otp-root--verified .otp-input {\nborder-color: var(--otp-success-color) !important;\n}\n@media (prefers-reduced-motion: reduce) {\n.otp-spinner__ring {\nanimation-duration: 1.4s;\n}\n}\n.otp-reveal-btn {\ndisplay: inline-flex;\nalign-items: center;\ngap: 6px;\nmargin-top: 4px;\npadding: 6px 12px;\nfont-size: 0.82rem;\nfont-family: inherit;\ncolor: var(--otp-resend-color, #3b82f6);\nbackground: transparent;\nborder: 1px solid var(--otp-border-color, #d1d5db);\nborder-radius: 999px;\ncursor: pointer;\ntransition: background-color var(--otp-transition),\nborder-color var(--otp-transition), color var(--otp-transition);\n}\n.otp-reveal-btn:hover {\nbackground: rgba(59, 130, 246, 0.08);\n}\n.otp-reveal-btn:focus-visible {\noutline: none;\nbox-shadow: var(--otp-focus-shadow);\n}\n.otp-reveal-btn svg {\nflex-shrink: 0;\n}\n.otp-reveal-btn--on {\ncolor: var(--otp-success-color, #22c55e);\nborder-color: var(--otp-success-color, #22c55e);\n}\n.otp-lock-message {\nmargin-top: 6px;\nfont-size: var(--otp-timer-font-size, 0.875rem);\nfont-weight: 600;\ncolor: var(--otp-error-color, #ef4444);\ntext-align: center;\nmin-height: 1.2em;\n}\n.otp-root--locked .otp-inputs-row {\nopacity: 0.5;\nfilter: grayscale(0.3);\n}";
-if (typeof document !== 'undefined') {
-  const __id = 'otp-input-styles';
-  if (!document.getElementById(__id)) {
-    const s = document.createElement('style');
-    s.id = __id;
-    s.textContent = __css;
-    document.head.appendChild(s);
-  }
-}
+import React from 'react';
 
 /**
  * Lightweight event emitter for internal pub/sub
@@ -96,7 +87,7 @@ function formatTime(seconds) {
  * DOM utility helpers
  */
 
-function createElement(tag, attrs = {}, children = []) {
+function createElement$1(tag, attrs = {}, children = []) {
   const el = document.createElement(tag);
   for (const [key, val] of Object.entries(attrs)) {
     if (key === 'class') el.className = val;
@@ -872,13 +863,6 @@ class ToastManager {
   }
 }
 
-/** Singleton helper for global access */
-let _defaultInstance;
-function getDefaultToast() {
-  if (!_defaultInstance) _defaultInstance = new ToastManager();
-  return _defaultInstance;
-}
-
 /**
  * Locale definitions for number rendering and RTL detection
  */
@@ -1201,11 +1185,11 @@ class OTPInput {
     this.rtl.applyDirection(this.container);
 
     // Wrapper
-    this._wrapper = createElement('div', { class: 'otp-wrapper' });
+    this._wrapper = createElement$1('div', { class: 'otp-wrapper' });
     if (this.options.secure) addClasses(this._wrapper, 'otp-wrapper--secure');
 
     // Inputs row
-    this._inputsRow = createElement('div', {
+    this._inputsRow = createElement$1('div', {
       class: 'otp-inputs-row',
       role: 'presentation',
     });
@@ -1222,7 +1206,7 @@ class OTPInput {
       if (sep && i < length - 1) {
         const positions = Array.isArray(sep.after) ? sep.after : (sep.after != null ? [sep.after] : [Math.floor(length / 2)]);
         if (positions.includes(i + 1)) {
-          const sepEl = createElement('span', { class: 'otp-separator', 'aria-hidden': 'true' });
+          const sepEl = createElement$1('span', { class: 'otp-separator', 'aria-hidden': 'true' });
           sepEl.textContent = sep.char ?? '—';
           this._inputsRow.appendChild(sepEl);
         }
@@ -1240,7 +1224,7 @@ class OTPInput {
 
     // Lockout message region (only when lockout is enabled)
     if (this.options.lockout?.enabled) {
-      this._lockEl = createElement('div', {
+      this._lockEl = createElement$1('div', {
         class: 'otp-lock-message',
         role: 'status',
         'aria-live': 'polite',
@@ -1251,7 +1235,7 @@ class OTPInput {
     this.container.appendChild(this._wrapper);
 
     // Loading overlay (spinner) — hidden until a verification is in flight
-    this._spinner = createElement('div', {
+    this._spinner = createElement$1('div', {
       class: 'otp-spinner',
       role: 'status',
       'aria-hidden': 'true',
@@ -1278,7 +1262,7 @@ class OTPInput {
   _createInput(index) {
     const { secure, placeholder, type, locale } = this.options;
 
-    const input = createElement('input', {
+    const input = createElement$1('input', {
       type: secure ? 'password' : 'text',
       inputMode: type === 'alpha' ? 'text' : (type === 'numeric' ? 'numeric' : 'text'),
       maxLength: 1,
@@ -1299,7 +1283,7 @@ class OTPInput {
 
   _buildRevealToggle() {
     const label = this.options.revealLabel;
-    const btn = createElement('button', {
+    const btn = createElement$1('button', {
       type: 'button',
       class: 'otp-reveal-btn',
       'aria-pressed': 'false',
@@ -2112,251 +2096,133 @@ class OTPInput {
   }
 }
 
-// Guard for non-browser environments (SSR, Node, test runners)
-const _HTMLElement = typeof HTMLElement !== 'undefined' ? HTMLElement : class {};
+const __css = ":root {\n--otp-gap: 10px;\n--otp-input-width: 52px;\n--otp-input-height: 60px;\n--otp-border-radius: 10px;\n--otp-border-width: 2px;\n--otp-border-color: #d1d5db;\n--otp-focus-color: #3b82f6;\n--otp-focus-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);\n--otp-error-color: #ef4444;\n--otp-error-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);\n--otp-success-color: #22c55e;\n--otp-success-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);\n--otp-bg: #ffffff;\n--otp-filled-bg: #f0f9ff;\n--otp-disabled-bg: #f3f4f6;\n--otp-text-color: #111827;\n--otp-placeholder-color: #d1d5db;\n--otp-font-size: 1.625rem;\n--otp-font-weight: 700;\n--otp-font-family: inherit;\n--otp-letter-spacing: 0.05em;\n--otp-transition: 0.18s ease;\n--otp-timer-color: #6b7280;\n--otp-timer-urgent-color: #ef4444;\n--otp-timer-font-size: 0.875rem;\n--otp-progress-height: 3px;\n--otp-progress-bg: #e5e7eb;\n--otp-progress-fill: #3b82f6;\n--otp-resend-color: #3b82f6;\n--otp-resend-disabled-color: #9ca3af;\n--otp-resend-font-size: 0.875rem;\n--otp-paste-bg: #eff6ff;\n--otp-paste-border: #bfdbfe;\n--otp-paste-color: #1d4ed8;\n--otp-paste-font-size: 0.8125rem;\n}\n@media (prefers-color-scheme: dark) {\n:root {\n--otp-bg: #1f2937;\n--otp-filled-bg: #1e3a5f;\n--otp-disabled-bg: #374151;\n--otp-border-color: #374151;\n--otp-text-color: #f9fafb;\n--otp-placeholder-color: #4b5563;\n--otp-progress-bg: #374151;\n--otp-paste-bg: #1e3a5f;\n--otp-paste-border: #1e40af;\n--otp-paste-color: #93c5fd;\n--otp-timer-color: #9ca3af;\n}\n}\n.otp-root {\nposition: relative;\ndisplay: inline-block;\nwidth: 100%;\n}\n.otp-wrapper {\ndisplay: flex;\nflex-direction: column;\nalign-items: center;\ngap: 12px;\nwidth: 100%;\n}\n.otp-inputs-row {\ndisplay: flex;\nflex-direction: row;\nalign-items: center;\njustify-content: center;\ngap: var(--otp-gap);\nwidth: 100%;\n}\n[dir=\"rtl\"] .otp-inputs-row {\nflex-direction: row;\n}\n.otp-separator {\ndisplay: flex;\nalign-items: center;\njustify-content: center;\ncolor: var(--otp-separator-color, var(--otp-border-color, #cbd5e1));\nfont-size: 1.2em;\nfont-weight: 300;\nletter-spacing: -0.02em;\nuser-select: none;\npadding: 0 2px;\nflex-shrink: 0;\ntransition: color 0.2s;\n}\n.otp-input {\nwidth: var(--otp-input-width);\nheight: var(--otp-input-height);\npadding: 0;\nborder: var(--otp-border-width) solid var(--otp-border-color);\nborder-radius: var(--otp-border-radius);\nbackground: var(--otp-bg);\ncolor: var(--otp-text-color);\nfont-size: var(--otp-font-size);\nfont-weight: var(--otp-font-weight);\nfont-family: var(--otp-font-family);\nletter-spacing: var(--otp-letter-spacing);\ntext-align: center;\noutline: none;\ncursor: text;\n-webkit-appearance: none;\nappearance: none;\ntransition:\nborder-color var(--otp-transition),\nbackground-color var(--otp-transition),\nbox-shadow var(--otp-transition),\ntransform var(--otp-transition);\nuser-select: text;\n}\n.otp-input[type=\"number\"]::-webkit-inner-spin-button,\n.otp-input[type=\"number\"]::-webkit-outer-spin-button {\n-webkit-appearance: none;\n}\n.otp-input::placeholder {\ncolor: var(--otp-placeholder-color);\nfont-size: calc(var(--otp-font-size) * 0.6);\nfont-weight: 400;\n}\n.otp-input--focused {\nborder-color: var(--otp-focus-color);\nbox-shadow: var(--otp-focus-shadow);\nz-index: 1;\n}\n.otp-input--filled {\nbackground: var(--otp-filled-bg);\nborder-color: var(--otp-border-color);\n}\n.otp-input--error {\nborder-color: var(--otp-error-color) !important;\nbox-shadow: var(--otp-error-shadow) !important;\nbackground: rgba(239, 68, 68, 0.04);\n}\n.otp-input--success {\nborder-color: var(--otp-success-color) !important;\nbox-shadow: var(--otp-success-shadow);\nbackground: rgba(34, 197, 94, 0.06);\n}\n.otp-root--disabled .otp-input,\n.otp-input:disabled {\nbackground: var(--otp-disabled-bg);\ncursor: not-allowed;\nopacity: 0.6;\n}\n.otp-root--expired .otp-input {\nopacity: 0.45;\ncursor: not-allowed;\n}\n.otp-timer-progress {\nwidth: 100%;\nmax-width: calc(var(--otp-input-width) * 6 + var(--otp-gap) * 5 + 20px);\nheight: var(--otp-progress-height);\nbackground: var(--otp-progress-bg);\nborder-radius: 999px;\noverflow: hidden;\n}\n.otp-timer-progress-bar {\nheight: 100%;\nbackground: var(--otp-progress-fill);\nborder-radius: 999px;\ntransition: background-color 0.3s ease;\nwidth: 100%;\n}\n.otp-timer-progress-bar.otp-timer-progress-bar--running {\nanimation: otpProgressCountdown linear forwards;\n}\n.otp-timer--urgent ~ .otp-timer-progress .otp-timer-progress-bar {\nbackground: var(--otp-error-color);\n}\n.otp-footer {\ndisplay: flex;\nalign-items: center;\njustify-content: space-between;\nwidth: 100%;\nmax-width: calc(var(--otp-input-width) * 6 + var(--otp-gap) * 5);\npadding: 0 2px;\ngap: 8px;\n}\n.otp-timer-wrap {\ndisplay: flex;\nalign-items: center;\ngap: 6px;\n}\n.otp-timer {\nfont-size: var(--otp-timer-font-size);\ncolor: var(--otp-timer-color);\nfont-variant-numeric: tabular-nums;\nletter-spacing: 0.02em;\nmin-width: 2.8em;\n}\n.otp-timer--urgent {\ncolor: var(--otp-timer-urgent-color);\nfont-weight: 600;\n}\n.otp-resend-btn {\nbackground: none;\nborder: none;\npadding: 4px 8px;\nfont-size: var(--otp-resend-font-size);\ncolor: var(--otp-resend-color);\ncursor: pointer;\nborder-radius: 6px;\nfont-weight: 500;\ntransition: opacity 0.15s, background-color 0.15s;\nwhite-space: nowrap;\n}\n.otp-resend-btn:hover:not(:disabled) {\nbackground: rgba(59, 130, 246, 0.1);\n}\n.otp-resend-btn:disabled {\ncolor: var(--otp-resend-disabled-color);\ncursor: not-allowed;\n}\n.otp-paste-suggestion {\ndisplay: flex;\nwidth: fit-content;\nalign-items: center;\njustify-content: center;\npadding: 8px 16px;\nmargin: 0 auto;\nbackground: var(--otp-paste-bg);\nborder: 1px solid var(--otp-paste-border);\nborder-radius: 8px;\ncolor: var(--otp-paste-color);\nfont-size: var(--otp-paste-font-size);\nfont-weight: 500;\ntext-align: center;\ncursor: pointer;\ntransition: opacity 0.2s;\nanimation: otpFadeInDown 0.25s ease;\n}\n.otp-paste-suggestion:hover {\nopacity: 0.85;\n}\n.otp-live-region {\nposition: absolute !important;\nwidth: 1px !important;\nheight: 1px !important;\npadding: 0 !important;\nmargin: -1px !important;\noverflow: hidden !important;\nclip: rect(0, 0, 0, 0) !important;\nwhite-space: nowrap !important;\nborder: 0 !important;\n}\n@keyframes otpProgressCountdown {\nfrom { width: 100%; }\nto   { width: 0%; }\n}\n@keyframes otpShake {\n0%, 100% { transform: translateX(0); }\n15%       { transform: translateX(-6px) rotate(-1deg); }\n30%       { transform: translateX(5px)  rotate(1deg); }\n45%       { transform: translateX(-4px); }\n60%       { transform: translateX(3px); }\n75%       { transform: translateX(-2px); }\n}\n@keyframes otpPop {\n0%   { transform: scale(1); }\n40%  { transform: scale(1.15); }\n70%  { transform: scale(0.95); }\n100% { transform: scale(1); }\n}\n@keyframes otpHighlight {\n0%, 100% { background-color: var(--otp-bg); }\n50%       { background-color: rgba(239, 68, 68, 0.15); }\n}\n@keyframes otpFadeInDown {\nfrom { opacity: 0; transform: translateY(-8px); }\nto   { opacity: 1; transform: translateY(0); }\n}\n.otp-anim-shake {\nanimation: otpShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);\n}\n.otp-anim-pop {\nanimation: otpPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.otp-anim-highlight {\nanimation: otpHighlight 0.5s ease;\n}\n[dir=\"rtl\"] .otp-anim-shake {\nanimation-name: otpShakeRTL;\n}\n@keyframes otpShakeRTL {\n0%, 100% { transform: translateX(0); }\n15%       { transform: translateX(6px) rotate(1deg); }\n30%       { transform: translateX(-5px) rotate(-1deg); }\n45%       { transform: translateX(4px); }\n60%       { transform: translateX(-3px); }\n75%       { transform: translateX(2px); }\n}\n.otp-anim-pulse {\nanimation: otpErrPulse 0.5s ease;\n}\n@keyframes otpErrPulse {\n0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }\n35%       { transform: scale(1.12); filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.7)); }\n70%       { transform: scale(0.97); }\n}\n.otp-anim-buzz {\nanimation: otpBuzz 0.4s linear;\n}\n@keyframes otpBuzz {\n0%, 100% { transform: translateX(0); }\n10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }\n20%, 40%, 60%, 80%       { transform: translateX(3px); }\n}\n.otp-anim-bounce {\nanimation: otpErrBounce 0.55s cubic-bezier(0.28, 0.84, 0.42, 1);\n}\n@keyframes otpErrBounce {\n0%, 100% { transform: translateY(0); }\n30%       { transform: translateY(-10px); }\n55%       { transform: translateY(0); }\n70%       { transform: translateY(-5px); }\n85%       { transform: translateY(0); }\n}\n.otp-anim-glow {\nanimation: otpGlow 0.7s ease;\n}\n@keyframes otpGlow {\n0%, 100% { filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }\n50%       { filter: drop-shadow(0 0 9px rgba(239, 68, 68, 0.9)); }\n}\n.otp-anim-wobble {\nanimation: otpWobble 0.6s ease;\n}\n@keyframes otpWobble {\n0%, 100% { transform: rotate(0) translateX(0); }\n15%       { transform: rotate(-5deg) translateX(-5px); }\n30%       { transform: rotate(4deg) translateX(4px); }\n45%       { transform: rotate(-3deg) translateX(-3px); }\n60%       { transform: rotate(2deg) translateX(2px); }\n75%       { transform: rotate(-1deg); }\n}\n@media (max-width: 420px) {\n:root {\n--otp-input-width: 42px;\n--otp-input-height: 50px;\n--otp-font-size: 1.35rem;\n--otp-gap: 7px;\n}\n}\n@media (max-width: 340px) {\n:root {\n--otp-input-width: 36px;\n--otp-input-height: 44px;\n--otp-font-size: 1.15rem;\n--otp-gap: 5px;\n--otp-border-radius: 7px;\n}\n}\n.otp-root[data-theme=\"underline\"] .otp-input {\nborder-width: 0;\nborder-bottom-width: var(--otp-border-width);\nborder-radius: 0;\nbackground: transparent;\nbox-shadow: none;\n}\n.otp-root[data-theme=\"underline\"] .otp-input--focused {\nborder-bottom-color: var(--otp-focus-color);\nbox-shadow: 0 2px 0 0 var(--otp-focus-color);\n}\n.otp-root[data-theme=\"rounded\"] .otp-input {\n--otp-border-radius: 999px;\n}\n.otp-root[data-theme=\"pill\"] .otp-input {\n--otp-border-radius: 999px;\n--otp-input-width: 56px;\n--otp-input-height: 56px;\nborder-width: 1.5px;\n}\n.otp-root[data-theme=\"pill\"] .otp-input--filled {\nbackground: var(--otp-focus-color);\ncolor: #fff;\nborder-color: var(--otp-focus-color);\n}\n.otp-root[data-theme=\"ghost\"] .otp-input {\nbackground: rgba(15, 23, 42, 0.05);\nborder-color: transparent;\n}\n.otp-root[data-theme=\"ghost\"] .otp-input--focused {\nbackground: transparent;\nborder-color: var(--otp-focus-color);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"ghost\"] .otp-input { background: rgba(255,255,255,0.06); }\n}\n.otp-root[data-theme=\"filled\"] .otp-input {\nbackground: #f1f5f9;\nborder-color: transparent;\nborder-bottom: 2px solid #cbd5e1;\nborder-radius: 8px 8px 0 0;\n}\n.otp-root[data-theme=\"filled\"] .otp-input--focused {\nbackground: #e0f2fe;\nborder-bottom-color: var(--otp-focus-color);\nbox-shadow: none;\n}\n.otp-root[data-theme=\"filled\"] .otp-input--filled {\nbackground: #dbeafe;\nborder-bottom-color: var(--otp-focus-color);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"filled\"] .otp-input { background: #334155; border-bottom-color: #475569; }\n.otp-root[data-theme=\"filled\"] .otp-input--focused { background: #1e3a5f; }\n.otp-root[data-theme=\"filled\"] .otp-input--filled  { background: #1e40af; color: #fff; }\n}\n.otp-root[data-theme=\"soft\"] .otp-input {\nbackground: #f5f3ff;\nborder-color: transparent;\n--otp-border-radius: 14px;\nbox-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.15);\n}\n.otp-root[data-theme=\"soft\"] .otp-input--focused {\nbackground: #ede9fe;\nbox-shadow: inset 0 0 0 2px #8b5cf6, 0 0 0 4px rgba(139, 92, 246, 0.15);\n}\n.otp-root[data-theme=\"soft\"] .otp-input--filled {\ncolor: #7c3aed;\nbackground: #ede9fe;\n}\n.otp-root[data-theme=\"neon\"] {\n--otp-focus-color: #06ffa5;\n--otp-focus-shadow: 0 0 16px rgba(6, 255, 165, 0.55), 0 0 0 2px rgba(6, 255, 165, 0.5);\n}\n.otp-root[data-theme=\"neon\"] .otp-input {\nbackground: #0b0f1a;\nborder-color: #1e293b;\ncolor: #06ffa5;\nfont-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;\ntext-shadow: 0 0 6px rgba(6, 255, 165, 0.6);\n}\n.otp-root[data-theme=\"neon\"] .otp-input--focused {\nborder-color: #06ffa5;\n}\n.otp-root[data-theme=\"neon\"] .otp-input--filled {\nbackground: #051219;\nborder-color: #06ffa5;\nbox-shadow: inset 0 0 8px rgba(6, 255, 165, 0.2);\n}\n.otp-root[data-theme=\"gradient\"] .otp-input {\nbackground: #fff;\nborder: none;\nposition: relative;\nbackground-image:\nlinear-gradient(#fff, #fff),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\nbackground-origin: border-box;\nbackground-clip: padding-box, border-box;\nborder: 2px solid transparent;\n}\n.otp-root[data-theme=\"gradient\"] .otp-input--focused {\nbox-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);\n}\n.otp-root[data-theme=\"gradient\"] .otp-input--filled {\nbackground-image:\nlinear-gradient(135deg, #eef2ff, #fdf2f8),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"gradient\"] .otp-input {\nbackground-image:\nlinear-gradient(#1e293b, #1e293b),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n.otp-root[data-theme=\"gradient\"] .otp-input--filled {\nbackground-image:\nlinear-gradient(135deg, #1e3a5f, #4c1d95),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n}\n.otp-root[data-theme=\"elevated\"] .otp-input {\nborder-color: transparent;\nbackground: #fff;\nbox-shadow:\n0 1px 2px rgba(0,0,0,0.06),\n0 4px 12px rgba(0,0,0,0.08);\n}\n.otp-root[data-theme=\"elevated\"] .otp-input--focused {\ntransform: translateY(-2px);\nbox-shadow:\n0 4px 6px rgba(59, 130, 246, 0.1),\n0 12px 24px rgba(59, 130, 246, 0.18),\n0 0 0 2px var(--otp-focus-color);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"elevated\"] .otp-input { background: #1e293b; }\n}\n@media (prefers-contrast: more) {\n.otp-input {\nborder-width: 3px;\n}\n.otp-input--focused {\noutline: 3px solid var(--otp-focus-color);\noutline-offset: 2px;\n}\n}\n@media (prefers-reduced-motion: reduce) {\n.otp-input,\n.otp-timer-progress-bar,\n.otp-paste-suggestion,\n.otp-toast {\ntransition: none !important;\nanimation: none !important;\n}\n}\n:root {\n--otp-toast-bg:           #ffffff;\n--otp-toast-text:         #0f172a;\n--otp-toast-muted:        #64748b;\n--otp-toast-border:       #e2e8f0;\n--otp-toast-radius:       12px;\n--otp-toast-padding:      14px 16px;\n--otp-toast-min-width:    300px;\n--otp-toast-max-width:    420px;\n--otp-toast-gap:          12px;\n--otp-toast-shadow:       0 10px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -2px rgba(0,0,0,0.06);\n--otp-toast-z:            10000;\n--otp-toast-success-bg:   #ecfdf5;\n--otp-toast-success-fg:   #065f46;\n--otp-toast-success-bar:  #10b981;\n--otp-toast-success-icon: #10b981;\n--otp-toast-error-bg:     #fef2f2;\n--otp-toast-error-fg:     #991b1b;\n--otp-toast-error-bar:    #ef4444;\n--otp-toast-error-icon:   #ef4444;\n--otp-toast-warning-bg:   #fffbeb;\n--otp-toast-warning-fg:   #92400e;\n--otp-toast-warning-bar:  #f59e0b;\n--otp-toast-warning-icon: #f59e0b;\n--otp-toast-info-bg:      #eff6ff;\n--otp-toast-info-fg:      #1e40af;\n--otp-toast-info-bar:     #3b82f6;\n--otp-toast-info-icon:    #3b82f6;\n}\n@media (prefers-color-scheme: dark) {\n:root {\n--otp-toast-bg:        #1e293b;\n--otp-toast-text:      #f1f5f9;\n--otp-toast-muted:     #94a3b8;\n--otp-toast-border:    #334155;\n--otp-toast-shadow:    0 10px 25px -5px rgba(0,0,0,0.5), 0 4px 10px -2px rgba(0,0,0,0.3);\n--otp-toast-success-bg: #022c22;\n--otp-toast-success-fg: #6ee7b7;\n--otp-toast-error-bg:   #2a0a0a;\n--otp-toast-error-fg:   #fca5a5;\n--otp-toast-warning-bg: #2a1a05;\n--otp-toast-warning-fg: #fcd34d;\n--otp-toast-info-bg:    #0f1e3d;\n--otp-toast-info-fg:    #93c5fd;\n}\n}\n.otp-toast-container {\nposition: fixed;\nz-index: var(--otp-toast-z);\ndisplay: flex;\nflex-direction: column;\ngap: 10px;\npadding: 16px;\npointer-events: none;\nmax-width: calc(100% - 32px);\n}\n.otp-toast-container > * { pointer-events: auto; }\n.otp-toast-container--top-left     { top: 0; left: 0; align-items: flex-start; }\n.otp-toast-container--top-center   { top: 0; left: 50%; transform: translateX(-50%); align-items: center; }\n.otp-toast-container--top-right    { top: 0; right: 0; align-items: flex-end; }\n.otp-toast-container--bottom-left  { bottom: 0; left: 0; align-items: flex-start; flex-direction: column-reverse; }\n.otp-toast-container--bottom-center{ bottom: 0; left: 50%; transform: translateX(-50%); align-items: center; flex-direction: column-reverse; }\n.otp-toast-container--bottom-right { bottom: 0; right: 0; align-items: flex-end; flex-direction: column-reverse; }\n[dir=\"rtl\"].otp-toast-container--top-left,\n[dir=\"rtl\"].otp-toast-container--bottom-left { left: auto; right: 0; align-items: flex-end; }\n[dir=\"rtl\"].otp-toast-container--top-right,\n[dir=\"rtl\"].otp-toast-container--bottom-right { right: auto; left: 0; align-items: flex-start; }\n.otp-toast {\ndisplay: flex;\nalign-items: flex-start;\ngap: var(--otp-toast-gap);\nmin-width: var(--otp-toast-min-width);\nmax-width: var(--otp-toast-max-width);\npadding: var(--otp-toast-padding);\nbackground: var(--otp-toast-bg);\ncolor: var(--otp-toast-text);\nborder-radius: var(--otp-toast-radius);\nborder: 1px solid var(--otp-toast-border);\nbox-shadow: var(--otp-toast-shadow);\nposition: relative;\noverflow: hidden;\nfont-size: 0.9rem;\nline-height: 1.45;\nopacity: 0;\ntransform: translateY(-12px) scale(0.97);\ntransition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.otp-toast-container--bottom-left .otp-toast,\n.otp-toast-container--bottom-center .otp-toast,\n.otp-toast-container--bottom-right .otp-toast {\ntransform: translateY(12px) scale(0.97);\n}\n.otp-toast--visible {\nopacity: 1;\ntransform: translateY(0) scale(1);\n}\n.otp-toast--leaving {\nopacity: 0;\ntransform: translateX(40px) scale(0.95);\n}\n[dir=\"rtl\"] .otp-toast--leaving { transform: translateX(-40px) scale(0.95); }\n.otp-toast-icon {\nflex-shrink: 0;\nwidth: 22px;\nheight: 22px;\nborder-radius: 50%;\ndisplay: inline-flex;\nalign-items: center;\njustify-content: center;\nfont-size: 0.78rem;\nfont-weight: 800;\ncolor: #fff;\nmargin-top: 1px;\n}\n.otp-toast-body { flex: 1; min-width: 0; }\n.otp-toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }\n.otp-toast-message { font-size: 0.875rem; word-break: break-word; }\n.otp-toast-actions { display: flex; gap: 8px; margin-top: 8px; }\n.otp-toast-action {\nbackground: transparent;\nborder: 1px solid currentColor;\ncolor: inherit;\npadding: 4px 10px;\nborder-radius: 6px;\nfont-size: 0.78rem;\nfont-weight: 600;\ncursor: pointer;\nopacity: 0.85;\ntransition: opacity 0.15s, background 0.15s;\n}\n.otp-toast-action:hover { opacity: 1; background: rgba(0,0,0,0.05); }\n.otp-toast-close {\nbackground: transparent;\nborder: none;\ncolor: var(--otp-toast-muted);\nfont-size: 1.25rem;\nline-height: 1;\ncursor: pointer;\npadding: 0;\nwidth: 22px;\nheight: 22px;\ndisplay: inline-flex;\nalign-items: center;\njustify-content: center;\nborder-radius: 4px;\nflex-shrink: 0;\nmargin-top: -2px;\ntransition: background 0.15s, color 0.15s;\n}\n.otp-toast-close:hover { background: rgba(0,0,0,0.06); color: var(--otp-toast-text); }\n.otp-toast-progress {\nposition: absolute;\nbottom: 0;\ninset-inline: 0;\nheight: 3px;\nbackground: rgba(0,0,0,0.06);\n}\n.otp-toast-progress-bar {\nheight: 100%;\nwidth: 100%;\nbackground: currentColor;\ntransition: width linear;\n}\n.otp-toast--success { background: var(--otp-toast-success-bg); color: var(--otp-toast-success-fg); border-color: rgba(16,185,129,0.25); }\n.otp-toast--success .otp-toast-icon          { background: var(--otp-toast-success-icon); }\n.otp-toast--success .otp-toast-progress-bar  { background: var(--otp-toast-success-bar); }\n.otp-toast--error { background: var(--otp-toast-error-bg); color: var(--otp-toast-error-fg); border-color: rgba(239,68,68,0.3); }\n.otp-toast--error .otp-toast-icon          { background: var(--otp-toast-error-icon); }\n.otp-toast--error .otp-toast-progress-bar  { background: var(--otp-toast-error-bar); }\n.otp-toast--error                          { animation: otpToastErrorPulse 0.4s ease; }\n.otp-toast--warning { background: var(--otp-toast-warning-bg); color: var(--otp-toast-warning-fg); border-color: rgba(245,158,11,0.3); }\n.otp-toast--warning .otp-toast-icon          { background: var(--otp-toast-warning-icon); }\n.otp-toast--warning .otp-toast-progress-bar  { background: var(--otp-toast-warning-bar); }\n.otp-toast--info { background: var(--otp-toast-info-bg); color: var(--otp-toast-info-fg); border-color: rgba(59,130,246,0.25); }\n.otp-toast--info .otp-toast-icon          { background: var(--otp-toast-info-icon); }\n.otp-toast--info .otp-toast-progress-bar  { background: var(--otp-toast-info-bar); }\n@keyframes otpToastErrorPulse {\n0%   { box-shadow: var(--otp-toast-shadow), 0 0 0 0 rgba(239,68,68,0.5); }\n50%  { box-shadow: var(--otp-toast-shadow), 0 0 0 8px rgba(239,68,68,0); }\n100% { box-shadow: var(--otp-toast-shadow), 0 0 0 0 rgba(239,68,68,0); }\n}\n.otp-toast--theme-glass {\nbackground: rgba(255, 255, 255, 0.72);\n-webkit-backdrop-filter: blur(14px) saturate(1.6);\nbackdrop-filter: blur(14px) saturate(1.6);\nborder: 1px solid rgba(255,255,255,0.5);\nbox-shadow:\n0 8px 32px rgba(0,0,0,0.12),\ninset 0 1px 0 rgba(255,255,255,0.6);\n}\n@media (prefers-color-scheme: dark) {\n.otp-toast--theme-glass {\nbackground: rgba(30, 41, 59, 0.65);\nborder: 1px solid rgba(255,255,255,0.08);\nbox-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);\n}\n}\n.otp-toast--theme-glass.otp-toast--success { background: rgba(236, 253, 245, 0.72); }\n.otp-toast--theme-glass.otp-toast--error   { background: rgba(254, 242, 242, 0.72); }\n.otp-toast--theme-glass.otp-toast--warning { background: rgba(255, 251, 235, 0.72); }\n.otp-toast--theme-glass.otp-toast--info    { background: rgba(239, 246, 255, 0.72); }\n.otp-toast--theme-solid           { color: #fff; border: none; }\n.otp-toast--theme-solid .otp-toast-close { color: rgba(255,255,255,0.85); }\n.otp-toast--theme-solid .otp-toast-close:hover { background: rgba(255,255,255,0.15); color:#fff; }\n.otp-toast--theme-solid .otp-toast-icon  { background: rgba(255,255,255,0.22); color:#fff; }\n.otp-toast--theme-solid.otp-toast--success { background: #10b981; }\n.otp-toast--theme-solid.otp-toast--error   { background: #ef4444; }\n.otp-toast--theme-solid.otp-toast--warning { background: #f59e0b; }\n.otp-toast--theme-solid.otp-toast--info    { background: #3b82f6; }\n.otp-toast--theme-solid .otp-toast-progress-bar { background: rgba(255,255,255,0.5); }\n.otp-toast--theme-gradient        { color: #fff; border: none; box-shadow: 0 12px 30px -8px rgba(0,0,0,0.35); }\n.otp-toast--theme-gradient .otp-toast-icon  { background: rgba(255,255,255,0.25); }\n.otp-toast--theme-gradient .otp-toast-close { color: rgba(255,255,255,0.9); }\n.otp-toast--theme-gradient.otp-toast--success { background: linear-gradient(135deg, #10b981, #059669); }\n.otp-toast--theme-gradient.otp-toast--error   { background: linear-gradient(135deg, #ef4444, #b91c1c); }\n.otp-toast--theme-gradient.otp-toast--warning { background: linear-gradient(135deg, #f59e0b, #d97706); }\n.otp-toast--theme-gradient.otp-toast--info    { background: linear-gradient(135deg, #3b82f6, #6366f1); }\n.otp-toast--theme-gradient .otp-toast-progress-bar { background: rgba(255,255,255,0.5); }\n.otp-toast--theme-minimal {\nbackground: var(--otp-toast-bg);\ncolor: var(--otp-toast-text);\nborder: 1px solid var(--otp-toast-border);\nborder-inline-start-width: 4px;\nbox-shadow: 0 4px 12px rgba(0,0,0,0.06);\n}\n.otp-toast--theme-minimal .otp-toast-icon          { background: transparent; color: currentColor; }\n.otp-toast--theme-minimal.otp-toast--success       { border-inline-start-color: var(--otp-toast-success-bar); }\n.otp-toast--theme-minimal.otp-toast--success .otp-toast-icon { color: var(--otp-toast-success-icon); }\n.otp-toast--theme-minimal.otp-toast--error         { border-inline-start-color: var(--otp-toast-error-bar); }\n.otp-toast--theme-minimal.otp-toast--error .otp-toast-icon   { color: var(--otp-toast-error-icon); }\n.otp-toast--theme-minimal.otp-toast--warning       { border-inline-start-color: var(--otp-toast-warning-bar); }\n.otp-toast--theme-minimal.otp-toast--warning .otp-toast-icon { color: var(--otp-toast-warning-icon); }\n.otp-toast--theme-minimal.otp-toast--info          { border-inline-start-color: var(--otp-toast-info-bar); }\n.otp-toast--theme-minimal.otp-toast--info .otp-toast-icon    { color: var(--otp-toast-info-icon); }\n.otp-toast--theme-pill {\nborder-radius: 999px;\npadding: 8px 16px 8px 10px;\nmin-width: auto;\nfont-size: 0.85rem;\ngap: 8px;\nborder: none;\nbackground: var(--otp-toast-bg);\n}\n.otp-toast--theme-pill .otp-toast-icon {\nwidth: 24px; height: 24px;\n}\n.otp-toast--theme-pill .otp-toast-close { display: none; }\n.otp-toast--theme-pill .otp-toast-progress { display: none; }\n.otp-toast--theme-pill .otp-toast-title { display: none; }\n.otp-toast--theme-pill.otp-toast--success { background: #10b981; color: #fff; }\n.otp-toast--theme-pill.otp-toast--error   { background: #ef4444; color: #fff; }\n.otp-toast--theme-pill.otp-toast--warning { background: #f59e0b; color: #fff; }\n.otp-toast--theme-pill.otp-toast--info    { background: #3b82f6; color: #fff; }\n.otp-toast--theme-pill .otp-toast-icon    { background: rgba(255,255,255,0.25); }\n@media (max-width: 480px) {\n.otp-toast-container {\ninset-inline: 0 !important;\nleft: 0 !important; right: 0 !important; transform: none !important;\nalign-items: stretch !important;\npadding: 10px;\n}\n.otp-toast {\nmin-width: 0;\nmax-width: 100%;\nwidth: 100%;\n}\n}\n.otp-spinner {\nposition: absolute;\ninset: 0;\ndisplay: none;\nalign-items: center;\njustify-content: center;\nz-index: 3;\npointer-events: none;\n}\n.otp-root--loading .otp-spinner {\ndisplay: flex;\n}\n.otp-root--loading .otp-inputs-row {\nopacity: 0.45;\nfilter: grayscale(0.2);\ntransition: opacity var(--otp-transition);\n}\n.otp-spinner__ring {\nwidth: 28px;\nheight: 28px;\nborder-radius: 50%;\nborder: 3px solid var(--otp-progress-bg, #e5e7eb);\nborder-top-color: var(--otp-focus-color, #3b82f6);\nanimation: otpSpin 0.7s linear infinite;\n}\n@keyframes otpSpin {\nto { transform: rotate(360deg); }\n}\n.otp-root--verified .otp-input {\nborder-color: var(--otp-success-color) !important;\n}\n@media (prefers-reduced-motion: reduce) {\n.otp-spinner__ring {\nanimation-duration: 1.4s;\n}\n}\n.otp-reveal-btn {\ndisplay: inline-flex;\nalign-items: center;\ngap: 6px;\nmargin-top: 4px;\npadding: 6px 12px;\nfont-size: 0.82rem;\nfont-family: inherit;\ncolor: var(--otp-resend-color, #3b82f6);\nbackground: transparent;\nborder: 1px solid var(--otp-border-color, #d1d5db);\nborder-radius: 999px;\ncursor: pointer;\ntransition: background-color var(--otp-transition),\nborder-color var(--otp-transition), color var(--otp-transition);\n}\n.otp-reveal-btn:hover {\nbackground: rgba(59, 130, 246, 0.08);\n}\n.otp-reveal-btn:focus-visible {\noutline: none;\nbox-shadow: var(--otp-focus-shadow);\n}\n.otp-reveal-btn svg {\nflex-shrink: 0;\n}\n.otp-reveal-btn--on {\ncolor: var(--otp-success-color, #22c55e);\nborder-color: var(--otp-success-color, #22c55e);\n}\n.otp-lock-message {\nmargin-top: 6px;\nfont-size: var(--otp-timer-font-size, 0.875rem);\nfont-weight: 600;\ncolor: var(--otp-error-color, #ef4444);\ntext-align: center;\nmin-height: 1.2em;\n}\n.otp-root--locked .otp-inputs-row {\nopacity: 0.5;\nfilter: grayscale(0.3);\n}";
+if (typeof document !== 'undefined') {
+  const __id = 'otp-input-styles';
+  if (!document.getElementById(__id)) {
+    const s = document.createElement('style');
+    s.id = __id;
+    s.textContent = __css;
+    document.head.appendChild(s);
+  }
+}
 
 /**
- * Web Component: <otp-input />
+ * React adapter for otp-input-kit.
  *
- * Attributes (all optional):
- *   length, type, secure, auto-focus, auto-submit, direction, locale,
- *   native-numerals, placeholder, haptic, timer-duration, resend-enabled,
- *   resend-cooldown, clipboard-detection
+ * Usage:
+ *   import { OtpInput } from 'otp-input-kit/react';
  *
- * Events: otp-change, otp-complete, otp-error, otp-focus, otp-blur, otp-expire,
- *         otp-resend, otp-verify-start, otp-verified, otp-failed
+ *   <OtpInput
+ *     length={6}
+ *     onComplete={(code) => console.log(code)}
+ *     onVerify={async (code) => (await api.verify(code)).ok}
+ *     onVerified={() => navigate('/home')}
+ *   />
  *
- * Async verification: assign a function to the `onVerify` property (functions
- * cannot be passed as HTML attributes):
- *   document.querySelector('otp-input').onVerify = async (code) => checkServer(code);
- *
- * @example
- * <otp-input length="6" direction="rtl" locale="ar" native-numerals></otp-input>
+ * A `ref` exposes the imperative API (getValue, setValue, clear, focus,
+ * setError, setLoading, setSuccess, …) and `getInstance()` for the raw core.
  */
-class OTPInputElement extends _HTMLElement {
-  // Form-associated custom element: lets <otp-input name="otp"> participate in
-  // <form> submission, validation, reset, and autofill restoration natively.
-  static get formAssociated() {
-    return true;
-  }
 
-  static get observedAttributes() {
-    return [
-      'length', 'type', 'secure', 'auto-focus', 'auto-submit',
-      'direction', 'locale', 'native-numerals', 'placeholder',
-      'haptic', 'timer-duration', 'resend-enabled', 'resend-cooldown',
-      'clipboard-detection', 'label', 'theme',
-      'toast-enabled', 'toast-theme', 'toast-position',
-      'reveal-toggle', 'lockout-attempts', 'lockout-duration',
-    ];
-  }
+const { useRef, useEffect, useImperativeHandle, forwardRef, createElement } = React;
 
-  constructor() {
-    super();
-    this._instance = null;
-    this._initialized = false;
-    this._onVerify = null;
-    // attachInternals is unavailable in older browsers / SSR — degrade gracefully.
-    this._internals =
-      typeof this.attachInternals === 'function' ? this.attachInternals() : null;
-  }
+// Changing any of these requires rebuilding the underlying instance.
+const STRUCTURAL_KEYS = [
+  'length', 'type', 'pattern', 'secure', 'direction', 'locale',
+  'nativeNumerals', 'placeholder', 'theme', 'separator', 'autoFocus',
+  'autoSubmit', 'selectOnFocus', 'clipboardDetection', 'haptic', 'smsAutoRead',
+];
 
-  /** Current OTP value — also the value submitted with the form. */
-  get value() {
-    return this._instance ? this._instance.getValue() : '';
-  }
-  set value(v) {
-    this._instance?.setValue(v);
-    this._syncForm(this.value);
-  }
+const OtpInput = forwardRef(function OtpInput(props, ref) {
+  const { className, style, ...options } = props;
+  const containerRef = useRef(null);
+  const instanceRef = useRef(null);
+  // Latest props, so callbacks always fire the current handler without rebuilds.
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
-  /** Sync the form value + validity after a change. */
-  _syncForm(value) {
-    if (!this._internals) return;
-    this._internals.setFormValue(value);
-    const length = Number(this.getAttribute('length') || 6);
-    const anchor = this._instance?.inputs?.[0];
-    if (this.hasAttribute('required') && value.length < length) {
-      this._internals.setValidity(
-        { valueMissing: true },
-        this.getAttribute('validation-message') || 'Please complete the verification code.',
-        anchor
-      );
-    } else {
-      this._internals.setValidity({});
-    }
-  }
+  // Rebuild only when a structural option changes.
+  const structKey = STRUCTURAL_KEYS.map((k) => JSON.stringify(options[k] ?? null)).join('|');
 
-  // ─── Form lifecycle ─────────────────────────────────────────────────────────
-  formResetCallback() {
-    this._instance?.clear();
-    this._syncForm('');
-  }
+  useEffect(() => {
+    if (!containerRef.current) return undefined;
 
-  formDisabledCallback(disabled) {
-    if (disabled) this._instance?.disable();
-    else this._instance?.enable();
-  }
-
-  formStateRestoreCallback(state) {
-    if (typeof state === 'string') this._instance?.setValue(state);
-  }
-
-  // ─── Constraint-validation proxies ──────────────────────────────────────────
-  get form() { return this._internals?.form ?? null; }
-  get validity() { return this._internals?.validity; }
-  get validationMessage() { return this._internals?.validationMessage ?? ''; }
-  get willValidate() { return this._internals?.willValidate ?? false; }
-  checkValidity() { return this._internals?.checkValidity() ?? true; }
-  reportValidity() { return this._internals?.reportValidity() ?? true; }
-
-  /** Async verification callback — `(value) => boolean | string | object | Promise`. */
-  get onVerify() { return this._onVerify; }
-  set onVerify(fn) {
-    this._onVerify = typeof fn === 'function' ? fn : null;
-    if (this._instance) {
-      this._instance.options.onVerify = this._onVerify ? (v) => this._onVerify(v) : null;
-    }
-  }
-
-  connectedCallback() {
-    if (!this._initialized) {
-      this._initialized = true;
-      this._init();
-    }
-  }
-
-  disconnectedCallback() {
-    this._instance?.destroy();
-    this._instance = null;
-    this._initialized = false;
-  }
-
-  attributeChangedCallback(name, oldVal, newVal) {
-    if (!this._initialized || oldVal === newVal) return;
-    // Re-initialize on relevant attribute changes
-    this._instance?.destroy();
-    this._instance = null;
-    this._init();
-  }
-
-  _init() {
-    const bool  = (attr) => this.hasAttribute(attr);
-    const num   = (attr, def) => { const v = this.getAttribute(attr); return v !== null ? Number(v) : def; };
-    const str   = (attr, def) => this.getAttribute(attr) ?? def;
-
-    const options = {
-      length:             num('length', 6),
-      type:               str('type', 'numeric'),
-      secure:             bool('secure'),
-      revealToggle:       bool('reveal-toggle'),
-      autoFocus:          bool('auto-focus'),
-      autoSubmit:         bool('auto-submit'),
-      direction:          str('direction', 'auto'),
-      locale:             str('locale', null),
-      nativeNumerals:     bool('native-numerals'),
-      placeholder:        str('placeholder', '·'),
-      haptic:             !bool('no-haptic'),
-      clipboardDetection: !bool('no-clipboard'),
-      label:              str('label', null),
-      theme:              str('theme', 'default'),
-      toast: {
-        enabled:  bool('toast-enabled'),
-        theme:    str('toast-theme', 'default'),
-        position: str('toast-position', 'top-right'),
-      },
-      timer: {
-        enabled:  num('timer-duration', 0) > 0,
-        duration: num('timer-duration', 60),
-        showProgress: bool('timer-progress'),
-      },
-      resend: {
-        enabled:  bool('resend-enabled'),
-        cooldown: num('resend-cooldown', 60),
-      },
-      lockout: {
-        enabled:     num('lockout-attempts', 0) > 0,
-        maxAttempts: num('lockout-attempts', 3),
-        duration:    num('lockout-duration', 30),
-      },
-      onChange:   (v)    => { this._syncForm(v); this.dispatchEvent(new CustomEvent('otp-change', { detail: v, bubbles: true, composed: true })); },
-      onComplete: (v)    => this.dispatchEvent(new CustomEvent('otp-complete',  { detail: v,       bubbles: true, composed: true })),
-      onError:    (errs) => this.dispatchEvent(new CustomEvent('otp-error',     { detail: errs,    bubbles: true, composed: true })),
-      onFocus:    (info) => this.dispatchEvent(new CustomEvent('otp-focus',     { detail: info,    bubbles: true, composed: true })),
-      onBlur:     (info) => this.dispatchEvent(new CustomEvent('otp-blur',      { detail: info,    bubbles: true, composed: true })),
+    const built = {
+      ...optionsRef.current,
+      onChange:   (v) => optionsRef.current.onChange?.(v),
+      onComplete: (v) => optionsRef.current.onComplete?.(v),
+      onError:    (e) => optionsRef.current.onError?.(e),
+      onFocus:    (i) => optionsRef.current.onFocus?.(i),
+      onBlur:     (i) => optionsRef.current.onBlur?.(i),
+      onVerified: (v) => optionsRef.current.onVerified?.(v),
+      onFailed:   (m) => optionsRef.current.onFailed?.(m),
     };
+    // Only enable the verify flow when a handler is actually supplied.
+    built.onVerify = optionsRef.current.onVerify
+      ? (v) => optionsRef.current.onVerify(v)
+      : null;
 
-    if (typeof this._onVerify === 'function') {
-      options.onVerify = (v) => this._onVerify(v);
-    }
+    const inst = new OTPInput(containerRef.current, built);
+    instanceRef.current = inst;
 
-    this._instance = new OTPInput(this, options);
+    return () => {
+      inst.destroy();
+      instanceRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [structKey]);
 
-    this._instance.on('expire', () =>
-      this.dispatchEvent(new CustomEvent('otp-expire', { bubbles: true, composed: true }))
-    );
-    this._instance.on('resend', () =>
-      this.dispatchEvent(new CustomEvent('otp-resend', { bubbles: true, composed: true }))
-    );
-    this._instance.on('verify-start', (v) =>
-      this.dispatchEvent(new CustomEvent('otp-verify-start', { detail: v, bubbles: true, composed: true }))
-    );
-    this._instance.on('verified', (v) =>
-      this.dispatchEvent(new CustomEvent('otp-verified', { detail: v, bubbles: true, composed: true }))
-    );
-    this._instance.on('verify-failed', (msg) =>
-      this.dispatchEvent(new CustomEvent('otp-failed', { detail: msg, bubbles: true, composed: true }))
-    );
-    this._instance.on('sms-read', (code) =>
-      this.dispatchEvent(new CustomEvent('otp-sms-read', { detail: code, bubbles: true, composed: true }))
-    );
-    this._instance.on('sms-unsupported', (reason) =>
-      this.dispatchEvent(new CustomEvent('otp-sms-unsupported', { detail: reason, bubbles: true, composed: true }))
-    );
-    this._instance.on('lock', (secs) =>
-      this.dispatchEvent(new CustomEvent('otp-lock', { detail: secs, bubbles: true, composed: true }))
-    );
-    this._instance.on('unlock', () =>
-      this.dispatchEvent(new CustomEvent('otp-unlock', { bubbles: true, composed: true }))
-    );
-    this._instance.on('attempt', (info) =>
-      this.dispatchEvent(new CustomEvent('otp-attempt', { detail: info, bubbles: true, composed: true }))
-    );
+  // Toggle the verify flow live if onVerify is added/removed between renders.
+  useEffect(() => {
+    if (!instanceRef.current) return;
+    instanceRef.current.options.onVerify = options.onVerify
+      ? (v) => optionsRef.current.onVerify(v)
+      : null;
+  }, [!!options.onVerify]);
 
-    // Initialise the form value/validity for the freshly-built instance.
-    this._syncForm(this._instance.getValue());
-  }
+  useImperativeHandle(ref, () => ({
+    getInstance: () => instanceRef.current,
+    getValue:    () => instanceRef.current?.getValue() ?? '',
+    setValue:    (v) => instanceRef.current?.setValue(v),
+    clear:       () => instanceRef.current?.clear(),
+    focus:       (i) => instanceRef.current?.focus(i),
+    setError:    (m) => instanceRef.current?.setError(m),
+    clearError:  () => instanceRef.current?.clearError(),
+    setLoading:  (b) => instanceRef.current?.setLoading(b),
+    setSuccess:  (m) => instanceRef.current?.setSuccess(m),
+    setTheme:    (t) => instanceRef.current?.setTheme(t),
+    resetTimer:  (d) => instanceRef.current?.resetTimer(d),
+  }), []);
 
-  // ─── Public API (proxy to OTPInput) ────────────────────────────────────────
+  return createElement('div', { ref: containerRef, className, style });
+});
 
-  getValue()       { return this._instance?.getValue() ?? ''; }
-  setValue(v)      { this._instance?.setValue(v); }
-  clear()          { this._instance?.clear(); }
-  focus(i = 0)     { this._instance?.focus(i); }
-  disable()        { this._instance?.disable(); }
-  enable()         { this._instance?.enable(); }
-  setError(msg)    { this._instance?.setError(msg); }
-  clearError()     { this._instance?.clearError(); }
-  setLoading(b)    { this._instance?.setLoading(b); }
-  setSuccess(msg)  { this._instance?.setSuccess(msg); }
-  toggleReveal(f)  { this._instance?.toggleReveal(f); }
-  lock()           { this._instance?.lock(); }
-  unlock()         { this._instance?.unlock(); }
-  isLocked()       { return this._instance?.isLocked() ?? false; }
-  resetTimer(d)    { this._instance?.resetTimer(d); }
-  setDirection(d)  { this._instance?.setDirection(d); }
-  setLocale(l)     { this._instance?.setLocale(l); }
+OtpInput.displayName = 'OtpInput';
+
+/**
+ * Lightweight hook alternative. Creates the instance once on mount.
+ *   const [ref, otp] = useOtp({ length: 6 });
+ *   return <div ref={ref} />;   // otp.current is the OTPInput instance
+ */
+function useOtp(options = {}) {
+  const ref = useRef(null);
+  const instanceRef = useRef(null);
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
+  useEffect(() => {
+    if (!ref.current) return undefined;
+    const inst = new OTPInput(ref.current, optionsRef.current);
+    instanceRef.current = inst;
+    return () => {
+      inst.destroy();
+      instanceRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return [ref, instanceRef];
 }
 
-/** Register the custom element if not already registered */
-function registerOTPInputElement(tagName = 'otp-input') {
-  if (typeof customElements !== 'undefined' && !customElements.get(tagName)) {
-    customElements.define(tagName, OTPInputElement);
-  }
-}
-
-// Auto-register <otp-input> web component
-registerOTPInputElement();
-
-export { EventEmitter, OTPInput, OTPInputElement, ToastManager, OTPInput as default, getDefaultToast, registerOTPInputElement };
-//# sourceMappingURL=otp-input.esm.js.map
+export { OtpInput, OtpInput as default, useOtp };
+//# sourceMappingURL=react.esm.js.map

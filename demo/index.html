@@ -797,11 +797,14 @@
         <a href="#basic" class="nav-link">Basic</a>
         <a href="#rtl" class="nav-link">RTL / Arabic</a>
         <a href="#secure" class="nav-link">Secure</a>
+        <a href="#lockout" class="nav-link">Lockout</a>
         <a href="#timer" class="nav-link">Timer</a>
         <a href="#validation" class="nav-link">Validation</a>
         <a href="#themes" class="nav-link">Themes</a>
         <a href="#toasts" class="nav-link">Toasts</a>
         <a href="#separator" class="nav-link">Separator</a>
+        <a href="#async-verify" class="nav-link">Async Verify</a>
+        <a href="#frameworks" class="nav-link">Frameworks</a>
         <a href="#web-component" class="nav-link">Web Component</a>
         <a href="#api" class="nav-link">API</a>
       </div>
@@ -859,11 +862,14 @@
             <a href="#basic" class="nav-link">Basic</a>
             <a href="#rtl" class="nav-link">RTL / Arabic</a>
             <a href="#secure" class="nav-link">Secure</a>
+            <a href="#lockout" class="nav-link">Lockout</a>
             <a href="#timer" class="nav-link">Timer</a>
             <a href="#validation" class="nav-link">Validation</a>
             <a href="#themes" class="nav-link">Themes</a>
             <a href="#toasts" class="nav-link">Toasts</a>
             <a href="#separator" class="nav-link">Separator</a>
+            <a href="#async-verify" class="nav-link">Async Verify</a>
+            <a href="#frameworks" class="nav-link">Frameworks</a>
             <a href="#web-component" class="nav-link">Web Component</a>
             <a href="#api" class="nav-link">API</a>
           </div>
@@ -1252,22 +1258,18 @@ OTPInput.create('#container', {
         <!-- ── 4. Secure / masked ── -->
         <div id="secure" class="card">
           <div class="card-header">
-            <div class="card-title">🔒 Secure Mode (Masked)</div>
+            <div class="card-title">🔒 Secure Mode (Masked) + Reveal</div>
             <div class="card-desc">
-              Input masked like a password field — prevents shoulder-surfing
+              Input masked like a password field — prevents shoulder-surfing.
+              The built-in 👁 button lets users peek at what they typed.
             </div>
           </div>
           <div class="card-body">
             <div id="otp-secure"></div>
             <div id="out-secure" class="output">Enter PIN (masked)</div>
             <div class="controls">
-              <button
-                class="btn"
-                onclick="
-                  document.getElementById('out-secure').textContent =
-                    'Value: ' + otpSecure.getValue()
-                ">
-                Reveal
+              <button class="btn" onclick="otpSecure.toggleReveal()">
+                Toggle reveal (API)
               </button>
               <button class="btn" onclick="otpSecure.clear()">Clear</button>
             </div>
@@ -1277,7 +1279,50 @@ OTPInput.create('#container', {
 OTPInput.create('#container', {
   length: 4,
   type: 'numeric',
-  secure: true,   // type="password" masking
+  secure: true,        // type="password" masking
+  revealToggle: true,  // adds the 👁 peek button
+});
+
+otp.toggleReveal();    // or toggle it programmatically</pre
+            >
+          </div>
+        </div>
+
+        <!-- ── 4b. Attempt Lockout ── -->
+        <div id="lockout" class="card">
+          <div class="card-header">
+            <div class="card-title">🔐 Attempt Lockout</div>
+            <div class="card-desc">
+              Locks the input after too many wrong codes, with a countdown
+              cooldown. Here: <strong>3</strong> wrong tries → locked for
+              <strong>10&nbsp;s</strong>. The correct code is
+              <strong>4242</strong>.
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="otp-lockout"></div>
+            <div id="out-lockout" class="output">
+              Enter 4242 (correct) or anything else to burn an attempt
+            </div>
+            <div class="controls">
+              <button class="btn" onclick="otpLockout.clear()">Clear</button>
+              <button class="btn" onclick="otpLockout.unlock()">
+                Force unlock
+              </button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <pre>
+OTPInput.create('#container', {
+  length: 4,
+  onVerify: (code) => code === '4242',
+  lockout: {
+    enabled: true,
+    maxAttempts: 3,
+    duration: 10,   // seconds locked
+    onLock:   () => console.warn('locked'),
+    onUnlock: () => console.log('unlocked'),
+  },
 });</pre
             >
           </div>
@@ -1360,7 +1405,7 @@ OTPInput.create('#container', {
           <div class="card-header">
             <div class="card-title">💥 Error Animation Styles</div>
             <div class="card-desc">
-              Three built-in error animations — click any button to see them in
+              Eight built-in error animations — click any button to see them in
               action. Type a wrong code or use the buttons below.
             </div>
           </div>
@@ -1426,6 +1471,101 @@ OTPInput.create('#container', {
                     Trigger both
                   </button>
                   <button class="btn" onclick="otpAnimBoth.clear()">
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Pulse -->
+              <div class="anim-card">
+                <div class="anim-label">
+                  <strong>pulse</strong>
+                  <span>Scale pulse with an expanding red ring</span>
+                </div>
+                <div id="otp-anim-pulse"></div>
+                <div class="anim-controls">
+                  <button
+                    class="btn btn-danger"
+                    onclick="otpAnimPulse.setError('Invalid code')">
+                    Trigger pulse
+                  </button>
+                  <button class="btn" onclick="otpAnimPulse.clear()">
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Buzz -->
+              <div class="anim-card">
+                <div class="anim-label">
+                  <strong>buzz</strong>
+                  <span>Rapid high-frequency micro-shake</span>
+                </div>
+                <div id="otp-anim-buzz"></div>
+                <div class="anim-controls">
+                  <button
+                    class="btn btn-danger"
+                    onclick="otpAnimBuzz.setError('Invalid code')">
+                    Trigger buzz
+                  </button>
+                  <button class="btn" onclick="otpAnimBuzz.clear()">
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Bounce -->
+              <div class="anim-card">
+                <div class="anim-label">
+                  <strong>bounce</strong>
+                  <span>Vertical bounce — playful, attention-grabbing</span>
+                </div>
+                <div id="otp-anim-bounce"></div>
+                <div class="anim-controls">
+                  <button
+                    class="btn btn-danger"
+                    onclick="otpAnimBounce.setError('Invalid code')">
+                    Trigger bounce
+                  </button>
+                  <button class="btn" onclick="otpAnimBounce.clear()">
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Glow -->
+              <div class="anim-card">
+                <div class="anim-label">
+                  <strong>glow</strong>
+                  <span>Pulsing red glow halo — no movement</span>
+                </div>
+                <div id="otp-anim-glow"></div>
+                <div class="anim-controls">
+                  <button
+                    class="btn btn-danger"
+                    onclick="otpAnimGlow.setError('Invalid code')">
+                    Trigger glow
+                  </button>
+                  <button class="btn" onclick="otpAnimGlow.clear()">
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- Wobble -->
+              <div class="anim-card">
+                <div class="anim-label">
+                  <strong>wobble</strong>
+                  <span>Rotating wobble — combines tilt and shift</span>
+                </div>
+                <div id="otp-anim-wobble"></div>
+                <div class="anim-controls">
+                  <button
+                    class="btn btn-danger"
+                    onclick="otpAnimWobble.setError('Invalid code')">
+                    Trigger wobble
+                  </button>
+                  <button class="btn" onclick="otpAnimWobble.clear()">
                     Reset
                   </button>
                 </div>
@@ -1514,10 +1654,15 @@ OTPInput.create('#container', {
           </div>
           <div class="card-footer">
             <pre>
-// Three error animation modes
+// Eight error animation modes
 OTPInput.create('#otp', { animation: { error: 'shake'     } });  // default
 OTPInput.create('#otp', { animation: { error: 'highlight' } });  // red flash
 OTPInput.create('#otp', { animation: { error: 'both'      } });  // shake + flash + haptic
+OTPInput.create('#otp', { animation: { error: 'pulse'     } });  // scale + ring
+OTPInput.create('#otp', { animation: { error: 'buzz'      } });  // rapid micro-shake
+OTPInput.create('#otp', { animation: { error: 'bounce'    } });  // vertical bounce
+OTPInput.create('#otp', { animation: { error: 'glow'      } });  // red glow halo
+OTPInput.create('#otp', { animation: { error: 'wobble'    } });  // rotate + shift
 OTPInput.create('#otp', { animation: { error: false       } });  // disabled
 
 // Trigger an error animation programmatically (e.g. after server rejects code)
@@ -2198,6 +2343,93 @@ OTPInput.create('#otp', {
         </div>
       </div>
 
+      <!-- ── Async Verification ── -->
+      <div class="section-header" id="async-verify">
+        <h2>Async Verification</h2>
+        <div class="line"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⏳ onVerify — Loading → Success / Error</div>
+          <div class="card-desc">
+            Pass an <code class="code">onVerify</code> function and the component
+            shows a spinner, awaits your server, then resolves to a success or
+            error state automatically. Here <strong>123456</strong> is the
+            correct code (1.2&nbsp;s simulated network delay).
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="otp-verify"></div>
+          <div id="out-verify" class="output">
+            Enter the code — try 123456 (correct) or anything else
+          </div>
+          <div class="controls">
+            <button class="btn" onclick="otpVerify.clear()">Clear</button>
+            <button class="btn" onclick="otpVerify.setValue('123456')">
+              Fill correct (123456)
+            </button>
+            <button class="btn" onclick="otpVerify.setValue('000000')">
+              Fill wrong (000000)
+            </button>
+          </div>
+        </div>
+        <div class="card-footer">
+          <pre>
+OTPInput.create('#otp', {
+  length: 6,
+  onVerify: async (code) => {
+    const res = await fetch('/api/verify', { method: 'POST', body: code });
+    return res.ok;            // true → success · false/string → error
+  },
+  onVerified: (code) => location.assign('/dashboard'),
+  onFailed:   (msg)  => console.warn(msg),
+});</pre
+          >
+        </div>
+      </div>
+
+      <!-- ── Framework Adapters ── -->
+      <div class="section-header" id="frameworks">
+        <h2>Framework Adapters</h2>
+        <div class="line"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            ⚛️ React · 🟢 Vue · 🧡 Svelte · 🅰️ Angular
+          </div>
+          <div class="card-desc">
+            First-class wrappers around the same core — install once
+            (<code class="code">npm i otp-input-kit</code>), import the adapter
+            for your framework.
+          </div>
+        </div>
+        <div class="card-footer">
+          <pre>
+// React
+import { OtpInput } from 'otp-input-kit/react';
+&lt;OtpInput length={6} theme="rounded"
+  onVerify={async (c) =&gt; (await api.verify(c)).ok}
+  onVerified={() =&gt; navigate('/home')} /&gt;
+
+// Vue 3
+import { OtpInput } from 'otp-input-kit/vue';
+&lt;OtpInput :length="6" :on-verify="verify"
+  @verified="goHome" @failed="showError" /&gt;
+
+// Svelte (action — no Svelte dependency)
+import { otp } from 'otp-input-kit/svelte';
+&lt;div use:otp={{ length: 6, onVerify }}
+  on:verified={goHome} on:failed={onError} /&gt;
+
+// Angular (standalone directive)
+import { OtpInputDirective } from 'otp-input-kit/angular';
+&lt;div otpInput [length]="6" [onVerify]="verify"
+  (verified)="goHome()" (failed)="showError($event)"&gt;&lt;/div&gt;</pre
+          >
+        </div>
+      </div>
+
       <!-- ── Web Component ── -->
       <div class="section-header" id="web-component">
         <h2>Web Component</h2>
@@ -2251,6 +2483,53 @@ OTPInput.create('#otp', {
   el.addEventListener('otp-complete', e => verify(e.detail));
   el.addEventListener('otp-expire',   () => showResend());
 &lt;/script&gt;</pre
+          >
+        </div>
+      </div>
+
+      <!-- ── Form-associated element ── -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Form-Associated Element</div>
+          <div class="card-desc">
+            <code class="code">&lt;otp-input&gt;</code> behaves like a native form
+            control — <code class="code">FormData</code> reads it,
+            <code class="code">required</code> blocks submit until complete, and
+            reset clears it. Submit empty to see native validation.
+          </div>
+        </div>
+        <div class="card-body">
+          <form
+            id="otp-form"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 14px;
+              width: 100%;
+            ">
+            <otp-input id="wc-form" name="otp" length="6" required></otp-input>
+            <div class="controls">
+              <button class="btn" type="submit">Submit</button>
+              <button class="btn" type="reset">Reset</button>
+            </div>
+          </form>
+          <div id="out-form" class="output">
+            Submit empty to trigger <code class="code">required</code>, or enter
+            a code first.
+          </div>
+        </div>
+        <div class="card-footer">
+          <pre>
+&lt;form&gt;
+  &lt;otp-input name="otp" length="6" required&gt;&lt;/otp-input&gt;
+  &lt;button type="submit"&gt;Verify&lt;/button&gt;
+&lt;/form&gt;
+
+form.addEventListener('submit', (e) =&gt; {
+  e.preventDefault();
+  const code = new FormData(e.target).get('otp'); // → the entered code
+});</pre
           >
         </div>
       </div>
@@ -2582,11 +2861,45 @@ OTPInput.create('#otp', {
         autoFocus: false,
         length: 4,
         secure: true,
+        revealToggle: true, // built-in 👁 peek button
         onComplete: (v) => {
           const el = document.getElementById("out-secure");
           el.textContent = "✓ PIN entered (masked)";
           el.className = "output success";
         },
+      });
+
+      // ── 4b. Attempt lockout ───────────────────────────────────────────────────
+      window.otpLockout = OTPInput.create("#otp-lockout", {
+        autoFocus: false,
+        length: 4,
+        onVerify: (code) => code === "4242",
+        lockout: {
+          enabled: true,
+          maxAttempts: 3,
+          duration: 10,
+          message: "🔒 Locked. Try again in {seconds}s.",
+        },
+        onVerified: () => {
+          const el = document.getElementById("out-lockout");
+          el.textContent = "✓ Correct code — verified!";
+          el.className = "output success";
+        },
+        onFailed: () => {
+          const el = document.getElementById("out-lockout");
+          el.textContent = "✗ Wrong code — attempt counted.";
+          el.className = "output error";
+        },
+      });
+      otpLockout.on("attempt", ({ attempts, max }) => {
+        const el = document.getElementById("out-lockout");
+        el.textContent = `✗ Wrong code — attempt ${attempts}/${max}.`;
+        el.className = "output error";
+      });
+      otpLockout.on("unlock", () => {
+        const el = document.getElementById("out-lockout");
+        el.textContent = "Unlocked — you can try again.";
+        el.className = "output";
       });
 
       // ── 5. Timer + Resend ─────────────────────────────────────────────────────
@@ -2666,6 +2979,36 @@ OTPInput.create('#otp', {
         length: 4,
         autoFocus: false,
         animation: { error: "both" },
+      });
+
+      window.otpAnimPulse = OTPInput.create("#otp-anim-pulse", {
+        length: 4,
+        autoFocus: false,
+        animation: { error: "pulse" },
+      });
+
+      window.otpAnimBuzz = OTPInput.create("#otp-anim-buzz", {
+        length: 4,
+        autoFocus: false,
+        animation: { error: "buzz" },
+      });
+
+      window.otpAnimBounce = OTPInput.create("#otp-anim-bounce", {
+        length: 4,
+        autoFocus: false,
+        animation: { error: "bounce" },
+      });
+
+      window.otpAnimGlow = OTPInput.create("#otp-anim-glow", {
+        length: 4,
+        autoFocus: false,
+        animation: { error: "glow" },
+      });
+
+      window.otpAnimWobble = OTPInput.create("#otp-anim-wobble", {
+        length: 4,
+        autoFocus: false,
+        animation: { error: "wobble" },
       });
 
       window.otpAnimNone = OTPInput.create("#otp-anim-none", {
@@ -2860,6 +3203,21 @@ OTPInput.create('#otp', {
         }
       });
 
+      // ── Form-associated element ───────────────────────────────────────────────
+      const otpForm = document.getElementById("otp-form");
+      otpForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const code = new FormData(otpForm).get("otp");
+        const el = document.getElementById("out-form");
+        el.textContent = `✓ Submitted via FormData — otp = "${code}"`;
+        el.className = "output success";
+      });
+      otpForm.addEventListener("reset", () => {
+        const el = document.getElementById("out-form");
+        el.textContent = "Form reset — input cleared.";
+        el.className = "output";
+      });
+
       // ── Separator examples ────────────────────────────────────────────────────
       OTPInput.create("#otp-sep-dash", {
         length: 6,
@@ -2900,6 +3258,25 @@ OTPInput.create('#otp', {
           }
         },
       });
+      // Surface real Web OTP status so it's clear WHY nothing happens on desktop.
+      otpSms.on("sms-pending", () => {
+        const el = document.getElementById("out-sms");
+        el.textContent = "📡 Listening for an incoming SMS…";
+        el.className = "output";
+      });
+      otpSms.on("sms-read", (code) => {
+        const el = document.getElementById("out-sms");
+        el.textContent = `✓ Auto-filled from SMS: ${code}`;
+        el.className = "output success";
+      });
+      otpSms.on("sms-unsupported", (reason) => {
+        const el = document.getElementById("out-sms");
+        el.textContent =
+          reason === "insecure-context"
+            ? "⚠️ Web OTP needs HTTPS (or localhost) — use the simulate button below."
+            : "⚠️ Web OTP API not supported here (Android Chrome only) — try the simulate button.";
+        el.className = "output";
+      });
       window.simulateSmsAutoFill = () => {
         otpSms.setValue("246810");
         const el = document.getElementById("out-sms");
@@ -2932,6 +3309,41 @@ OTPInput.create('#otp', {
           el.className = "output success";
         },
       });
+
+      // ── Async verification (onVerify → loading → success/error) ───────────────
+      window.otpVerify = OTPInput.create("#otp-verify", {
+        length: 6,
+        autoFocus: false,
+        theme: "rounded",
+        loading: { clearOnError: true, clearDelay: 1100 },
+        onVerify: (code) =>
+          new Promise((resolve) => {
+            const el = document.getElementById("out-verify");
+            el.textContent = "⏳ Verifying…";
+            el.className = "output";
+            // Simulated 1.2s network round-trip; 123456 is the "correct" code.
+            setTimeout(
+              () =>
+                resolve(
+                  code === "123456"
+                    ? true
+                    : "Incorrect code — please try again"
+                ),
+              1200
+            );
+          }),
+        onVerified: (code) => {
+          const el = document.getElementById("out-verify");
+          el.textContent = `✓ Verified: ${code}`;
+          el.className = "output success";
+        },
+        onFailed: (msg) => {
+          const el = document.getElementById("out-verify");
+          el.textContent = `✗ ${msg}`;
+          el.className = "output error";
+        },
+      });
+
       // Check platform authenticator availability for the info label
       if (window.PublicKeyCredential) {
         PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()

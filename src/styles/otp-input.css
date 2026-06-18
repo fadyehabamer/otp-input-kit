@@ -89,9 +89,12 @@
   width: 100%;
 }
 
-/* RTL: inputs are already in DOM order; CSS dir handles visual flip */
+/* RTL: the container's dir="rtl" ALREADY lays this flex row out right-to-left,
+   so logical digit 0 sits on the right and auto-advance flows right→left.
+   Do NOT add `row-reverse` here — combined with the inherited rtl direction it
+   double-flips the row back to left-to-right and breaks right-to-left entry. */
 [dir="rtl"] .otp-inputs-row {
-  flex-direction: row-reverse;
+  flex-direction: row;
 }
 
 /* ── Digit separator ── */
@@ -357,6 +360,60 @@
   45%       { transform: translateX(4px); }
   60%       { transform: translateX(-3px); }
   75%       { transform: translateX(2px); }
+}
+
+/* ── Additional error animation styles ── */
+/* NOTE: .otp-input--error sets box-shadow & border-color with !important, which
+   wins over CSS animations in the cascade. So error animations must drive
+   transform / background / filter (never box-shadow or border-color) to be
+   visible while the error state is applied. */
+.otp-anim-pulse {
+  animation: otpErrPulse 0.5s ease;
+}
+@keyframes otpErrPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }
+  35%       { transform: scale(1.12); filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.7)); }
+  70%       { transform: scale(0.97); }
+}
+
+.otp-anim-buzz {
+  animation: otpBuzz 0.4s linear;
+}
+@keyframes otpBuzz {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80%       { transform: translateX(3px); }
+}
+
+.otp-anim-bounce {
+  animation: otpErrBounce 0.55s cubic-bezier(0.28, 0.84, 0.42, 1);
+}
+@keyframes otpErrBounce {
+  0%, 100% { transform: translateY(0); }
+  30%       { transform: translateY(-10px); }
+  55%       { transform: translateY(0); }
+  70%       { transform: translateY(-5px); }
+  85%       { transform: translateY(0); }
+}
+
+.otp-anim-glow {
+  animation: otpGlow 0.7s ease;
+}
+@keyframes otpGlow {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }
+  50%       { filter: drop-shadow(0 0 9px rgba(239, 68, 68, 0.9)); }
+}
+
+.otp-anim-wobble {
+  animation: otpWobble 0.6s ease;
+}
+@keyframes otpWobble {
+  0%, 100% { transform: rotate(0) translateX(0); }
+  15%       { transform: rotate(-5deg) translateX(-5px); }
+  30%       { transform: rotate(4deg) translateX(4px); }
+  45%       { transform: rotate(-3deg) translateX(-3px); }
+  60%       { transform: rotate(2deg) translateX(2px); }
+  75%       { transform: rotate(-1deg); }
 }
 
 /* ─── Responsive ──────────────────────────────────────────────────────────── */
@@ -894,4 +951,98 @@
     max-width: 100%;
     width: 100%;
   }
+}
+
+/* ─── Loading / async-verify state ──────────────────────────────────────────
+   Toggled by OTPInput.setLoading() and the onVerify flow. The spinner overlays
+   the root (which is position: relative) while inputs are dimmed + disabled.
+   ───────────────────────────────────────────────────────────────────────── */
+.otp-spinner {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.otp-root--loading .otp-spinner {
+  display: flex;
+}
+
+.otp-root--loading .otp-inputs-row {
+  opacity: 0.45;
+  filter: grayscale(0.2);
+  transition: opacity var(--otp-transition);
+}
+
+.otp-spinner__ring {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid var(--otp-progress-bg, #e5e7eb);
+  border-top-color: var(--otp-focus-color, #3b82f6);
+  animation: otpSpin 0.7s linear infinite;
+}
+
+@keyframes otpSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Verified (post-async-verify success) ── */
+.otp-root--verified .otp-input {
+  border-color: var(--otp-success-color) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .otp-spinner__ring {
+    animation-duration: 1.4s;
+  }
+}
+
+/* ─── Reveal / peek toggle (secure mode) ────────────────────────────────────*/
+.otp-reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: var(--otp-resend-color, #3b82f6);
+  background: transparent;
+  border: 1px solid var(--otp-border-color, #d1d5db);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color var(--otp-transition),
+    border-color var(--otp-transition), color var(--otp-transition);
+}
+.otp-reveal-btn:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+.otp-reveal-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--otp-focus-shadow);
+}
+.otp-reveal-btn svg {
+  flex-shrink: 0;
+}
+.otp-reveal-btn--on {
+  color: var(--otp-success-color, #22c55e);
+  border-color: var(--otp-success-color, #22c55e);
+}
+
+/* ─── Lockout state ─────────────────────────────────────────────────────────*/
+.otp-lock-message {
+  margin-top: 6px;
+  font-size: var(--otp-timer-font-size, 0.875rem);
+  font-weight: 600;
+  color: var(--otp-error-color, #ef4444);
+  text-align: center;
+  min-height: 1.2em;
+}
+.otp-root--locked .otp-inputs-row {
+  opacity: 0.5;
+  filter: grayscale(0.3);
 }

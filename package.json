@@ -15,16 +15,40 @@
   "module": "dist/otp-input.esm.js",
   "browser": "dist/otp-input.umd.js",
   "unpkg": "dist/otp-input.umd.min.js",
+  "types": "./types/index.d.ts",
   "exports": {
     ".": {
+      "types": "./types/index.d.ts",
       "import": "./dist/otp-input.esm.js",
       "require": "./dist/otp-input.umd.cjs",
       "browser": "./dist/otp-input.umd.js"
-    }
+    },
+    "./react": {
+      "types": "./types/react.d.ts",
+      "import": "./dist/react.esm.js",
+      "require": "./dist/react.cjs"
+    },
+    "./vue": {
+      "types": "./types/vue.d.ts",
+      "import": "./dist/vue.esm.js",
+      "require": "./dist/vue.cjs"
+    },
+    "./svelte": {
+      "types": "./types/svelte.d.ts",
+      "import": "./dist/svelte.esm.js",
+      "require": "./dist/svelte.cjs"
+    },
+    "./angular": {
+      "types": "./src/adapters/angular.ts",
+      "default": "./src/adapters/angular.ts"
+    },
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "src",
+    "types",
     "README.md"
   ],
   "scripts": {
@@ -51,6 +75,16 @@
   ],
   "type": "module",
   "license": "MIT",
+  "peerDependencies": {
+    "react": ">=17",
+    "vue": ">=3",
+    "@angular/core": ">=16"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "vue": { "optional": true },
+    "@angular/core": { "optional": true }
+  },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",

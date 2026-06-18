@@ -7,7 +7,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const __css = "/* ─── OTP Input Library — Default Theme ─────────────────────────────────────\n   All values are CSS custom properties → fully overridable per-instance.\n   ───────────────────────────────────────────────────────────────────────── */\n\n/* ── Design tokens ── */\n:root {\n  --otp-gap: 10px;\n  --otp-input-width: 52px;\n  --otp-input-height: 60px;\n  --otp-border-radius: 10px;\n  --otp-border-width: 2px;\n  --otp-border-color: #d1d5db;\n  --otp-focus-color: #3b82f6;\n  --otp-focus-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);\n  --otp-error-color: #ef4444;\n  --otp-error-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);\n  --otp-success-color: #22c55e;\n  --otp-success-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);\n  --otp-bg: #ffffff;\n  --otp-filled-bg: #f0f9ff;\n  --otp-disabled-bg: #f3f4f6;\n  --otp-text-color: #111827;\n  --otp-placeholder-color: #d1d5db;\n  --otp-font-size: 1.625rem;\n  --otp-font-weight: 700;\n  --otp-font-family: inherit;\n  --otp-letter-spacing: 0.05em;\n  --otp-transition: 0.18s ease;\n\n  /* Timer */\n  --otp-timer-color: #6b7280;\n  --otp-timer-urgent-color: #ef4444;\n  --otp-timer-font-size: 0.875rem;\n  --otp-progress-height: 3px;\n  --otp-progress-bg: #e5e7eb;\n  --otp-progress-fill: #3b82f6;\n\n  /* Resend */\n  --otp-resend-color: #3b82f6;\n  --otp-resend-disabled-color: #9ca3af;\n  --otp-resend-font-size: 0.875rem;\n\n  /* Paste suggestion */\n  --otp-paste-bg: #eff6ff;\n  --otp-paste-border: #bfdbfe;\n  --otp-paste-color: #1d4ed8;\n  --otp-paste-font-size: 0.8125rem;\n}\n\n/* ── Dark mode auto-detection ── */\n@media (prefers-color-scheme: dark) {\n  :root {\n    --otp-bg: #1f2937;\n    --otp-filled-bg: #1e3a5f;\n    --otp-disabled-bg: #374151;\n    --otp-border-color: #374151;\n    --otp-text-color: #f9fafb;\n    --otp-placeholder-color: #4b5563;\n    --otp-progress-bg: #374151;\n    --otp-paste-bg: #1e3a5f;\n    --otp-paste-border: #1e40af;\n    --otp-paste-color: #93c5fd;\n    --otp-timer-color: #9ca3af;\n  }\n}\n\n/* ── Root container ── */\n.otp-root {\n  position: relative;\n  display: inline-block;\n  width: 100%;\n}\n\n.otp-wrapper {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n}\n\n/* ── Inputs row ── */\n.otp-inputs-row {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: center;\n  gap: var(--otp-gap);\n  width: 100%;\n}\n\n/* RTL: inputs are already in DOM order; CSS dir handles visual flip */\n[dir=\"rtl\"] .otp-inputs-row {\n  flex-direction: row-reverse;\n}\n\n/* ── Digit separator ── */\n.otp-separator {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  color: var(--otp-separator-color, var(--otp-border-color, #cbd5e1));\n  font-size: 1.2em;\n  font-weight: 300;\n  letter-spacing: -0.02em;\n  user-select: none;\n  padding: 0 2px;\n  flex-shrink: 0;\n  transition: color 0.2s;\n}\n\n/* ── Individual input ── */\n.otp-input {\n  width: var(--otp-input-width);\n  height: var(--otp-input-height);\n  padding: 0;\n  border: var(--otp-border-width) solid var(--otp-border-color);\n  border-radius: var(--otp-border-radius);\n  background: var(--otp-bg);\n  color: var(--otp-text-color);\n  font-size: var(--otp-font-size);\n  font-weight: var(--otp-font-weight);\n  font-family: var(--otp-font-family);\n  letter-spacing: var(--otp-letter-spacing);\n  text-align: center;\n  outline: none;\n  cursor: text;\n  -webkit-appearance: none;\n  appearance: none;\n  transition:\n    border-color var(--otp-transition),\n    background-color var(--otp-transition),\n    box-shadow var(--otp-transition),\n    transform var(--otp-transition);\n  user-select: text;\n}\n\n/* Remove number spinners */\n.otp-input[type=\"number\"]::-webkit-inner-spin-button,\n.otp-input[type=\"number\"]::-webkit-outer-spin-button {\n  -webkit-appearance: none;\n}\n\n/* Placeholder styling */\n.otp-input::placeholder {\n  color: var(--otp-placeholder-color);\n  font-size: calc(var(--otp-font-size) * 0.6);\n  font-weight: 400;\n}\n\n/* ── States ── */\n.otp-input--focused {\n  border-color: var(--otp-focus-color);\n  box-shadow: var(--otp-focus-shadow);\n  z-index: 1;\n}\n\n.otp-input--filled {\n  background: var(--otp-filled-bg);\n  border-color: var(--otp-border-color);\n}\n\n.otp-input--error {\n  border-color: var(--otp-error-color) !important;\n  box-shadow: var(--otp-error-shadow) !important;\n  background: rgba(239, 68, 68, 0.04);\n}\n\n.otp-input--success {\n  border-color: var(--otp-success-color) !important;\n  box-shadow: var(--otp-success-shadow);\n  background: rgba(34, 197, 94, 0.06);\n}\n\n.otp-root--disabled .otp-input,\n.otp-input:disabled {\n  background: var(--otp-disabled-bg);\n  cursor: not-allowed;\n  opacity: 0.6;\n}\n\n.otp-root--expired .otp-input {\n  opacity: 0.45;\n  cursor: not-allowed;\n}\n\n/* ── Timer progress bar ── */\n.otp-timer-progress {\n  width: 100%;\n  max-width: calc(var(--otp-input-width) * 6 + var(--otp-gap) * 5 + 20px);\n  height: var(--otp-progress-height);\n  background: var(--otp-progress-bg);\n  border-radius: 999px;\n  overflow: hidden;\n}\n\n.otp-timer-progress-bar {\n  height: 100%;\n  background: var(--otp-progress-fill);\n  border-radius: 999px;\n  transition: background-color 0.3s ease;\n  width: 100%;\n}\n\n.otp-timer-progress-bar.otp-timer-progress-bar--running {\n  animation: otpProgressCountdown linear forwards;\n}\n\n.otp-timer--urgent ~ .otp-timer-progress .otp-timer-progress-bar {\n  background: var(--otp-error-color);\n}\n\n/* ── Footer (timer + resend) ── */\n.otp-footer {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  max-width: calc(var(--otp-input-width) * 6 + var(--otp-gap) * 5);\n  padding: 0 2px;\n  gap: 8px;\n}\n\n.otp-timer-wrap {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n}\n\n.otp-timer {\n  font-size: var(--otp-timer-font-size);\n  color: var(--otp-timer-color);\n  font-variant-numeric: tabular-nums;\n  letter-spacing: 0.02em;\n  min-width: 2.8em;\n}\n\n.otp-timer--urgent {\n  color: var(--otp-timer-urgent-color);\n  font-weight: 600;\n}\n\n/* ── Resend button ── */\n.otp-resend-btn {\n  background: none;\n  border: none;\n  padding: 4px 8px;\n  font-size: var(--otp-resend-font-size);\n  color: var(--otp-resend-color);\n  cursor: pointer;\n  border-radius: 6px;\n  font-weight: 500;\n  transition: opacity 0.15s, background-color 0.15s;\n  white-space: nowrap;\n}\n\n.otp-resend-btn:hover:not(:disabled) {\n  background: rgba(59, 130, 246, 0.1);\n}\n\n.otp-resend-btn:disabled {\n  color: var(--otp-resend-disabled-color);\n  cursor: not-allowed;\n}\n\n/* ── Paste suggestion ── */\n.otp-paste-suggestion {\n  display: flex;\n  width: fit-content;\n  align-items: center;\n  justify-content: center;\n  padding: 8px 16px;\n  margin: 0 auto;\n  background: var(--otp-paste-bg);\n  border: 1px solid var(--otp-paste-border);\n  border-radius: 8px;\n  color: var(--otp-paste-color);\n  font-size: var(--otp-paste-font-size);\n  font-weight: 500;\n  text-align: center;\n  cursor: pointer;\n  transition: opacity 0.2s;\n  animation: otpFadeInDown 0.25s ease;\n}\n\n.otp-paste-suggestion:hover {\n  opacity: 0.85;\n}\n\n/* ── Live region (visually hidden) ── */\n.otp-live-region {\n  position: absolute !important;\n  width: 1px !important;\n  height: 1px !important;\n  padding: 0 !important;\n  margin: -1px !important;\n  overflow: hidden !important;\n  clip: rect(0, 0, 0, 0) !important;\n  white-space: nowrap !important;\n  border: 0 !important;\n}\n\n/* ─── Animations ──────────────────────────────────────────────────────────── */\n\n@keyframes otpProgressCountdown {\n  from { width: 100%; }\n  to   { width: 0%; }\n}\n\n@keyframes otpShake {\n  0%, 100% { transform: translateX(0); }\n  15%       { transform: translateX(-6px) rotate(-1deg); }\n  30%       { transform: translateX(5px)  rotate(1deg); }\n  45%       { transform: translateX(-4px); }\n  60%       { transform: translateX(3px); }\n  75%       { transform: translateX(-2px); }\n}\n\n@keyframes otpPop {\n  0%   { transform: scale(1); }\n  40%  { transform: scale(1.15); }\n  70%  { transform: scale(0.95); }\n  100% { transform: scale(1); }\n}\n\n@keyframes otpHighlight {\n  0%, 100% { background-color: var(--otp-bg); }\n  50%       { background-color: rgba(239, 68, 68, 0.15); }\n}\n\n@keyframes otpFadeInDown {\n  from { opacity: 0; transform: translateY(-8px); }\n  to   { opacity: 1; transform: translateY(0); }\n}\n\n.otp-anim-shake {\n  animation: otpShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);\n}\n\n.otp-anim-pop {\n  animation: otpPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n\n.otp-anim-highlight {\n  animation: otpHighlight 0.5s ease;\n}\n\n/* RTL: mirror shake direction */\n[dir=\"rtl\"] .otp-anim-shake {\n  animation-name: otpShakeRTL;\n}\n\n@keyframes otpShakeRTL {\n  0%, 100% { transform: translateX(0); }\n  15%       { transform: translateX(6px) rotate(1deg); }\n  30%       { transform: translateX(-5px) rotate(-1deg); }\n  45%       { transform: translateX(4px); }\n  60%       { transform: translateX(-3px); }\n  75%       { transform: translateX(2px); }\n}\n\n/* ─── Responsive ──────────────────────────────────────────────────────────── */\n\n@media (max-width: 420px) {\n  :root {\n    --otp-input-width: 42px;\n    --otp-input-height: 50px;\n    --otp-font-size: 1.35rem;\n    --otp-gap: 7px;\n  }\n}\n\n@media (max-width: 340px) {\n  :root {\n    --otp-input-width: 36px;\n    --otp-input-height: 44px;\n    --otp-font-size: 1.15rem;\n    --otp-gap: 5px;\n    --otp-border-radius: 7px;\n  }\n}\n\n/* ─── Input Theme: Underline ──────────────────────────────────────────────── */\n.otp-root[data-theme=\"underline\"] .otp-input {\n  border-width: 0;\n  border-bottom-width: var(--otp-border-width);\n  border-radius: 0;\n  background: transparent;\n  box-shadow: none;\n}\n\n.otp-root[data-theme=\"underline\"] .otp-input--focused {\n  border-bottom-color: var(--otp-focus-color);\n  box-shadow: 0 2px 0 0 var(--otp-focus-color);\n}\n\n/* ─── Input Theme: Rounded ────────────────────────────────────────────────── */\n.otp-root[data-theme=\"rounded\"] .otp-input {\n  --otp-border-radius: 999px;\n}\n\n/* ─── Input Theme: Pill ───────────────────────────────────────────────────── */\n.otp-root[data-theme=\"pill\"] .otp-input {\n  --otp-border-radius: 999px;\n  --otp-input-width: 56px;\n  --otp-input-height: 56px;\n  border-width: 1.5px;\n}\n\n.otp-root[data-theme=\"pill\"] .otp-input--filled {\n  background: var(--otp-focus-color);\n  color: #fff;\n  border-color: var(--otp-focus-color);\n}\n\n/* ─── Input Theme: Ghost ──────────────────────────────────────────────────── */\n.otp-root[data-theme=\"ghost\"] .otp-input {\n  background: rgba(15, 23, 42, 0.05);\n  border-color: transparent;\n}\n\n.otp-root[data-theme=\"ghost\"] .otp-input--focused {\n  background: transparent;\n  border-color: var(--otp-focus-color);\n}\n\n@media (prefers-color-scheme: dark) {\n  .otp-root[data-theme=\"ghost\"] .otp-input { background: rgba(255,255,255,0.06); }\n}\n\n/* ─── Input Theme: Filled ─────────────────────────────────────────────────── */\n.otp-root[data-theme=\"filled\"] .otp-input {\n  background: #f1f5f9;\n  border-color: transparent;\n  border-bottom: 2px solid #cbd5e1;\n  border-radius: 8px 8px 0 0;\n}\n\n.otp-root[data-theme=\"filled\"] .otp-input--focused {\n  background: #e0f2fe;\n  border-bottom-color: var(--otp-focus-color);\n  box-shadow: none;\n}\n\n.otp-root[data-theme=\"filled\"] .otp-input--filled {\n  background: #dbeafe;\n  border-bottom-color: var(--otp-focus-color);\n}\n\n@media (prefers-color-scheme: dark) {\n  .otp-root[data-theme=\"filled\"] .otp-input { background: #334155; border-bottom-color: #475569; }\n  .otp-root[data-theme=\"filled\"] .otp-input--focused { background: #1e3a5f; }\n  .otp-root[data-theme=\"filled\"] .otp-input--filled  { background: #1e40af; color: #fff; }\n}\n\n/* ─── Input Theme: Soft ───────────────────────────────────────────────────── */\n.otp-root[data-theme=\"soft\"] .otp-input {\n  background: #f5f3ff;\n  border-color: transparent;\n  --otp-border-radius: 14px;\n  box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.15);\n}\n\n.otp-root[data-theme=\"soft\"] .otp-input--focused {\n  background: #ede9fe;\n  box-shadow: inset 0 0 0 2px #8b5cf6, 0 0 0 4px rgba(139, 92, 246, 0.15);\n}\n\n.otp-root[data-theme=\"soft\"] .otp-input--filled {\n  color: #7c3aed;\n  background: #ede9fe;\n}\n\n/* ─── Input Theme: Neon ───────────────────────────────────────────────────── */\n.otp-root[data-theme=\"neon\"] {\n  --otp-focus-color: #06ffa5;\n  --otp-focus-shadow: 0 0 16px rgba(6, 255, 165, 0.55), 0 0 0 2px rgba(6, 255, 165, 0.5);\n}\n\n.otp-root[data-theme=\"neon\"] .otp-input {\n  background: #0b0f1a;\n  border-color: #1e293b;\n  color: #06ffa5;\n  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;\n  text-shadow: 0 0 6px rgba(6, 255, 165, 0.6);\n}\n\n.otp-root[data-theme=\"neon\"] .otp-input--focused {\n  border-color: #06ffa5;\n}\n\n.otp-root[data-theme=\"neon\"] .otp-input--filled {\n  background: #051219;\n  border-color: #06ffa5;\n  box-shadow: inset 0 0 8px rgba(6, 255, 165, 0.2);\n}\n\n/* ─── Input Theme: Gradient ───────────────────────────────────────────────── */\n.otp-root[data-theme=\"gradient\"] .otp-input {\n  background: #fff;\n  border: none;\n  position: relative;\n  background-image:\n    linear-gradient(#fff, #fff),\n    linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n  background-origin: border-box;\n  background-clip: padding-box, border-box;\n  border: 2px solid transparent;\n}\n\n.otp-root[data-theme=\"gradient\"] .otp-input--focused {\n  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);\n}\n\n.otp-root[data-theme=\"gradient\"] .otp-input--filled {\n  background-image:\n    linear-gradient(135deg, #eef2ff, #fdf2f8),\n    linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n\n@media (prefers-color-scheme: dark) {\n  .otp-root[data-theme=\"gradient\"] .otp-input {\n    background-image:\n      linear-gradient(#1e293b, #1e293b),\n      linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n  }\n  .otp-root[data-theme=\"gradient\"] .otp-input--filled {\n    background-image:\n      linear-gradient(135deg, #1e3a5f, #4c1d95),\n      linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n  }\n}\n\n/* ─── Input Theme: 3D / Elevated ──────────────────────────────────────────── */\n.otp-root[data-theme=\"elevated\"] .otp-input {\n  border-color: transparent;\n  background: #fff;\n  box-shadow:\n    0 1px 2px rgba(0,0,0,0.06),\n    0 4px 12px rgba(0,0,0,0.08);\n}\n\n.otp-root[data-theme=\"elevated\"] .otp-input--focused {\n  transform: translateY(-2px);\n  box-shadow:\n    0 4px 6px rgba(59, 130, 246, 0.1),\n    0 12px 24px rgba(59, 130, 246, 0.18),\n    0 0 0 2px var(--otp-focus-color);\n}\n\n@media (prefers-color-scheme: dark) {\n  .otp-root[data-theme=\"elevated\"] .otp-input { background: #1e293b; }\n}\n\n/* ─── High contrast (prefers-contrast: more) ─────────────────────────────── */\n@media (prefers-contrast: more) {\n  .otp-input {\n    border-width: 3px;\n  }\n  .otp-input--focused {\n    outline: 3px solid var(--otp-focus-color);\n    outline-offset: 2px;\n  }\n}\n\n/* ─── Reduced motion ──────────────────────────────────────────────────────── */\n@media (prefers-reduced-motion: reduce) {\n  .otp-input,\n  .otp-timer-progress-bar,\n  .otp-paste-suggestion,\n  .otp-toast {\n    transition: none !important;\n    animation: none !important;\n  }\n}\n\n/* ═══════════════════════════════════════════════════════════════════════════\n   TOAST NOTIFICATIONS\n   ═══════════════════════════════════════════════════════════════════════════ */\n\n:root {\n  --otp-toast-bg:           #ffffff;\n  --otp-toast-text:         #0f172a;\n  --otp-toast-muted:        #64748b;\n  --otp-toast-border:       #e2e8f0;\n  --otp-toast-radius:       12px;\n  --otp-toast-padding:      14px 16px;\n  --otp-toast-min-width:    300px;\n  --otp-toast-max-width:    420px;\n  --otp-toast-gap:          12px;\n  --otp-toast-shadow:       0 10px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -2px rgba(0,0,0,0.06);\n  --otp-toast-z:            10000;\n\n  /* Type colors */\n  --otp-toast-success-bg:   #ecfdf5;\n  --otp-toast-success-fg:   #065f46;\n  --otp-toast-success-bar:  #10b981;\n  --otp-toast-success-icon: #10b981;\n\n  --otp-toast-error-bg:     #fef2f2;\n  --otp-toast-error-fg:     #991b1b;\n  --otp-toast-error-bar:    #ef4444;\n  --otp-toast-error-icon:   #ef4444;\n\n  --otp-toast-warning-bg:   #fffbeb;\n  --otp-toast-warning-fg:   #92400e;\n  --otp-toast-warning-bar:  #f59e0b;\n  --otp-toast-warning-icon: #f59e0b;\n\n  --otp-toast-info-bg:      #eff6ff;\n  --otp-toast-info-fg:      #1e40af;\n  --otp-toast-info-bar:     #3b82f6;\n  --otp-toast-info-icon:    #3b82f6;\n}\n\n@media (prefers-color-scheme: dark) {\n  :root {\n    --otp-toast-bg:        #1e293b;\n    --otp-toast-text:      #f1f5f9;\n    --otp-toast-muted:     #94a3b8;\n    --otp-toast-border:    #334155;\n    --otp-toast-shadow:    0 10px 25px -5px rgba(0,0,0,0.5), 0 4px 10px -2px rgba(0,0,0,0.3);\n\n    --otp-toast-success-bg: #022c22;\n    --otp-toast-success-fg: #6ee7b7;\n    --otp-toast-error-bg:   #2a0a0a;\n    --otp-toast-error-fg:   #fca5a5;\n    --otp-toast-warning-bg: #2a1a05;\n    --otp-toast-warning-fg: #fcd34d;\n    --otp-toast-info-bg:    #0f1e3d;\n    --otp-toast-info-fg:    #93c5fd;\n  }\n}\n\n/* ── Toast container (stack) ── */\n.otp-toast-container {\n  position: fixed;\n  z-index: var(--otp-toast-z);\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding: 16px;\n  pointer-events: none;\n  max-width: calc(100% - 32px);\n}\n\n.otp-toast-container > * { pointer-events: auto; }\n\n.otp-toast-container--top-left     { top: 0; left: 0; align-items: flex-start; }\n.otp-toast-container--top-center   { top: 0; left: 50%; transform: translateX(-50%); align-items: center; }\n.otp-toast-container--top-right    { top: 0; right: 0; align-items: flex-end; }\n.otp-toast-container--bottom-left  { bottom: 0; left: 0; align-items: flex-start; flex-direction: column-reverse; }\n.otp-toast-container--bottom-center{ bottom: 0; left: 50%; transform: translateX(-50%); align-items: center; flex-direction: column-reverse; }\n.otp-toast-container--bottom-right { bottom: 0; right: 0; align-items: flex-end; flex-direction: column-reverse; }\n\n[dir=\"rtl\"].otp-toast-container--top-left,\n[dir=\"rtl\"].otp-toast-container--bottom-left { left: auto; right: 0; align-items: flex-end; }\n\n[dir=\"rtl\"].otp-toast-container--top-right,\n[dir=\"rtl\"].otp-toast-container--bottom-right { right: auto; left: 0; align-items: flex-start; }\n\n/* ── Base toast ── */\n.otp-toast {\n  display: flex;\n  align-items: flex-start;\n  gap: var(--otp-toast-gap);\n  min-width: var(--otp-toast-min-width);\n  max-width: var(--otp-toast-max-width);\n  padding: var(--otp-toast-padding);\n  background: var(--otp-toast-bg);\n  color: var(--otp-toast-text);\n  border-radius: var(--otp-toast-radius);\n  border: 1px solid var(--otp-toast-border);\n  box-shadow: var(--otp-toast-shadow);\n  position: relative;\n  overflow: hidden;\n  font-size: 0.9rem;\n  line-height: 1.45;\n  opacity: 0;\n  transform: translateY(-12px) scale(0.97);\n  transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n\n.otp-toast-container--bottom-left .otp-toast,\n.otp-toast-container--bottom-center .otp-toast,\n.otp-toast-container--bottom-right .otp-toast {\n  transform: translateY(12px) scale(0.97);\n}\n\n.otp-toast--visible {\n  opacity: 1;\n  transform: translateY(0) scale(1);\n}\n\n.otp-toast--leaving {\n  opacity: 0;\n  transform: translateX(40px) scale(0.95);\n}\n\n[dir=\"rtl\"] .otp-toast--leaving { transform: translateX(-40px) scale(0.95); }\n\n.otp-toast-icon {\n  flex-shrink: 0;\n  width: 22px;\n  height: 22px;\n  border-radius: 50%;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 0.78rem;\n  font-weight: 800;\n  color: #fff;\n  margin-top: 1px;\n}\n\n.otp-toast-body { flex: 1; min-width: 0; }\n.otp-toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }\n.otp-toast-message { font-size: 0.875rem; word-break: break-word; }\n\n.otp-toast-actions { display: flex; gap: 8px; margin-top: 8px; }\n\n.otp-toast-action {\n  background: transparent;\n  border: 1px solid currentColor;\n  color: inherit;\n  padding: 4px 10px;\n  border-radius: 6px;\n  font-size: 0.78rem;\n  font-weight: 600;\n  cursor: pointer;\n  opacity: 0.85;\n  transition: opacity 0.15s, background 0.15s;\n}\n.otp-toast-action:hover { opacity: 1; background: rgba(0,0,0,0.05); }\n\n.otp-toast-close {\n  background: transparent;\n  border: none;\n  color: var(--otp-toast-muted);\n  font-size: 1.25rem;\n  line-height: 1;\n  cursor: pointer;\n  padding: 0;\n  width: 22px;\n  height: 22px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: 4px;\n  flex-shrink: 0;\n  margin-top: -2px;\n  transition: background 0.15s, color 0.15s;\n}\n.otp-toast-close:hover { background: rgba(0,0,0,0.06); color: var(--otp-toast-text); }\n\n.otp-toast-progress {\n  position: absolute;\n  bottom: 0;\n  inset-inline: 0;\n  height: 3px;\n  background: rgba(0,0,0,0.06);\n}\n\n.otp-toast-progress-bar {\n  height: 100%;\n  width: 100%;\n  background: currentColor;\n  transition: width linear;\n}\n\n/* ── Type variants ── */\n.otp-toast--success { background: var(--otp-toast-success-bg); color: var(--otp-toast-success-fg); border-color: rgba(16,185,129,0.25); }\n.otp-toast--success .otp-toast-icon          { background: var(--otp-toast-success-icon); }\n.otp-toast--success .otp-toast-progress-bar  { background: var(--otp-toast-success-bar); }\n\n.otp-toast--error { background: var(--otp-toast-error-bg); color: var(--otp-toast-error-fg); border-color: rgba(239,68,68,0.3); }\n.otp-toast--error .otp-toast-icon          { background: var(--otp-toast-error-icon); }\n.otp-toast--error .otp-toast-progress-bar  { background: var(--otp-toast-error-bar); }\n.otp-toast--error                          { animation: otpToastErrorPulse 0.4s ease; }\n\n.otp-toast--warning { background: var(--otp-toast-warning-bg); color: var(--otp-toast-warning-fg); border-color: rgba(245,158,11,0.3); }\n.otp-toast--warning .otp-toast-icon          { background: var(--otp-toast-warning-icon); }\n.otp-toast--warning .otp-toast-progress-bar  { background: var(--otp-toast-warning-bar); }\n\n.otp-toast--info { background: var(--otp-toast-info-bg); color: var(--otp-toast-info-fg); border-color: rgba(59,130,246,0.25); }\n.otp-toast--info .otp-toast-icon          { background: var(--otp-toast-info-icon); }\n.otp-toast--info .otp-toast-progress-bar  { background: var(--otp-toast-info-bar); }\n\n@keyframes otpToastErrorPulse {\n  0%   { box-shadow: var(--otp-toast-shadow), 0 0 0 0 rgba(239,68,68,0.5); }\n  50%  { box-shadow: var(--otp-toast-shadow), 0 0 0 8px rgba(239,68,68,0); }\n  100% { box-shadow: var(--otp-toast-shadow), 0 0 0 0 rgba(239,68,68,0); }\n}\n\n/* ───── Toast theme: Glass (frosted) ─────────────────────────────────────── */\n.otp-toast--theme-glass {\n  background: rgba(255, 255, 255, 0.72);\n  -webkit-backdrop-filter: blur(14px) saturate(1.6);\n  backdrop-filter: blur(14px) saturate(1.6);\n  border: 1px solid rgba(255,255,255,0.5);\n  box-shadow:\n    0 8px 32px rgba(0,0,0,0.12),\n    inset 0 1px 0 rgba(255,255,255,0.6);\n}\n\n@media (prefers-color-scheme: dark) {\n  .otp-toast--theme-glass {\n    background: rgba(30, 41, 59, 0.65);\n    border: 1px solid rgba(255,255,255,0.08);\n    box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);\n  }\n}\n\n.otp-toast--theme-glass.otp-toast--success { background: rgba(236, 253, 245, 0.72); }\n.otp-toast--theme-glass.otp-toast--error   { background: rgba(254, 242, 242, 0.72); }\n.otp-toast--theme-glass.otp-toast--warning { background: rgba(255, 251, 235, 0.72); }\n.otp-toast--theme-glass.otp-toast--info    { background: rgba(239, 246, 255, 0.72); }\n\n/* ───── Toast theme: Solid (high contrast) ───────────────────────────────── */\n.otp-toast--theme-solid           { color: #fff; border: none; }\n.otp-toast--theme-solid .otp-toast-close { color: rgba(255,255,255,0.85); }\n.otp-toast--theme-solid .otp-toast-close:hover { background: rgba(255,255,255,0.15); color:#fff; }\n.otp-toast--theme-solid .otp-toast-icon  { background: rgba(255,255,255,0.22); color:#fff; }\n.otp-toast--theme-solid.otp-toast--success { background: #10b981; }\n.otp-toast--theme-solid.otp-toast--error   { background: #ef4444; }\n.otp-toast--theme-solid.otp-toast--warning { background: #f59e0b; }\n.otp-toast--theme-solid.otp-toast--info    { background: #3b82f6; }\n.otp-toast--theme-solid .otp-toast-progress-bar { background: rgba(255,255,255,0.5); }\n\n/* ───── Toast theme: Gradient ────────────────────────────────────────────── */\n.otp-toast--theme-gradient        { color: #fff; border: none; box-shadow: 0 12px 30px -8px rgba(0,0,0,0.35); }\n.otp-toast--theme-gradient .otp-toast-icon  { background: rgba(255,255,255,0.25); }\n.otp-toast--theme-gradient .otp-toast-close { color: rgba(255,255,255,0.9); }\n.otp-toast--theme-gradient.otp-toast--success { background: linear-gradient(135deg, #10b981, #059669); }\n.otp-toast--theme-gradient.otp-toast--error   { background: linear-gradient(135deg, #ef4444, #b91c1c); }\n.otp-toast--theme-gradient.otp-toast--warning { background: linear-gradient(135deg, #f59e0b, #d97706); }\n.otp-toast--theme-gradient.otp-toast--info    { background: linear-gradient(135deg, #3b82f6, #6366f1); }\n.otp-toast--theme-gradient .otp-toast-progress-bar { background: rgba(255,255,255,0.5); }\n\n/* ───── Toast theme: Minimal (left accent stripe) ────────────────────────── */\n.otp-toast--theme-minimal {\n  background: var(--otp-toast-bg);\n  color: var(--otp-toast-text);\n  border: 1px solid var(--otp-toast-border);\n  border-inline-start-width: 4px;\n  box-shadow: 0 4px 12px rgba(0,0,0,0.06);\n}\n\n.otp-toast--theme-minimal .otp-toast-icon          { background: transparent; color: currentColor; }\n.otp-toast--theme-minimal.otp-toast--success       { border-inline-start-color: var(--otp-toast-success-bar); }\n.otp-toast--theme-minimal.otp-toast--success .otp-toast-icon { color: var(--otp-toast-success-icon); }\n.otp-toast--theme-minimal.otp-toast--error         { border-inline-start-color: var(--otp-toast-error-bar); }\n.otp-toast--theme-minimal.otp-toast--error .otp-toast-icon   { color: var(--otp-toast-error-icon); }\n.otp-toast--theme-minimal.otp-toast--warning       { border-inline-start-color: var(--otp-toast-warning-bar); }\n.otp-toast--theme-minimal.otp-toast--warning .otp-toast-icon { color: var(--otp-toast-warning-icon); }\n.otp-toast--theme-minimal.otp-toast--info          { border-inline-start-color: var(--otp-toast-info-bar); }\n.otp-toast--theme-minimal.otp-toast--info .otp-toast-icon    { color: var(--otp-toast-info-icon); }\n\n/* ───── Toast theme: Pill (compact, rounded) ────────────────────────────── */\n.otp-toast--theme-pill {\n  border-radius: 999px;\n  padding: 8px 16px 8px 10px;\n  min-width: auto;\n  font-size: 0.85rem;\n  gap: 8px;\n  border: none;\n  background: var(--otp-toast-bg);\n}\n\n.otp-toast--theme-pill .otp-toast-icon {\n  width: 24px; height: 24px;\n}\n\n.otp-toast--theme-pill .otp-toast-close { display: none; }\n.otp-toast--theme-pill .otp-toast-progress { display: none; }\n.otp-toast--theme-pill .otp-toast-title { display: none; }\n\n.otp-toast--theme-pill.otp-toast--success { background: #10b981; color: #fff; }\n.otp-toast--theme-pill.otp-toast--error   { background: #ef4444; color: #fff; }\n.otp-toast--theme-pill.otp-toast--warning { background: #f59e0b; color: #fff; }\n.otp-toast--theme-pill.otp-toast--info    { background: #3b82f6; color: #fff; }\n.otp-toast--theme-pill .otp-toast-icon    { background: rgba(255,255,255,0.25); }\n\n/* ─── Mobile responsive ── */\n@media (max-width: 480px) {\n  .otp-toast-container {\n    inset-inline: 0 !important;\n    left: 0 !important; right: 0 !important; transform: none !important;\n    align-items: stretch !important;\n    padding: 10px;\n  }\n  .otp-toast {\n    min-width: 0;\n    max-width: 100%;\n    width: 100%;\n  }\n}\n";
+const __css = ":root {\n--otp-gap: 10px;\n--otp-input-width: 52px;\n--otp-input-height: 60px;\n--otp-border-radius: 10px;\n--otp-border-width: 2px;\n--otp-border-color: #d1d5db;\n--otp-focus-color: #3b82f6;\n--otp-focus-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);\n--otp-error-color: #ef4444;\n--otp-error-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);\n--otp-success-color: #22c55e;\n--otp-success-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);\n--otp-bg: #ffffff;\n--otp-filled-bg: #f0f9ff;\n--otp-disabled-bg: #f3f4f6;\n--otp-text-color: #111827;\n--otp-placeholder-color: #d1d5db;\n--otp-font-size: 1.625rem;\n--otp-font-weight: 700;\n--otp-font-family: inherit;\n--otp-letter-spacing: 0.05em;\n--otp-transition: 0.18s ease;\n--otp-timer-color: #6b7280;\n--otp-timer-urgent-color: #ef4444;\n--otp-timer-font-size: 0.875rem;\n--otp-progress-height: 3px;\n--otp-progress-bg: #e5e7eb;\n--otp-progress-fill: #3b82f6;\n--otp-resend-color: #3b82f6;\n--otp-resend-disabled-color: #9ca3af;\n--otp-resend-font-size: 0.875rem;\n--otp-paste-bg: #eff6ff;\n--otp-paste-border: #bfdbfe;\n--otp-paste-color: #1d4ed8;\n--otp-paste-font-size: 0.8125rem;\n}\n@media (prefers-color-scheme: dark) {\n:root {\n--otp-bg: #1f2937;\n--otp-filled-bg: #1e3a5f;\n--otp-disabled-bg: #374151;\n--otp-border-color: #374151;\n--otp-text-color: #f9fafb;\n--otp-placeholder-color: #4b5563;\n--otp-progress-bg: #374151;\n--otp-paste-bg: #1e3a5f;\n--otp-paste-border: #1e40af;\n--otp-paste-color: #93c5fd;\n--otp-timer-color: #9ca3af;\n}\n}\n.otp-root {\nposition: relative;\ndisplay: inline-block;\nwidth: 100%;\n}\n.otp-wrapper {\ndisplay: flex;\nflex-direction: column;\nalign-items: center;\ngap: 12px;\nwidth: 100%;\n}\n.otp-inputs-row {\ndisplay: flex;\nflex-direction: row;\nalign-items: center;\njustify-content: center;\ngap: var(--otp-gap);\nwidth: 100%;\n}\n[dir=\"rtl\"] .otp-inputs-row {\nflex-direction: row;\n}\n.otp-separator {\ndisplay: flex;\nalign-items: center;\njustify-content: center;\ncolor: var(--otp-separator-color, var(--otp-border-color, #cbd5e1));\nfont-size: 1.2em;\nfont-weight: 300;\nletter-spacing: -0.02em;\nuser-select: none;\npadding: 0 2px;\nflex-shrink: 0;\ntransition: color 0.2s;\n}\n.otp-input {\nwidth: var(--otp-input-width);\nheight: var(--otp-input-height);\npadding: 0;\nborder: var(--otp-border-width) solid var(--otp-border-color);\nborder-radius: var(--otp-border-radius);\nbackground: var(--otp-bg);\ncolor: var(--otp-text-color);\nfont-size: var(--otp-font-size);\nfont-weight: var(--otp-font-weight);\nfont-family: var(--otp-font-family);\nletter-spacing: var(--otp-letter-spacing);\ntext-align: center;\noutline: none;\ncursor: text;\n-webkit-appearance: none;\nappearance: none;\ntransition:\nborder-color var(--otp-transition),\nbackground-color var(--otp-transition),\nbox-shadow var(--otp-transition),\ntransform var(--otp-transition);\nuser-select: text;\n}\n.otp-input[type=\"number\"]::-webkit-inner-spin-button,\n.otp-input[type=\"number\"]::-webkit-outer-spin-button {\n-webkit-appearance: none;\n}\n.otp-input::placeholder {\ncolor: var(--otp-placeholder-color);\nfont-size: calc(var(--otp-font-size) * 0.6);\nfont-weight: 400;\n}\n.otp-input--focused {\nborder-color: var(--otp-focus-color);\nbox-shadow: var(--otp-focus-shadow);\nz-index: 1;\n}\n.otp-input--filled {\nbackground: var(--otp-filled-bg);\nborder-color: var(--otp-border-color);\n}\n.otp-input--error {\nborder-color: var(--otp-error-color) !important;\nbox-shadow: var(--otp-error-shadow) !important;\nbackground: rgba(239, 68, 68, 0.04);\n}\n.otp-input--success {\nborder-color: var(--otp-success-color) !important;\nbox-shadow: var(--otp-success-shadow);\nbackground: rgba(34, 197, 94, 0.06);\n}\n.otp-root--disabled .otp-input,\n.otp-input:disabled {\nbackground: var(--otp-disabled-bg);\ncursor: not-allowed;\nopacity: 0.6;\n}\n.otp-root--expired .otp-input {\nopacity: 0.45;\ncursor: not-allowed;\n}\n.otp-timer-progress {\nwidth: 100%;\nmax-width: calc(var(--otp-input-width) * 6 + var(--otp-gap) * 5 + 20px);\nheight: var(--otp-progress-height);\nbackground: var(--otp-progress-bg);\nborder-radius: 999px;\noverflow: hidden;\n}\n.otp-timer-progress-bar {\nheight: 100%;\nbackground: var(--otp-progress-fill);\nborder-radius: 999px;\ntransition: background-color 0.3s ease;\nwidth: 100%;\n}\n.otp-timer-progress-bar.otp-timer-progress-bar--running {\nanimation: otpProgressCountdown linear forwards;\n}\n.otp-timer--urgent ~ .otp-timer-progress .otp-timer-progress-bar {\nbackground: var(--otp-error-color);\n}\n.otp-footer {\ndisplay: flex;\nalign-items: center;\njustify-content: space-between;\nwidth: 100%;\nmax-width: calc(var(--otp-input-width) * 6 + var(--otp-gap) * 5);\npadding: 0 2px;\ngap: 8px;\n}\n.otp-timer-wrap {\ndisplay: flex;\nalign-items: center;\ngap: 6px;\n}\n.otp-timer {\nfont-size: var(--otp-timer-font-size);\ncolor: var(--otp-timer-color);\nfont-variant-numeric: tabular-nums;\nletter-spacing: 0.02em;\nmin-width: 2.8em;\n}\n.otp-timer--urgent {\ncolor: var(--otp-timer-urgent-color);\nfont-weight: 600;\n}\n.otp-resend-btn {\nbackground: none;\nborder: none;\npadding: 4px 8px;\nfont-size: var(--otp-resend-font-size);\ncolor: var(--otp-resend-color);\ncursor: pointer;\nborder-radius: 6px;\nfont-weight: 500;\ntransition: opacity 0.15s, background-color 0.15s;\nwhite-space: nowrap;\n}\n.otp-resend-btn:hover:not(:disabled) {\nbackground: rgba(59, 130, 246, 0.1);\n}\n.otp-resend-btn:disabled {\ncolor: var(--otp-resend-disabled-color);\ncursor: not-allowed;\n}\n.otp-paste-suggestion {\ndisplay: flex;\nwidth: fit-content;\nalign-items: center;\njustify-content: center;\npadding: 8px 16px;\nmargin: 0 auto;\nbackground: var(--otp-paste-bg);\nborder: 1px solid var(--otp-paste-border);\nborder-radius: 8px;\ncolor: var(--otp-paste-color);\nfont-size: var(--otp-paste-font-size);\nfont-weight: 500;\ntext-align: center;\ncursor: pointer;\ntransition: opacity 0.2s;\nanimation: otpFadeInDown 0.25s ease;\n}\n.otp-paste-suggestion:hover {\nopacity: 0.85;\n}\n.otp-live-region {\nposition: absolute !important;\nwidth: 1px !important;\nheight: 1px !important;\npadding: 0 !important;\nmargin: -1px !important;\noverflow: hidden !important;\nclip: rect(0, 0, 0, 0) !important;\nwhite-space: nowrap !important;\nborder: 0 !important;\n}\n@keyframes otpProgressCountdown {\nfrom { width: 100%; }\nto   { width: 0%; }\n}\n@keyframes otpShake {\n0%, 100% { transform: translateX(0); }\n15%       { transform: translateX(-6px) rotate(-1deg); }\n30%       { transform: translateX(5px)  rotate(1deg); }\n45%       { transform: translateX(-4px); }\n60%       { transform: translateX(3px); }\n75%       { transform: translateX(-2px); }\n}\n@keyframes otpPop {\n0%   { transform: scale(1); }\n40%  { transform: scale(1.15); }\n70%  { transform: scale(0.95); }\n100% { transform: scale(1); }\n}\n@keyframes otpHighlight {\n0%, 100% { background-color: var(--otp-bg); }\n50%       { background-color: rgba(239, 68, 68, 0.15); }\n}\n@keyframes otpFadeInDown {\nfrom { opacity: 0; transform: translateY(-8px); }\nto   { opacity: 1; transform: translateY(0); }\n}\n.otp-anim-shake {\nanimation: otpShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);\n}\n.otp-anim-pop {\nanimation: otpPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.otp-anim-highlight {\nanimation: otpHighlight 0.5s ease;\n}\n[dir=\"rtl\"] .otp-anim-shake {\nanimation-name: otpShakeRTL;\n}\n@keyframes otpShakeRTL {\n0%, 100% { transform: translateX(0); }\n15%       { transform: translateX(6px) rotate(1deg); }\n30%       { transform: translateX(-5px) rotate(-1deg); }\n45%       { transform: translateX(4px); }\n60%       { transform: translateX(-3px); }\n75%       { transform: translateX(2px); }\n}\n.otp-anim-pulse {\nanimation: otpErrPulse 0.5s ease;\n}\n@keyframes otpErrPulse {\n0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }\n35%       { transform: scale(1.12); filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.7)); }\n70%       { transform: scale(0.97); }\n}\n.otp-anim-buzz {\nanimation: otpBuzz 0.4s linear;\n}\n@keyframes otpBuzz {\n0%, 100% { transform: translateX(0); }\n10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }\n20%, 40%, 60%, 80%       { transform: translateX(3px); }\n}\n.otp-anim-bounce {\nanimation: otpErrBounce 0.55s cubic-bezier(0.28, 0.84, 0.42, 1);\n}\n@keyframes otpErrBounce {\n0%, 100% { transform: translateY(0); }\n30%       { transform: translateY(-10px); }\n55%       { transform: translateY(0); }\n70%       { transform: translateY(-5px); }\n85%       { transform: translateY(0); }\n}\n.otp-anim-glow {\nanimation: otpGlow 0.7s ease;\n}\n@keyframes otpGlow {\n0%, 100% { filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }\n50%       { filter: drop-shadow(0 0 9px rgba(239, 68, 68, 0.9)); }\n}\n.otp-anim-wobble {\nanimation: otpWobble 0.6s ease;\n}\n@keyframes otpWobble {\n0%, 100% { transform: rotate(0) translateX(0); }\n15%       { transform: rotate(-5deg) translateX(-5px); }\n30%       { transform: rotate(4deg) translateX(4px); }\n45%       { transform: rotate(-3deg) translateX(-3px); }\n60%       { transform: rotate(2deg) translateX(2px); }\n75%       { transform: rotate(-1deg); }\n}\n@media (max-width: 420px) {\n:root {\n--otp-input-width: 42px;\n--otp-input-height: 50px;\n--otp-font-size: 1.35rem;\n--otp-gap: 7px;\n}\n}\n@media (max-width: 340px) {\n:root {\n--otp-input-width: 36px;\n--otp-input-height: 44px;\n--otp-font-size: 1.15rem;\n--otp-gap: 5px;\n--otp-border-radius: 7px;\n}\n}\n.otp-root[data-theme=\"underline\"] .otp-input {\nborder-width: 0;\nborder-bottom-width: var(--otp-border-width);\nborder-radius: 0;\nbackground: transparent;\nbox-shadow: none;\n}\n.otp-root[data-theme=\"underline\"] .otp-input--focused {\nborder-bottom-color: var(--otp-focus-color);\nbox-shadow: 0 2px 0 0 var(--otp-focus-color);\n}\n.otp-root[data-theme=\"rounded\"] .otp-input {\n--otp-border-radius: 999px;\n}\n.otp-root[data-theme=\"pill\"] .otp-input {\n--otp-border-radius: 999px;\n--otp-input-width: 56px;\n--otp-input-height: 56px;\nborder-width: 1.5px;\n}\n.otp-root[data-theme=\"pill\"] .otp-input--filled {\nbackground: var(--otp-focus-color);\ncolor: #fff;\nborder-color: var(--otp-focus-color);\n}\n.otp-root[data-theme=\"ghost\"] .otp-input {\nbackground: rgba(15, 23, 42, 0.05);\nborder-color: transparent;\n}\n.otp-root[data-theme=\"ghost\"] .otp-input--focused {\nbackground: transparent;\nborder-color: var(--otp-focus-color);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"ghost\"] .otp-input { background: rgba(255,255,255,0.06); }\n}\n.otp-root[data-theme=\"filled\"] .otp-input {\nbackground: #f1f5f9;\nborder-color: transparent;\nborder-bottom: 2px solid #cbd5e1;\nborder-radius: 8px 8px 0 0;\n}\n.otp-root[data-theme=\"filled\"] .otp-input--focused {\nbackground: #e0f2fe;\nborder-bottom-color: var(--otp-focus-color);\nbox-shadow: none;\n}\n.otp-root[data-theme=\"filled\"] .otp-input--filled {\nbackground: #dbeafe;\nborder-bottom-color: var(--otp-focus-color);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"filled\"] .otp-input { background: #334155; border-bottom-color: #475569; }\n.otp-root[data-theme=\"filled\"] .otp-input--focused { background: #1e3a5f; }\n.otp-root[data-theme=\"filled\"] .otp-input--filled  { background: #1e40af; color: #fff; }\n}\n.otp-root[data-theme=\"soft\"] .otp-input {\nbackground: #f5f3ff;\nborder-color: transparent;\n--otp-border-radius: 14px;\nbox-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.15);\n}\n.otp-root[data-theme=\"soft\"] .otp-input--focused {\nbackground: #ede9fe;\nbox-shadow: inset 0 0 0 2px #8b5cf6, 0 0 0 4px rgba(139, 92, 246, 0.15);\n}\n.otp-root[data-theme=\"soft\"] .otp-input--filled {\ncolor: #7c3aed;\nbackground: #ede9fe;\n}\n.otp-root[data-theme=\"neon\"] {\n--otp-focus-color: #06ffa5;\n--otp-focus-shadow: 0 0 16px rgba(6, 255, 165, 0.55), 0 0 0 2px rgba(6, 255, 165, 0.5);\n}\n.otp-root[data-theme=\"neon\"] .otp-input {\nbackground: #0b0f1a;\nborder-color: #1e293b;\ncolor: #06ffa5;\nfont-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;\ntext-shadow: 0 0 6px rgba(6, 255, 165, 0.6);\n}\n.otp-root[data-theme=\"neon\"] .otp-input--focused {\nborder-color: #06ffa5;\n}\n.otp-root[data-theme=\"neon\"] .otp-input--filled {\nbackground: #051219;\nborder-color: #06ffa5;\nbox-shadow: inset 0 0 8px rgba(6, 255, 165, 0.2);\n}\n.otp-root[data-theme=\"gradient\"] .otp-input {\nbackground: #fff;\nborder: none;\nposition: relative;\nbackground-image:\nlinear-gradient(#fff, #fff),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\nbackground-origin: border-box;\nbackground-clip: padding-box, border-box;\nborder: 2px solid transparent;\n}\n.otp-root[data-theme=\"gradient\"] .otp-input--focused {\nbox-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);\n}\n.otp-root[data-theme=\"gradient\"] .otp-input--filled {\nbackground-image:\nlinear-gradient(135deg, #eef2ff, #fdf2f8),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"gradient\"] .otp-input {\nbackground-image:\nlinear-gradient(#1e293b, #1e293b),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n.otp-root[data-theme=\"gradient\"] .otp-input--filled {\nbackground-image:\nlinear-gradient(135deg, #1e3a5f, #4c1d95),\nlinear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);\n}\n}\n.otp-root[data-theme=\"elevated\"] .otp-input {\nborder-color: transparent;\nbackground: #fff;\nbox-shadow:\n0 1px 2px rgba(0,0,0,0.06),\n0 4px 12px rgba(0,0,0,0.08);\n}\n.otp-root[data-theme=\"elevated\"] .otp-input--focused {\ntransform: translateY(-2px);\nbox-shadow:\n0 4px 6px rgba(59, 130, 246, 0.1),\n0 12px 24px rgba(59, 130, 246, 0.18),\n0 0 0 2px var(--otp-focus-color);\n}\n@media (prefers-color-scheme: dark) {\n.otp-root[data-theme=\"elevated\"] .otp-input { background: #1e293b; }\n}\n@media (prefers-contrast: more) {\n.otp-input {\nborder-width: 3px;\n}\n.otp-input--focused {\noutline: 3px solid var(--otp-focus-color);\noutline-offset: 2px;\n}\n}\n@media (prefers-reduced-motion: reduce) {\n.otp-input,\n.otp-timer-progress-bar,\n.otp-paste-suggestion,\n.otp-toast {\ntransition: none !important;\nanimation: none !important;\n}\n}\n:root {\n--otp-toast-bg:           #ffffff;\n--otp-toast-text:         #0f172a;\n--otp-toast-muted:        #64748b;\n--otp-toast-border:       #e2e8f0;\n--otp-toast-radius:       12px;\n--otp-toast-padding:      14px 16px;\n--otp-toast-min-width:    300px;\n--otp-toast-max-width:    420px;\n--otp-toast-gap:          12px;\n--otp-toast-shadow:       0 10px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -2px rgba(0,0,0,0.06);\n--otp-toast-z:            10000;\n--otp-toast-success-bg:   #ecfdf5;\n--otp-toast-success-fg:   #065f46;\n--otp-toast-success-bar:  #10b981;\n--otp-toast-success-icon: #10b981;\n--otp-toast-error-bg:     #fef2f2;\n--otp-toast-error-fg:     #991b1b;\n--otp-toast-error-bar:    #ef4444;\n--otp-toast-error-icon:   #ef4444;\n--otp-toast-warning-bg:   #fffbeb;\n--otp-toast-warning-fg:   #92400e;\n--otp-toast-warning-bar:  #f59e0b;\n--otp-toast-warning-icon: #f59e0b;\n--otp-toast-info-bg:      #eff6ff;\n--otp-toast-info-fg:      #1e40af;\n--otp-toast-info-bar:     #3b82f6;\n--otp-toast-info-icon:    #3b82f6;\n}\n@media (prefers-color-scheme: dark) {\n:root {\n--otp-toast-bg:        #1e293b;\n--otp-toast-text:      #f1f5f9;\n--otp-toast-muted:     #94a3b8;\n--otp-toast-border:    #334155;\n--otp-toast-shadow:    0 10px 25px -5px rgba(0,0,0,0.5), 0 4px 10px -2px rgba(0,0,0,0.3);\n--otp-toast-success-bg: #022c22;\n--otp-toast-success-fg: #6ee7b7;\n--otp-toast-error-bg:   #2a0a0a;\n--otp-toast-error-fg:   #fca5a5;\n--otp-toast-warning-bg: #2a1a05;\n--otp-toast-warning-fg: #fcd34d;\n--otp-toast-info-bg:    #0f1e3d;\n--otp-toast-info-fg:    #93c5fd;\n}\n}\n.otp-toast-container {\nposition: fixed;\nz-index: var(--otp-toast-z);\ndisplay: flex;\nflex-direction: column;\ngap: 10px;\npadding: 16px;\npointer-events: none;\nmax-width: calc(100% - 32px);\n}\n.otp-toast-container > * { pointer-events: auto; }\n.otp-toast-container--top-left     { top: 0; left: 0; align-items: flex-start; }\n.otp-toast-container--top-center   { top: 0; left: 50%; transform: translateX(-50%); align-items: center; }\n.otp-toast-container--top-right    { top: 0; right: 0; align-items: flex-end; }\n.otp-toast-container--bottom-left  { bottom: 0; left: 0; align-items: flex-start; flex-direction: column-reverse; }\n.otp-toast-container--bottom-center{ bottom: 0; left: 50%; transform: translateX(-50%); align-items: center; flex-direction: column-reverse; }\n.otp-toast-container--bottom-right { bottom: 0; right: 0; align-items: flex-end; flex-direction: column-reverse; }\n[dir=\"rtl\"].otp-toast-container--top-left,\n[dir=\"rtl\"].otp-toast-container--bottom-left { left: auto; right: 0; align-items: flex-end; }\n[dir=\"rtl\"].otp-toast-container--top-right,\n[dir=\"rtl\"].otp-toast-container--bottom-right { right: auto; left: 0; align-items: flex-start; }\n.otp-toast {\ndisplay: flex;\nalign-items: flex-start;\ngap: var(--otp-toast-gap);\nmin-width: var(--otp-toast-min-width);\nmax-width: var(--otp-toast-max-width);\npadding: var(--otp-toast-padding);\nbackground: var(--otp-toast-bg);\ncolor: var(--otp-toast-text);\nborder-radius: var(--otp-toast-radius);\nborder: 1px solid var(--otp-toast-border);\nbox-shadow: var(--otp-toast-shadow);\nposition: relative;\noverflow: hidden;\nfont-size: 0.9rem;\nline-height: 1.45;\nopacity: 0;\ntransform: translateY(-12px) scale(0.97);\ntransition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.otp-toast-container--bottom-left .otp-toast,\n.otp-toast-container--bottom-center .otp-toast,\n.otp-toast-container--bottom-right .otp-toast {\ntransform: translateY(12px) scale(0.97);\n}\n.otp-toast--visible {\nopacity: 1;\ntransform: translateY(0) scale(1);\n}\n.otp-toast--leaving {\nopacity: 0;\ntransform: translateX(40px) scale(0.95);\n}\n[dir=\"rtl\"] .otp-toast--leaving { transform: translateX(-40px) scale(0.95); }\n.otp-toast-icon {\nflex-shrink: 0;\nwidth: 22px;\nheight: 22px;\nborder-radius: 50%;\ndisplay: inline-flex;\nalign-items: center;\njustify-content: center;\nfont-size: 0.78rem;\nfont-weight: 800;\ncolor: #fff;\nmargin-top: 1px;\n}\n.otp-toast-body { flex: 1; min-width: 0; }\n.otp-toast-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }\n.otp-toast-message { font-size: 0.875rem; word-break: break-word; }\n.otp-toast-actions { display: flex; gap: 8px; margin-top: 8px; }\n.otp-toast-action {\nbackground: transparent;\nborder: 1px solid currentColor;\ncolor: inherit;\npadding: 4px 10px;\nborder-radius: 6px;\nfont-size: 0.78rem;\nfont-weight: 600;\ncursor: pointer;\nopacity: 0.85;\ntransition: opacity 0.15s, background 0.15s;\n}\n.otp-toast-action:hover { opacity: 1; background: rgba(0,0,0,0.05); }\n.otp-toast-close {\nbackground: transparent;\nborder: none;\ncolor: var(--otp-toast-muted);\nfont-size: 1.25rem;\nline-height: 1;\ncursor: pointer;\npadding: 0;\nwidth: 22px;\nheight: 22px;\ndisplay: inline-flex;\nalign-items: center;\njustify-content: center;\nborder-radius: 4px;\nflex-shrink: 0;\nmargin-top: -2px;\ntransition: background 0.15s, color 0.15s;\n}\n.otp-toast-close:hover { background: rgba(0,0,0,0.06); color: var(--otp-toast-text); }\n.otp-toast-progress {\nposition: absolute;\nbottom: 0;\ninset-inline: 0;\nheight: 3px;\nbackground: rgba(0,0,0,0.06);\n}\n.otp-toast-progress-bar {\nheight: 100%;\nwidth: 100%;\nbackground: currentColor;\ntransition: width linear;\n}\n.otp-toast--success { background: var(--otp-toast-success-bg); color: var(--otp-toast-success-fg); border-color: rgba(16,185,129,0.25); }\n.otp-toast--success .otp-toast-icon          { background: var(--otp-toast-success-icon); }\n.otp-toast--success .otp-toast-progress-bar  { background: var(--otp-toast-success-bar); }\n.otp-toast--error { background: var(--otp-toast-error-bg); color: var(--otp-toast-error-fg); border-color: rgba(239,68,68,0.3); }\n.otp-toast--error .otp-toast-icon          { background: var(--otp-toast-error-icon); }\n.otp-toast--error .otp-toast-progress-bar  { background: var(--otp-toast-error-bar); }\n.otp-toast--error                          { animation: otpToastErrorPulse 0.4s ease; }\n.otp-toast--warning { background: var(--otp-toast-warning-bg); color: var(--otp-toast-warning-fg); border-color: rgba(245,158,11,0.3); }\n.otp-toast--warning .otp-toast-icon          { background: var(--otp-toast-warning-icon); }\n.otp-toast--warning .otp-toast-progress-bar  { background: var(--otp-toast-warning-bar); }\n.otp-toast--info { background: var(--otp-toast-info-bg); color: var(--otp-toast-info-fg); border-color: rgba(59,130,246,0.25); }\n.otp-toast--info .otp-toast-icon          { background: var(--otp-toast-info-icon); }\n.otp-toast--info .otp-toast-progress-bar  { background: var(--otp-toast-info-bar); }\n@keyframes otpToastErrorPulse {\n0%   { box-shadow: var(--otp-toast-shadow), 0 0 0 0 rgba(239,68,68,0.5); }\n50%  { box-shadow: var(--otp-toast-shadow), 0 0 0 8px rgba(239,68,68,0); }\n100% { box-shadow: var(--otp-toast-shadow), 0 0 0 0 rgba(239,68,68,0); }\n}\n.otp-toast--theme-glass {\nbackground: rgba(255, 255, 255, 0.72);\n-webkit-backdrop-filter: blur(14px) saturate(1.6);\nbackdrop-filter: blur(14px) saturate(1.6);\nborder: 1px solid rgba(255,255,255,0.5);\nbox-shadow:\n0 8px 32px rgba(0,0,0,0.12),\ninset 0 1px 0 rgba(255,255,255,0.6);\n}\n@media (prefers-color-scheme: dark) {\n.otp-toast--theme-glass {\nbackground: rgba(30, 41, 59, 0.65);\nborder: 1px solid rgba(255,255,255,0.08);\nbox-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);\n}\n}\n.otp-toast--theme-glass.otp-toast--success { background: rgba(236, 253, 245, 0.72); }\n.otp-toast--theme-glass.otp-toast--error   { background: rgba(254, 242, 242, 0.72); }\n.otp-toast--theme-glass.otp-toast--warning { background: rgba(255, 251, 235, 0.72); }\n.otp-toast--theme-glass.otp-toast--info    { background: rgba(239, 246, 255, 0.72); }\n.otp-toast--theme-solid           { color: #fff; border: none; }\n.otp-toast--theme-solid .otp-toast-close { color: rgba(255,255,255,0.85); }\n.otp-toast--theme-solid .otp-toast-close:hover { background: rgba(255,255,255,0.15); color:#fff; }\n.otp-toast--theme-solid .otp-toast-icon  { background: rgba(255,255,255,0.22); color:#fff; }\n.otp-toast--theme-solid.otp-toast--success { background: #10b981; }\n.otp-toast--theme-solid.otp-toast--error   { background: #ef4444; }\n.otp-toast--theme-solid.otp-toast--warning { background: #f59e0b; }\n.otp-toast--theme-solid.otp-toast--info    { background: #3b82f6; }\n.otp-toast--theme-solid .otp-toast-progress-bar { background: rgba(255,255,255,0.5); }\n.otp-toast--theme-gradient        { color: #fff; border: none; box-shadow: 0 12px 30px -8px rgba(0,0,0,0.35); }\n.otp-toast--theme-gradient .otp-toast-icon  { background: rgba(255,255,255,0.25); }\n.otp-toast--theme-gradient .otp-toast-close { color: rgba(255,255,255,0.9); }\n.otp-toast--theme-gradient.otp-toast--success { background: linear-gradient(135deg, #10b981, #059669); }\n.otp-toast--theme-gradient.otp-toast--error   { background: linear-gradient(135deg, #ef4444, #b91c1c); }\n.otp-toast--theme-gradient.otp-toast--warning { background: linear-gradient(135deg, #f59e0b, #d97706); }\n.otp-toast--theme-gradient.otp-toast--info    { background: linear-gradient(135deg, #3b82f6, #6366f1); }\n.otp-toast--theme-gradient .otp-toast-progress-bar { background: rgba(255,255,255,0.5); }\n.otp-toast--theme-minimal {\nbackground: var(--otp-toast-bg);\ncolor: var(--otp-toast-text);\nborder: 1px solid var(--otp-toast-border);\nborder-inline-start-width: 4px;\nbox-shadow: 0 4px 12px rgba(0,0,0,0.06);\n}\n.otp-toast--theme-minimal .otp-toast-icon          { background: transparent; color: currentColor; }\n.otp-toast--theme-minimal.otp-toast--success       { border-inline-start-color: var(--otp-toast-success-bar); }\n.otp-toast--theme-minimal.otp-toast--success .otp-toast-icon { color: var(--otp-toast-success-icon); }\n.otp-toast--theme-minimal.otp-toast--error         { border-inline-start-color: var(--otp-toast-error-bar); }\n.otp-toast--theme-minimal.otp-toast--error .otp-toast-icon   { color: var(--otp-toast-error-icon); }\n.otp-toast--theme-minimal.otp-toast--warning       { border-inline-start-color: var(--otp-toast-warning-bar); }\n.otp-toast--theme-minimal.otp-toast--warning .otp-toast-icon { color: var(--otp-toast-warning-icon); }\n.otp-toast--theme-minimal.otp-toast--info          { border-inline-start-color: var(--otp-toast-info-bar); }\n.otp-toast--theme-minimal.otp-toast--info .otp-toast-icon    { color: var(--otp-toast-info-icon); }\n.otp-toast--theme-pill {\nborder-radius: 999px;\npadding: 8px 16px 8px 10px;\nmin-width: auto;\nfont-size: 0.85rem;\ngap: 8px;\nborder: none;\nbackground: var(--otp-toast-bg);\n}\n.otp-toast--theme-pill .otp-toast-icon {\nwidth: 24px; height: 24px;\n}\n.otp-toast--theme-pill .otp-toast-close { display: none; }\n.otp-toast--theme-pill .otp-toast-progress { display: none; }\n.otp-toast--theme-pill .otp-toast-title { display: none; }\n.otp-toast--theme-pill.otp-toast--success { background: #10b981; color: #fff; }\n.otp-toast--theme-pill.otp-toast--error   { background: #ef4444; color: #fff; }\n.otp-toast--theme-pill.otp-toast--warning { background: #f59e0b; color: #fff; }\n.otp-toast--theme-pill.otp-toast--info    { background: #3b82f6; color: #fff; }\n.otp-toast--theme-pill .otp-toast-icon    { background: rgba(255,255,255,0.25); }\n@media (max-width: 480px) {\n.otp-toast-container {\ninset-inline: 0 !important;\nleft: 0 !important; right: 0 !important; transform: none !important;\nalign-items: stretch !important;\npadding: 10px;\n}\n.otp-toast {\nmin-width: 0;\nmax-width: 100%;\nwidth: 100%;\n}\n}\n.otp-spinner {\nposition: absolute;\ninset: 0;\ndisplay: none;\nalign-items: center;\njustify-content: center;\nz-index: 3;\npointer-events: none;\n}\n.otp-root--loading .otp-spinner {\ndisplay: flex;\n}\n.otp-root--loading .otp-inputs-row {\nopacity: 0.45;\nfilter: grayscale(0.2);\ntransition: opacity var(--otp-transition);\n}\n.otp-spinner__ring {\nwidth: 28px;\nheight: 28px;\nborder-radius: 50%;\nborder: 3px solid var(--otp-progress-bg, #e5e7eb);\nborder-top-color: var(--otp-focus-color, #3b82f6);\nanimation: otpSpin 0.7s linear infinite;\n}\n@keyframes otpSpin {\nto { transform: rotate(360deg); }\n}\n.otp-root--verified .otp-input {\nborder-color: var(--otp-success-color) !important;\n}\n@media (prefers-reduced-motion: reduce) {\n.otp-spinner__ring {\nanimation-duration: 1.4s;\n}\n}\n.otp-reveal-btn {\ndisplay: inline-flex;\nalign-items: center;\ngap: 6px;\nmargin-top: 4px;\npadding: 6px 12px;\nfont-size: 0.82rem;\nfont-family: inherit;\ncolor: var(--otp-resend-color, #3b82f6);\nbackground: transparent;\nborder: 1px solid var(--otp-border-color, #d1d5db);\nborder-radius: 999px;\ncursor: pointer;\ntransition: background-color var(--otp-transition),\nborder-color var(--otp-transition), color var(--otp-transition);\n}\n.otp-reveal-btn:hover {\nbackground: rgba(59, 130, 246, 0.08);\n}\n.otp-reveal-btn:focus-visible {\noutline: none;\nbox-shadow: var(--otp-focus-shadow);\n}\n.otp-reveal-btn svg {\nflex-shrink: 0;\n}\n.otp-reveal-btn--on {\ncolor: var(--otp-success-color, #22c55e);\nborder-color: var(--otp-success-color, #22c55e);\n}\n.otp-lock-message {\nmargin-top: 6px;\nfont-size: var(--otp-timer-font-size, 0.875rem);\nfont-weight: 600;\ncolor: var(--otp-error-color, #ef4444);\ntext-align: center;\nmin-height: 1.2em;\n}\n.otp-root--locked .otp-inputs-row {\nopacity: 0.5;\nfilter: grayscale(0.3);\n}";
 if (typeof document !== 'undefined') {
   const __id = 'otp-input-styles';
   if (!document.getElementById(__id)) {
@@ -1048,6 +1048,9 @@ const DEFAULT_OPTIONS = {
   type: 'numeric',          // 'numeric' | 'alpha' | 'alphanumeric' | 'hex' | 'custom'
   pattern: null,             // RegExp for custom type
   secure: false,             // mask input like password
+  revealToggle: false,       // show an eye button to peek at masked digits (secure mode only)
+  revealLabel: 'Show code',
+  hideLabel: 'Hide code',
   autoFocus: true,
   autoSubmit: false,         // submit form on complete
   selectOnFocus: true,
@@ -1062,7 +1065,8 @@ const DEFAULT_OPTIONS = {
   haptic: true,
   validate: null,            // (value: string) => string | null  (custom validator)
   animation: {
-    error: 'shake',          // 'shake' | 'highlight' | 'both' | false
+    // 'shake' | 'highlight' | 'both' | 'pulse' | 'buzz' | 'bounce' | 'glow' | 'wobble' | false
+    error: 'shake',
     success: true,
     duration: 300,
   },
@@ -1083,8 +1087,32 @@ const DEFAULT_OPTIONS = {
   biometric: {
     enabled: false,          // require platform biometric/PIN after OTP completion
     promptText: 'Verify your identity to continue',
+    cancelText: 'Biometric verification was cancelled or failed',
+    userName: 'otp-user',    // label shown in the platform passkey prompt
     onConfirmed: null,       // () => void
     onCancelled: null,       // () => void
+  },
+  // Async verification — when set, completion triggers a loading state that
+  // awaits this function, then resolves to a success or error state.
+  // Return: true | undefined → success · false → fail · string → fail w/ message
+  //         · { ok: boolean, message?: string } → explicit result. Throwing → fail.
+  onVerify: null,            // (value: string) => boolean | string | object | Promise<…>
+  loading: {
+    text: 'Verifying…',      // a11y label shown while verifying
+    successText: 'Verified',
+    errorText: 'Verification failed',
+    clearOnError: true,      // clear inputs after a failed verification
+    clearDelay: 900,         // ms to keep the error visible before clearing
+  },
+  // Lock the input after too many failed attempts (counts failed verifies,
+  // completion-validation failures, and manual setError calls).
+  lockout: {
+    enabled: false,
+    maxAttempts: 3,
+    duration: 30,            // seconds locked
+    message: 'Too many attempts. Try again in {seconds}s.',
+    onLock: null,            // (secondsRemaining) => void
+    onUnlock: null,          // () => void
   },
   theme: 'default',          // 'default' | 'underline' | 'rounded' | 'ghost' | 'filled' | 'soft' | 'neon' | 'gradient' | 'pill'
   toast: {
@@ -1103,6 +1131,9 @@ const DEFAULT_OPTIONS = {
   onError: null,
   onFocus: null,
   onBlur: null,
+  onVerified: null,          // (value) => void  — async verify succeeded
+  onFailed: null,            // (message) => void — async verify failed
+  onSmsRead: null,           // (code) => void — Web OTP API auto-filled from SMS
 };
 
 /**
@@ -1128,6 +1159,9 @@ class OTPInput {
     this._expired = false;
     this._destroyed = false;
     this._boundHandlers = {};
+    this._attempts = 0;
+    this._locked = false;
+    this._revealed = false;
 
     // Sub-managers
     this.emitter    = new EventEmitter();
@@ -1200,8 +1234,34 @@ class OTPInput {
     }
 
     this._wrapper.appendChild(this._inputsRow);
+
+    // Reveal/peek toggle (secure mode only)
+    if (this.options.secure && this.options.revealToggle) {
+      this._buildRevealToggle();
+    }
+
     this.timer.buildUI(this._wrapper);
+
+    // Lockout message region (only when lockout is enabled)
+    if (this.options.lockout?.enabled) {
+      this._lockEl = createElement('div', {
+        class: 'otp-lock-message',
+        role: 'status',
+        'aria-live': 'polite',
+      });
+      this._wrapper.appendChild(this._lockEl);
+    }
+
     this.container.appendChild(this._wrapper);
+
+    // Loading overlay (spinner) — hidden until a verification is in flight
+    this._spinner = createElement('div', {
+      class: 'otp-spinner',
+      role: 'status',
+      'aria-hidden': 'true',
+    });
+    this._spinner.innerHTML = '<span class="otp-spinner__ring"></span>';
+    this.container.appendChild(this._spinner);
 
     // A11y setup
     this.a11y.setup(this.container, this.inputs);
@@ -1241,6 +1301,24 @@ class OTPInput {
     return input;
   }
 
+  _buildRevealToggle() {
+    const label = this.options.revealLabel;
+    const btn = createElement('button', {
+      type: 'button',
+      class: 'otp-reveal-btn',
+      'aria-pressed': 'false',
+      'aria-label': label,
+      title: label,
+    });
+    btn.innerHTML =
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>' +
+      `<span class="otp-reveal-label">${label}</span>`;
+    btn.addEventListener('click', () => this.toggleReveal());
+    this._revealBtn = btn;
+    this._wrapper.appendChild(btn);
+  }
+
   // ─── Event Binding ─────────────────────────────────────────────────────────
 
   _bindInputEvents(input, index) {
@@ -1254,12 +1332,14 @@ class OTPInput {
   }
 
   _bindOptionCallbacks() {
-    const { onChange, onComplete, onError, onFocus, onBlur, toast } = this.options;
+    const { onChange, onComplete, onError, onFocus, onBlur, onVerified, onFailed, toast } = this.options;
     if (isFunction(onChange))   this.emitter.on('change',   onChange);
     if (isFunction(onComplete)) this.emitter.on('complete', onComplete);
     if (isFunction(onError))    this.emitter.on('error',    onError);
     if (isFunction(onFocus))    this.emitter.on('focus',    onFocus);
     if (isFunction(onBlur))     this.emitter.on('blur',     onBlur);
+    if (isFunction(onVerified)) this.emitter.on('verified', onVerified);
+    if (isFunction(onFailed))   this.emitter.on('verify-failed', onFailed);
 
     if (toast?.enabled) {
       this.emitter.on('expire', () => this.toast.warning(toast.expireMessage));
@@ -1471,6 +1551,7 @@ class OTPInput {
   }
 
   _checkCompletion(force = false) {
+    if (this._locked) return;
     if (!this._isComplete() && !force) return;
 
     const value = this.getValue();
@@ -1483,6 +1564,7 @@ class OTPInput {
         this.toast.error(msg);
       }
       this.emitter.emit('error', errors);
+      this._registerFailedAttempt();
       return;
     }
 
@@ -1491,10 +1573,20 @@ class OTPInput {
       return;
     }
 
+    this._proceedAfterGate(value);
+  }
+
+  /** Route a locally-valid value through async verification (if configured) or straight to success. */
+  _proceedAfterGate(value) {
+    if (isFunction(this.options.onVerify)) {
+      this._runVerify(value);
+      return;
+    }
     this._completeSuccess(value);
   }
 
   _completeSuccess(value) {
+    this._attempts = 0;
     this._animateSuccess();
     this.a11y.announceCompletion(value);
     if (this.options.toast?.enabled) {
@@ -1502,46 +1594,185 @@ class OTPInput {
     }
     this.emitter.emit('complete', value);
 
-    if (this.options.autoSubmit) {
-      const form = this.container.closest('form');
-      if (form) {
-        const hidden = form.querySelector('input[name="otp"]') || (() => {
-          const h = document.createElement('input');
-          h.type = 'hidden'; h.name = 'otp';
-          form.appendChild(h); return h;
-        })();
-        hidden.value = value;
-        form.requestSubmit?.() ?? form.submit();
-      }
+    if (this.options.autoSubmit) this._submitForm(value);
+  }
+
+  _submitForm(value) {
+    const form = this.container.closest('form');
+    if (!form) return;
+    const hidden = form.querySelector('input[name="otp"]') || (() => {
+      const h = document.createElement('input');
+      h.type = 'hidden'; h.name = 'otp';
+      form.appendChild(h); return h;
+    })();
+    hidden.value = value;
+    form.requestSubmit?.() ?? form.submit();
+  }
+
+  // ─── Async Verification ─────────────────────────────────────────────────────
+
+  async _runVerify(value) {
+    // Completion can fire twice for the final digit — ignore re-entry while a
+    // verification is already in flight (prevents a duplicate server call).
+    if (this._loading) return;
+    // Input is complete & locally valid — announce completion, then verify remotely.
+    this.emitter.emit('complete', value);
+    this.setLoading(true);
+    this.emitter.emit('verify-start', value);
+
+    let result;
+    try {
+      result = await this.options.onVerify(value);
+    } catch (err) {
+      if (this._destroyed) return;
+      this.setLoading(false);
+      this._verifyFailure(err && err.message);
+      return;
     }
+
+    if (this._destroyed) return;
+    this.setLoading(false);
+    const { ok, message } = this._normalizeVerifyResult(result);
+    if (ok) this._verifySuccess(value, message);
+    else    this._verifyFailure(message);
+  }
+
+  /** Coerce the many accepted onVerify return shapes into { ok, message }. */
+  _normalizeVerifyResult(result) {
+    if (result === false) return { ok: false, message: null };
+    if (typeof result === 'string') return { ok: false, message: result };
+    if (result && typeof result === 'object') {
+      return { ok: !!result.ok, message: result.message ?? null };
+    }
+    // true / undefined / anything truthy → success (verify fns often resolve void on success)
+    return { ok: true, message: null };
+  }
+
+  _verifySuccess(value, message) {
+    this._attempts = 0;
+    this.clearError();
+    this._animateSuccess();
+    addClasses(this.container, 'otp-root--verified');
+    this.a11y.announceCompletion(value);
+    if (this.options.toast?.enabled) {
+      this.toast.success(message || this.options.toast.successMessage);
+    }
+    this.emitter.emit('verified', value);
+    if (this.options.autoSubmit) this._submitForm(value);
+  }
+
+  _verifyFailure(message) {
+    const msg = message || this.options.loading?.errorText || 'Verification failed';
+    this._animateError();
+    this.inputs.forEach(inp => addClasses(inp, 'otp-input--error'));
+    this.a11y.announceError(msg);
+    if (this.options.toast?.enabled) this.toast.error(msg);
+    this.emitter.emit('verify-failed', msg);
+    this._registerFailedAttempt();
+
+    if (this.options.loading?.clearOnError) {
+      const delay = this.options.loading.clearDelay ?? 900;
+      clearTimeout(this._clearTimeout);
+      this._clearTimeout = setTimeout(() => {
+        if (this._destroyed || this._locked) return;
+        this.clear();
+        this.clearError();
+      }, delay);
+    }
+  }
+
+  // ─── Lockout (too many failed attempts) ─────────────────────────────────────
+
+  _registerFailedAttempt() {
+    const lk = this.options.lockout;
+    if (!lk?.enabled || this._locked) return;
+    this._attempts += 1;
+    this.emitter.emit('attempt', { attempts: this._attempts, max: lk.maxAttempts });
+    if (this._attempts >= lk.maxAttempts) this.lock();
+  }
+
+  /** Lock the input for the configured cooldown. */
+  lock() {
+    const lk = this.options.lockout;
+    this._locked = true;
+    this.disable();
+    addClasses(this.container, 'otp-root--locked');
+
+    let remaining = lk.duration;
+    const text = () =>
+      String(lk.message || 'Too many attempts. Try again in {seconds}s.').replace('{seconds}', remaining);
+
+    if (this._lockEl) this._lockEl.textContent = text();
+    this.a11y.announceError(text());
+    if (this.options.toast?.enabled) this.toast.error(text());
+    if (isFunction(lk.onLock)) lk.onLock(remaining);
+    this.emitter.emit('lock', remaining);
+
+    clearInterval(this._lockInterval);
+    this._lockInterval = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        this.unlock();
+      } else if (this._lockEl) {
+        this._lockEl.textContent = text();
+      }
+    }, 1000);
+    return this;
+  }
+
+  /** Release a lock early and reset the attempt counter. */
+  unlock() {
+    clearInterval(this._lockInterval);
+    if (!this._locked) return this;
+    this._locked = false;
+    this._attempts = 0;
+    this.enable();
+    removeClasses(this.container, 'otp-root--locked');
+    if (this._lockEl) this._lockEl.textContent = '';
+    this.clear();
+    if (isFunction(this.options.lockout?.onUnlock)) this.options.lockout.onUnlock();
+    this.emitter.emit('unlock');
+    return this;
+  }
+
+  /** Whether the input is currently locked out. */
+  isLocked() {
+    return this._locked;
   }
 
   // ─── Animations ────────────────────────────────────────────────────────────
 
+  // Each error style maps to one or more animation classes. Errors usually fire
+  // when the code is COMPLETE (all cells filled), so every style animates all
+  // cells — the old 'highlight' only touched empty cells and so did nothing.
+  static get ERROR_ANIMATIONS() {
+    return {
+      shake:     ['otp-anim-shake'],
+      highlight: ['otp-anim-highlight'],
+      both:      ['otp-anim-shake', 'otp-anim-highlight'],
+      pulse:     ['otp-anim-pulse'],
+      buzz:      ['otp-anim-buzz'],
+      bounce:    ['otp-anim-bounce'],
+      glow:      ['otp-anim-glow'],
+      wobble:    ['otp-anim-wobble'],
+    };
+  }
+
   _animateError() {
     if (prefersReducedMotion()) return;
-    const { animation } = this.options;
-    if (!animation?.error) return;
+    const style = this.options.animation?.error;
+    if (!style) return;
 
-    const targets = animation.error === 'highlight'
-      ? this.inputs.filter((_, i) => this._values[i] === '')
-      : this.inputs;
+    const classes = OTPInput.ERROR_ANIMATIONS[style] || OTPInput.ERROR_ANIMATIONS.shake;
 
-    if (animation.error === 'shake' || animation.error === 'both') {
-      targets.forEach(inp => {
-        inp.classList.remove('otp-anim-shake');
-        void inp.offsetWidth; // reflow
-        inp.classList.add('otp-anim-shake');
-        inp.addEventListener('animationend', () => inp.classList.remove('otp-anim-shake'), { once: true });
-      });
-    }
-
-    if (animation.error === 'highlight' || animation.error === 'both') {
-      targets.forEach(inp => {
-        inp.classList.add('otp-anim-highlight');
-        inp.addEventListener('animationend', () => inp.classList.remove('otp-anim-highlight'), { once: true });
-      });
-    }
+    this.inputs.forEach((inp) => {
+      classes.forEach((cls) => inp.classList.remove(cls));
+      void inp.offsetWidth; // force reflow so the animation restarts
+      classes.forEach((cls) => inp.classList.add(cls));
+      inp.addEventListener('animationend', () => {
+        classes.forEach((cls) => inp.classList.remove(cls));
+      }, { once: true });
+    });
 
     this._haptic([100, 50, 100]);
   }
@@ -1560,26 +1791,50 @@ class OTPInput {
   // ─── SMS Auto-Read (Web OTP API) ───────────────────────────────────────────
 
   _initSmsAutoRead() {
-    if (!this.options.smsAutoRead || !('OTPCredential' in window)) return;
+    if (!this.options.smsAutoRead) return;
+
+    // The Web OTP API only exists on supporting browsers (Android Chrome) …
+    if (!('OTPCredential' in window)) {
+      this.emitter.emit('sms-unsupported', 'no-api');
+      return;
+    }
+    // … and only runs in a secure context (HTTPS or localhost).
+    if (window.isSecureContext === false) {
+      this.emitter.emit('sms-unsupported', 'insecure-context');
+      return;
+    }
+
     const ac = new AbortController();
     this._smsAbortController = ac;
+    this.emitter.emit('sms-pending');
+
     navigator.credentials.get({ otp: { transport: ['sms'] }, signal: ac.signal })
-      .then(otp => { if (otp?.code) this.setValue(otp.code); })
-      .catch(() => {});
+      .then((otp) => {
+        if (otp && otp.code) {
+          this.setValue(otp.code);
+          if (isFunction(this.options.onSmsRead)) this.options.onSmsRead(otp.code);
+          this.emitter.emit('sms-read', otp.code);
+        }
+      })
+      .catch((err) => {
+        // AbortError fires on destroy/navigation — not a genuine failure.
+        if (err && err.name === 'AbortError') return;
+        this.emitter.emit('sms-error', err);
+      });
   }
 
   // ─── Biometric Confirm (WebAuthn) ──────────────────────────────────────────
 
   async _biometricConfirm(value) {
     if (!window.PublicKeyCredential) {
-      this._completeSuccess(value);
+      this._proceedAfterGate(value);
       return;
     }
 
     try {
       const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
       if (!available) {
-        this._completeSuccess(value);
+        this._proceedAfterGate(value);
         return;
       }
 
@@ -1588,23 +1843,42 @@ class OTPInput {
       }
       this.emitter.emit('biometric-start');
 
-      await navigator.credentials.get({
+      // A registration ceremony reliably triggers the platform biometric
+      // (Touch ID / Face ID / Windows Hello) WITHOUT a pre-registered credential.
+      // get() with an empty allowCredentials list rejects when nothing is
+      // registered — which is why the old flow always "failed". The created
+      // credential is discarded; we only care that user-verification passed.
+      const rpId = location.hostname || 'localhost';
+      await navigator.credentials.create({
         publicKey: {
           challenge: crypto.getRandomValues(new Uint8Array(32)),
-          rpId: location.hostname || 'localhost',
-          allowCredentials: [],
-          userVerification: 'required',
+          rp: { name: document.title || rpId, id: rpId },
+          user: {
+            id: crypto.getRandomValues(new Uint8Array(16)),
+            name: this.options.biometric.userName || 'otp-user',
+            displayName: this.options.biometric.userName || 'OTP User',
+          },
+          pubKeyCredParams: [
+            { type: 'public-key', alg: -7 },   // ES256
+            { type: 'public-key', alg: -257 }, // RS256
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: 'platform',
+            userVerification: 'required',
+            residentKey: 'discouraged',
+          },
           timeout: 60000,
+          attestation: 'none',
         },
       });
 
       if (typeof this.options.biometric.onConfirmed === 'function') this.options.biometric.onConfirmed();
       this.emitter.emit('biometric-confirmed');
-      this._completeSuccess(value);
+      this._proceedAfterGate(value);
     } catch (err) {
       if (typeof this.options.biometric.onCancelled === 'function') this.options.biometric.onCancelled();
       this.emitter.emit('biometric-cancelled');
-      this.setError('Biometric verification was cancelled or failed');
+      this.setError(this.options.biometric.cancelText || 'Biometric verification was cancelled or failed');
     }
   }
 
@@ -1679,13 +1953,15 @@ class OTPInput {
 
   /** Clear all inputs */
   clear() {
+    clearTimeout(this._clearTimeout);
     this._values.fill('');
     this.inputs.forEach((inp, i) => {
       inp.value = '';
       this._updateInputUI(inp, i);
     });
     this.validation.clearErrors(this.inputs);
-    this.inputs.forEach(inp => removeClasses(inp, 'otp-input--success'));
+    this.inputs.forEach(inp => removeClasses(inp, 'otp-input--success', 'otp-input--error'));
+    removeClasses(this.container, 'otp-root--verified');
     this.history.push([...this._values]);
     this._notifyChange();
     if (this.options.autoFocus) this._focusIndex(0);
@@ -1710,6 +1986,7 @@ class OTPInput {
 
   /** Trigger error state with optional message */
   setError(message) {
+    this.setLoading(false);
     this._animateError();
     this.inputs.forEach(inp => addClasses(inp, 'otp-input--error'));
     if (message) {
@@ -1717,6 +1994,50 @@ class OTPInput {
       if (this.options.toast?.enabled) this.toast.error(message);
     }
     this.emitter.emit('error', [{ index: -1, message }]);
+    this._registerFailedAttempt();
+  }
+
+  /** Toggle peeking at masked digits (secure mode). Pass a boolean to force. */
+  toggleReveal(force) {
+    if (!this.options.secure) return this;
+    this._revealed = typeof force === 'boolean' ? force : !this._revealed;
+    const type = this._revealed ? 'text' : 'password';
+    this.inputs.forEach((inp) => { inp.type = type; });
+    if (this._revealBtn) {
+      const label = this._revealed ? this.options.hideLabel : this.options.revealLabel;
+      this._revealBtn.setAttribute('aria-pressed', String(this._revealed));
+      this._revealBtn.setAttribute('aria-label', label);
+      this._revealBtn.setAttribute('title', label);
+      this._revealBtn.classList.toggle('otp-reveal-btn--on', this._revealed);
+      const labelEl = this._revealBtn.querySelector('.otp-reveal-label');
+      if (labelEl) labelEl.textContent = label;
+    }
+    return this;
+  }
+
+  /** Toggle the verifying/loading state — disables inputs and shows a spinner. */
+  setLoading(loading = true) {
+    this._loading = !!loading;
+    if (this._loading) {
+      addClasses(this.container, 'otp-root--loading');
+      this.inputs.forEach(inp => { inp.disabled = true; });
+      if (this._spinner) {
+        this._spinner.setAttribute('aria-hidden', 'false');
+        this._spinner.setAttribute('aria-label', this.options.loading?.text || 'Loading');
+      }
+    } else {
+      removeClasses(this.container, 'otp-root--loading');
+      if (!this._expired) this.inputs.forEach(inp => { inp.disabled = false; });
+      if (this._spinner) this._spinner.setAttribute('aria-hidden', 'true');
+    }
+    return this;
+  }
+
+  /** Manually put the component into the verified/success state. */
+  setSuccess(message) {
+    this.setLoading(false);
+    this._verifySuccess(this.getValue(), message);
+    return this;
   }
 
   /** Switch theme dynamically: 'default'|'underline'|'rounded'|'ghost'|'filled'|'soft'|'neon'|'gradient'|'pill' */
@@ -1762,15 +2083,28 @@ class OTPInput {
     });
   }
 
-  /** Subscribe to events */
+  /** Subscribe to an event. Returns an unsubscribe function. */
   on(event, listener) {
     return this.emitter.on(event, listener);
+  }
+
+  /** Unsubscribe a previously-registered listener. */
+  off(event, listener) {
+    this.emitter.off(event, listener);
+    return this;
+  }
+
+  /** Subscribe to an event for a single emission. Returns an unsubscribe function. */
+  once(event, listener) {
+    return this.emitter.once(event, listener);
   }
 
   /** Destroy instance and clean up DOM */
   destroy() {
     if (this._destroyed) return;
     this._destroyed = true;
+    clearTimeout(this._clearTimeout);
+    clearInterval(this._lockInterval);
     this._smsAbortController?.abort();
     this.timer.destroy();
     this.clipboard.destroy();
@@ -1793,12 +2127,23 @@ const _HTMLElement = typeof HTMLElement !== 'undefined' ? HTMLElement : class {}
  *   native-numerals, placeholder, haptic, timer-duration, resend-enabled,
  *   resend-cooldown, clipboard-detection
  *
- * Events: otp-change, otp-complete, otp-error, otp-focus, otp-blur, otp-expire, otp-resend
+ * Events: otp-change, otp-complete, otp-error, otp-focus, otp-blur, otp-expire,
+ *         otp-resend, otp-verify-start, otp-verified, otp-failed
+ *
+ * Async verification: assign a function to the `onVerify` property (functions
+ * cannot be passed as HTML attributes):
+ *   document.querySelector('otp-input').onVerify = async (code) => checkServer(code);
  *
  * @example
  * <otp-input length="6" direction="rtl" locale="ar" native-numerals></otp-input>
  */
 class OTPInputElement extends _HTMLElement {
+  // Form-associated custom element: lets <otp-input name="otp"> participate in
+  // <form> submission, validation, reset, and autofill restoration natively.
+  static get formAssociated() {
+    return true;
+  }
+
   static get observedAttributes() {
     return [
       'length', 'type', 'secure', 'auto-focus', 'auto-submit',
@@ -1806,6 +2151,7 @@ class OTPInputElement extends _HTMLElement {
       'haptic', 'timer-duration', 'resend-enabled', 'resend-cooldown',
       'clipboard-detection', 'label', 'theme',
       'toast-enabled', 'toast-theme', 'toast-position',
+      'reveal-toggle', 'lockout-attempts', 'lockout-duration',
     ];
   }
 
@@ -1813,6 +2159,68 @@ class OTPInputElement extends _HTMLElement {
     super();
     this._instance = null;
     this._initialized = false;
+    this._onVerify = null;
+    // attachInternals is unavailable in older browsers / SSR — degrade gracefully.
+    this._internals =
+      typeof this.attachInternals === 'function' ? this.attachInternals() : null;
+  }
+
+  /** Current OTP value — also the value submitted with the form. */
+  get value() {
+    return this._instance ? this._instance.getValue() : '';
+  }
+  set value(v) {
+    this._instance?.setValue(v);
+    this._syncForm(this.value);
+  }
+
+  /** Sync the form value + validity after a change. */
+  _syncForm(value) {
+    if (!this._internals) return;
+    this._internals.setFormValue(value);
+    const length = Number(this.getAttribute('length') || 6);
+    const anchor = this._instance?.inputs?.[0];
+    if (this.hasAttribute('required') && value.length < length) {
+      this._internals.setValidity(
+        { valueMissing: true },
+        this.getAttribute('validation-message') || 'Please complete the verification code.',
+        anchor
+      );
+    } else {
+      this._internals.setValidity({});
+    }
+  }
+
+  // ─── Form lifecycle ─────────────────────────────────────────────────────────
+  formResetCallback() {
+    this._instance?.clear();
+    this._syncForm('');
+  }
+
+  formDisabledCallback(disabled) {
+    if (disabled) this._instance?.disable();
+    else this._instance?.enable();
+  }
+
+  formStateRestoreCallback(state) {
+    if (typeof state === 'string') this._instance?.setValue(state);
+  }
+
+  // ─── Constraint-validation proxies ──────────────────────────────────────────
+  get form() { return this._internals?.form ?? null; }
+  get validity() { return this._internals?.validity; }
+  get validationMessage() { return this._internals?.validationMessage ?? ''; }
+  get willValidate() { return this._internals?.willValidate ?? false; }
+  checkValidity() { return this._internals?.checkValidity() ?? true; }
+  reportValidity() { return this._internals?.reportValidity() ?? true; }
+
+  /** Async verification callback — `(value) => boolean | string | object | Promise`. */
+  get onVerify() { return this._onVerify; }
+  set onVerify(fn) {
+    this._onVerify = typeof fn === 'function' ? fn : null;
+    if (this._instance) {
+      this._instance.options.onVerify = this._onVerify ? (v) => this._onVerify(v) : null;
+    }
   }
 
   connectedCallback() {
@@ -1845,6 +2253,7 @@ class OTPInputElement extends _HTMLElement {
       length:             num('length', 6),
       type:               str('type', 'numeric'),
       secure:             bool('secure'),
+      revealToggle:       bool('reveal-toggle'),
       autoFocus:          bool('auto-focus'),
       autoSubmit:         bool('auto-submit'),
       direction:          str('direction', 'auto'),
@@ -1869,12 +2278,21 @@ class OTPInputElement extends _HTMLElement {
         enabled:  bool('resend-enabled'),
         cooldown: num('resend-cooldown', 60),
       },
-      onChange:   (v)    => this.dispatchEvent(new CustomEvent('otp-change',    { detail: v,       bubbles: true, composed: true })),
+      lockout: {
+        enabled:     num('lockout-attempts', 0) > 0,
+        maxAttempts: num('lockout-attempts', 3),
+        duration:    num('lockout-duration', 30),
+      },
+      onChange:   (v)    => { this._syncForm(v); this.dispatchEvent(new CustomEvent('otp-change', { detail: v, bubbles: true, composed: true })); },
       onComplete: (v)    => this.dispatchEvent(new CustomEvent('otp-complete',  { detail: v,       bubbles: true, composed: true })),
       onError:    (errs) => this.dispatchEvent(new CustomEvent('otp-error',     { detail: errs,    bubbles: true, composed: true })),
       onFocus:    (info) => this.dispatchEvent(new CustomEvent('otp-focus',     { detail: info,    bubbles: true, composed: true })),
       onBlur:     (info) => this.dispatchEvent(new CustomEvent('otp-blur',      { detail: info,    bubbles: true, composed: true })),
     };
+
+    if (typeof this._onVerify === 'function') {
+      options.onVerify = (v) => this._onVerify(v);
+    }
 
     this._instance = new OTPInput(this, options);
 
@@ -1884,6 +2302,33 @@ class OTPInputElement extends _HTMLElement {
     this._instance.on('resend', () =>
       this.dispatchEvent(new CustomEvent('otp-resend', { bubbles: true, composed: true }))
     );
+    this._instance.on('verify-start', (v) =>
+      this.dispatchEvent(new CustomEvent('otp-verify-start', { detail: v, bubbles: true, composed: true }))
+    );
+    this._instance.on('verified', (v) =>
+      this.dispatchEvent(new CustomEvent('otp-verified', { detail: v, bubbles: true, composed: true }))
+    );
+    this._instance.on('verify-failed', (msg) =>
+      this.dispatchEvent(new CustomEvent('otp-failed', { detail: msg, bubbles: true, composed: true }))
+    );
+    this._instance.on('sms-read', (code) =>
+      this.dispatchEvent(new CustomEvent('otp-sms-read', { detail: code, bubbles: true, composed: true }))
+    );
+    this._instance.on('sms-unsupported', (reason) =>
+      this.dispatchEvent(new CustomEvent('otp-sms-unsupported', { detail: reason, bubbles: true, composed: true }))
+    );
+    this._instance.on('lock', (secs) =>
+      this.dispatchEvent(new CustomEvent('otp-lock', { detail: secs, bubbles: true, composed: true }))
+    );
+    this._instance.on('unlock', () =>
+      this.dispatchEvent(new CustomEvent('otp-unlock', { bubbles: true, composed: true }))
+    );
+    this._instance.on('attempt', (info) =>
+      this.dispatchEvent(new CustomEvent('otp-attempt', { detail: info, bubbles: true, composed: true }))
+    );
+
+    // Initialise the form value/validity for the freshly-built instance.
+    this._syncForm(this._instance.getValue());
   }
 
   // ─── Public API (proxy to OTPInput) ────────────────────────────────────────
@@ -1896,6 +2341,12 @@ class OTPInputElement extends _HTMLElement {
   enable()         { this._instance?.enable(); }
   setError(msg)    { this._instance?.setError(msg); }
   clearError()     { this._instance?.clearError(); }
+  setLoading(b)    { this._instance?.setLoading(b); }
+  setSuccess(msg)  { this._instance?.setSuccess(msg); }
+  toggleReveal(f)  { this._instance?.toggleReveal(f); }
+  lock()           { this._instance?.lock(); }
+  unlock()         { this._instance?.unlock(); }
+  isLocked()       { return this._instance?.isLocked() ?? false; }
   resetTimer(d)    { this._instance?.resetTimer(d); }
   setDirection(d)  { this._instance?.setDirection(d); }
   setLocale(l)     { this._instance?.setLocale(l); }

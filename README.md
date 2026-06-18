@@ -10,7 +10,7 @@ A highly customizable, framework-agnostic OTP input component with full RTL supp
 
 ## Features
 
-- **Zero dependencies** — pure vanilla JS, ~30 KB minified
+- **Zero dependencies** — pure vanilla JS, ~17 KB gzipped (CSS inlined)
 - **10 built-in themes** — default, underline, rounded, pill, ghost, filled, soft, neon, gradient, elevated
 - **Full RTL & i18n** — 12+ RTL locales, 8 numeral systems (Arabic-Indic, Persian, Hindi, Bengali, Tamil, Thai…)
 - **WCAG 2.1 AA accessible** — ARIA labels, live error regions, keyboard navigation, high-contrast & reduced-motion support
@@ -20,7 +20,12 @@ A highly customizable, framework-agnostic OTP input component with full RTL supp
 - **Clipboard paste detection** with smart OTP extraction
 - **Undo/Redo** (Ctrl+Z / Ctrl+Shift+Z)
 - **Haptic feedback** (mobile vibration)
+- **Async verification** — built-in loading spinner that awaits your server and resolves to a success or error state
+- **Secure mode** — password masking with optional 👁 reveal toggle and brute-force attempt lockout
 - **Web Component** `<otp-input>` — drop in anywhere
+- **Framework adapters** — first-class React, Vue 3, Svelte, and Angular wrappers
+- **TypeScript** — ships full type declarations for the core, Web Component, and every adapter
+- **Form-associated** — `<otp-input name="otp">` submits, validates, and resets natively inside a `<form>`
 - **ESM + UMD + CJS** builds for every environment
 
 ---
@@ -87,6 +92,8 @@ const otp = OTPInput.create('#container', {
 | `type` | `'numeric' \| 'alpha' \| 'alphanumeric' \| 'hex' \| 'custom'` | `'numeric'` | Allowed character type |
 | `pattern` | `RegExp` | `null` | Custom pattern (requires `type: 'custom'`) |
 | `secure` | `boolean` | `false` | Mask input like a password field |
+| `revealToggle` | `boolean` | `false` | Add an 👁 button to peek at masked digits (secure mode) |
+| `lockout` | `object` | see below | Lock input after too many failed attempts |
 | `autoFocus` | `boolean` | `true` | Focus first input on init |
 | `autoSubmit` | `boolean` | `false` | Submit parent `<form>` on completion |
 | `selectOnFocus` | `boolean` | `true` | Select digit text on focus |
@@ -102,15 +109,22 @@ const otp = OTPInput.create('#container', {
 | `timer` | `object` | see below | Countdown timer config |
 | `resend` | `object` | see below | Resend button config |
 | `toast` | `object` | see below | Toast notification config |
+| `onVerify` | `Function` | `null` | `async (value) => result` — drives the loading→success/error flow (see [Async Verification](#async-verification)) |
+| `loading` | `object` | see below | Loading/verifying state config |
 
 ### `animation`
 
 ```js
 animation: {
-  error: 'shake',   // 'shake' | 'highlight' | 'both' | false
+  // 'shake' | 'highlight' | 'both' | 'pulse' | 'buzz' | 'bounce' | 'glow' | 'wobble' | false
+  error: 'shake',
+  success: true,    // pop animation on completion
   duration: 300,    // ms
 }
 ```
+
+All error styles animate **every** cell (errors normally fire when the code is
+complete), respect `prefers-reduced-motion`, and trigger a haptic buzz on mobile.
 
 ### `timer`
 
@@ -147,6 +161,34 @@ toast: {
 }
 ```
 
+### `loading`
+
+```js
+loading: {
+  text: 'Verifying…',                   // a11y label shown while verifying
+  successText: 'Verified',
+  errorText: 'Verification failed',     // shown when onVerify rejects/returns false
+  clearOnError: true,                   // wipe the inputs after a failed verify
+  clearDelay: 900,                      // ms to keep the error visible before clearing
+}
+```
+
+### `lockout`
+
+```js
+lockout: {
+  enabled: false,
+  maxAttempts: 3,        // failed tries before locking
+  duration: 30,          // seconds the input stays locked
+  message: 'Too many attempts. Try again in {seconds}s.', // {seconds} counts down
+  onLock:   (secondsRemaining) => {},
+  onUnlock: () => {},
+}
+```
+
+A failed attempt is counted on a rejected `onVerify`, a completion-validation
+failure, or a manual `setError()`. The counter resets on success or unlock.
+
 ---
 
 ## Callbacks
@@ -160,6 +202,8 @@ OTPInput.create('#container', {
   onBlur:     ({ index, input }) => {},  // fires when a cell loses focus
   onExpire:   () => {},                  // fires when timer expires
   onResend:   () => {},                  // fires when resend is clicked
+  onVerified: (value) => {},             // fires when async verify succeeds
+  onFailed:   (message) => {},           // fires when async verify fails
 });
 ```
 
@@ -176,6 +220,12 @@ otp.clear()              // clear all cells
 otp.focus()              // focus first empty cell
 otp.setError('msg')      // show error state with message
 otp.clearError()         // remove error state
+otp.setLoading(true)     // toggle the verifying spinner + disable inputs
+otp.setSuccess('msg')    // manually enter the verified/success state
+otp.toggleReveal()       // peek at masked digits (secure mode); pass a boolean to force
+otp.lock()               // lock the input for the cooldown
+otp.unlock()             // release a lock early and reset the attempt counter
+otp.isLocked()           // → boolean
 otp.destroy()            // unmount and clean up DOM
 otp.startTimer()         // start / restart countdown
 otp.stopTimer()          // stop countdown
@@ -186,13 +236,21 @@ otp.stopTimer()          // stop countdown
 ## Events (EventEmitter API)
 
 ```js
-otp.on('complete', (value) => {});
-otp.on('change',   (value) => {});
-otp.on('error',    (errors) => {});
-otp.on('focus',    ({ index }) => {});
-otp.on('blur',     ({ index }) => {});
-otp.on('expire',   () => {});
-otp.on('resend',   () => {});
+otp.on('complete',      (value) => {});
+otp.on('change',        (value) => {});
+otp.on('error',         (errors) => {});
+otp.on('focus',         ({ index }) => {});
+otp.on('blur',          ({ index }) => {});
+otp.on('expire',        () => {});
+otp.on('resend',        () => {});
+otp.on('verify-start',  (value) => {});   // async verification began
+otp.on('verified',      (value) => {});   // async verification succeeded
+otp.on('verify-failed', (message) => {}); // async verification failed
+otp.on('sms-read',      (code) => {});    // Web OTP API auto-filled from SMS
+otp.on('sms-unsupported', (reason) => {}); // 'no-api' | 'insecure-context'
+otp.on('attempt', ({ attempts, max }) => {}); // a failed attempt was counted
+otp.on('lock',    (secondsRemaining) => {});  // input locked out
+otp.on('unlock',  () => {});                   // lock released
 
 otp.off('complete', handler);
 otp.once('complete', handler);
@@ -219,6 +277,9 @@ otp.once('complete', handler);
   resend-enabled
   resend-cooldown="60"
   clipboard-detection
+  reveal-toggle
+  lockout-attempts="3"
+  lockout-duration="30"
   toast-enabled
   toast-theme="glass"
   toast-position="top-right"
@@ -230,12 +291,162 @@ otp.once('complete', handler);
 
 ```js
 const el = document.querySelector('otp-input');
-el.addEventListener('otp-complete', (e) => console.log(e.detail));
-el.addEventListener('otp-change',   (e) => console.log(e.detail));
-el.addEventListener('otp-error',    (e) => console.log(e.detail));
-el.addEventListener('otp-expire',   () => {});
-el.addEventListener('otp-resend',   () => {});
+el.addEventListener('otp-complete',     (e) => console.log(e.detail));
+el.addEventListener('otp-change',       (e) => console.log(e.detail));
+el.addEventListener('otp-error',        (e) => console.log(e.detail));
+el.addEventListener('otp-expire',       () => {});
+el.addEventListener('otp-resend',       () => {});
+el.addEventListener('otp-verify-start', (e) => {});
+el.addEventListener('otp-verified',     (e) => console.log(e.detail));
+el.addEventListener('otp-failed',       (e) => console.log(e.detail));
+el.addEventListener('otp-lock',         (e) => console.log(e.detail));
+el.addEventListener('otp-unlock',       () => {});
+el.addEventListener('otp-attempt',      (e) => console.log(e.detail));
 ```
+
+Because functions can't be HTML attributes, attach `onVerify` as a property:
+
+```js
+el.onVerify = async (code) => (await fetch(`/verify/${code}`)).ok;
+```
+
+### Form integration
+
+`<otp-input>` is a **form-associated** custom element, so it behaves like a
+native control inside a `<form>`:
+
+```html
+<form id="login">
+  <otp-input name="otp" length="6" required></otp-input>
+  <button type="submit">Verify</button>
+</form>
+
+<script type="module">
+  document.getElementById('login').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new FormData(e.target);
+    console.log(data.get('otp')); // → the entered code
+  });
+</script>
+```
+
+- The value is submitted under the element's `name`.
+- `required` makes the form invalid until the code is complete (`:invalid`,
+  `checkValidity()`, `reportValidity()` all work).
+- Form **reset** clears it; browser autofill **restore** repopulates it.
+
+---
+
+## Framework Adapters
+
+The core is framework-agnostic, but first-class wrappers ship in the box.
+
+### React
+
+```jsx
+import { OtpInput } from 'otp-input-kit/react';
+
+function Login() {
+  const ref = useRef(null);
+  return (
+    <OtpInput
+      ref={ref}
+      length={6}
+      theme="rounded"
+      onVerify={async (code) => (await api.verify(code)).ok}
+      onVerified={() => navigate('/home')}
+      onFailed={(msg) => toast.error(msg)}
+    />
+  );
+}
+
+// ref exposes: getValue, setValue, clear, focus, setError,
+// setLoading, setSuccess, setTheme, resetTimer, getInstance
+```
+
+There's also a lightweight hook:
+
+```jsx
+import { useOtp } from 'otp-input-kit/react';
+
+const [ref, otp] = useOtp({ length: 6, onComplete: console.log });
+return <div ref={ref} />;   // otp.current is the OTPInput instance
+```
+
+### Vue 3
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import { OtpInput } from 'otp-input-kit/vue';
+
+const otp = ref(null);
+const verify = async (code) => (await api.verify(code)).ok;
+</script>
+
+<template>
+  <OtpInput
+    ref="otp"
+    :length="6"
+    theme="pill"
+    :on-verify="verify"
+    @complete="onComplete"
+    @verified="goHome"
+    @failed="showError"
+  />
+</template>
+```
+
+### Svelte
+
+```svelte
+<script>
+  import { otp } from 'otp-input-kit/svelte';
+  const options = {
+    length: 6,
+    onVerify: async (code) => (await fetch(`/verify/${code}`)).ok,
+  };
+</script>
+
+<div
+  use:otp={options}
+  on:complete={(e) => console.log(e.detail)}
+  on:verified={goHome}
+  on:failed={(e) => toast(e.detail)}
+/>
+```
+
+### Angular
+
+A standalone directive ships as TypeScript source (Angular always compiles TS):
+
+```ts
+import { Component } from '@angular/core';
+import { OtpInputDirective } from 'otp-input-kit/angular';
+
+@Component({
+  standalone: true,
+  imports: [OtpInputDirective],
+  template: `
+    <div otpInput
+         [length]="6"
+         theme="rounded"
+         [onVerify]="verify"
+         (verified)="goHome()"
+         (failed)="showError($event)"
+         #otp="otpInput"></div>
+  `,
+})
+export class LoginComponent {
+  verify = async (code: string) => (await this.api.verify(code)).ok;
+}
+```
+
+Prefer zero setup? The `<otp-input>` Web Component works in Angular out of the
+box — just add `CUSTOM_ELEMENTS_SCHEMA` to your component/module.
+
+> `react`, `vue`, and `@angular/core` are optional peer dependencies — install
+> whichever you use. The Svelte adapter is a plain action with no dependency.
 
 ---
 
@@ -312,6 +523,88 @@ OTPInput.create('#container', {
   },
   onError: (errors) => console.error(errors),
 });
+```
+
+---
+
+## Async Verification
+
+Pass an `onVerify` function and the component takes over the full verify lifecycle:
+when the code completes it shows a **loading spinner** (and disables the inputs),
+awaits your function, then resolves to a **success** or **error** state automatically.
+
+```js
+OTPInput.create('#container', {
+  length: 6,
+  onVerify: async (code) => {
+    const res = await fetch('/api/verify', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
+    return res.ok;                 // see "Return values" below
+  },
+  onVerified: (code) => location.assign('/dashboard'),
+  onFailed:   (msg)  => console.warn('Rejected:', msg),
+});
+```
+
+### Return values
+
+`onVerify` may return (or resolve to) any of:
+
+| Return | Result |
+|--------|--------|
+| `true` / `undefined` | ✅ success — `verified` event |
+| `false` | ❌ failure with the default message |
+| `'Some message'` | ❌ failure showing that message |
+| `{ ok: true }` | ✅ success |
+| `{ ok: false, message }` | ❌ failure with a custom message |
+| *throws* | ❌ failure using the thrown error's message |
+
+On failure the inputs shake, show the error state, and (by default) clear after
+`loading.clearDelay` ms so the user can retry. Tune via the [`loading`](#loading) option.
+
+### Manual control
+
+Don't want the automatic flow? Drive it yourself:
+
+```js
+const otp = OTPInput.create('#container', {
+  onComplete: async (code) => {
+    otp.setLoading(true);
+    try {
+      await api.verify(code);
+      otp.setSuccess('Welcome back!');
+    } catch (e) {
+      otp.setError('That code is incorrect');
+    }
+  },
+});
+```
+
+---
+
+## Secure Mode & Lockout
+
+```js
+OTPInput.create('#container', {
+  length: 4,
+  secure: true,         // mask digits like a password
+  revealToggle: true,   // adds an 👁 button to peek
+  onVerify: (code) => code === '4242',
+  lockout: {
+    enabled: true,
+    maxAttempts: 3,     // after 3 wrong codes…
+    duration: 30,       // …lock for 30s with a live countdown
+    onLock:   () => analytics.track('otp_locked'),
+    onUnlock: () => {},
+  },
+});
+
+// Programmatic control
+otp.toggleReveal(true); // force-show the digits
+otp.lock();             // lock immediately
+otp.unlock();           // release early
 ```
 
 ---

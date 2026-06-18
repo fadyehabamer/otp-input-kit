@@ -16,6 +16,9 @@ const DEFAULT_OPTIONS = {
   type: 'numeric',          // 'numeric' | 'alpha' | 'alphanumeric' | 'hex' | 'custom'
   pattern: null,             // RegExp for custom type
   secure: false,             // mask input like password
+  revealToggle: false,       // show an eye button to peek at masked digits (secure mode only)
+  revealLabel: 'Show code',
+  hideLabel: 'Hide code',
   autoFocus: true,
   autoSubmit: false,         // submit form on complete
   selectOnFocus: true,
@@ -30,7 +33,8 @@ const DEFAULT_OPTIONS = {
   haptic: true,
   validate: null,            // (value: string) => string | null  (custom validator)
   animation: {
-    error: 'shake',          // 'shake' | 'highlight' | 'both' | false
+    // 'shake' | 'highlight' | 'both' | 'pulse' | 'buzz' | 'bounce' | 'glow' | 'wobble' | false
+    error: 'shake',
     success: true,
     duration: 300,
   },
@@ -51,8 +55,32 @@ const DEFAULT_OPTIONS = {
   biometric: {
     enabled: false,          // require platform biometric/PIN after OTP completion
     promptText: 'Verify your identity to continue',
+    cancelText: 'Biometric verification was cancelled or failed',
+    userName: 'otp-user',    // label shown in the platform passkey prompt
     onConfirmed: null,       // () => void
     onCancelled: null,       // () => void
+  },
+  // Async verification — when set, completion triggers a loading state that
+  // awaits this function, then resolves to a success or error state.
+  // Return: true | undefined → success · false → fail · string → fail w/ message
+  //         · { ok: boolean, message?: string } → explicit result. Throwing → fail.
+  onVerify: null,            // (value: string) => boolean | string | object | Promise<…>
+  loading: {
+    text: 'Verifying…',      // a11y label shown while verifying
+    successText: 'Verified',
+    errorText: 'Verification failed',
+    clearOnError: true,      // clear inputs after a failed verification
+    clearDelay: 900,         // ms to keep the error visible before clearing
+  },
+  // Lock the input after too many failed attempts (counts failed verifies,
+  // completion-validation failures, and manual setError calls).
+  lockout: {
+    enabled: false,
+    maxAttempts: 3,
+    duration: 30,            // seconds locked
+    message: 'Too many attempts. Try again in {seconds}s.',
+    onLock: null,            // (secondsRemaining) => void
+    onUnlock: null,          // () => void
   },
   theme: 'default',          // 'default' | 'underline' | 'rounded' | 'ghost' | 'filled' | 'soft' | 'neon' | 'gradient' | 'pill'
   toast: {
@@ -71,6 +99,9 @@ const DEFAULT_OPTIONS = {
   onError: null,
   onFocus: null,
   onBlur: null,
+  onVerified: null,          // (value) => void  — async verify succeeded
+  onFailed: null,            // (message) => void — async verify failed
+  onSmsRead: null,           // (code) => void — Web OTP API auto-filled from SMS
 };
 
 /**
@@ -96,6 +127,9 @@ export class OTPInput {
     this._expired = false;
     this._destroyed = false;
     this._boundHandlers = {};
+    this._attempts = 0;
+    this._locked = false;
+    this._revealed = false;
 
     // Sub-managers
     this.emitter    = new EventEmitter();
@@ -168,8 +202,34 @@ export class OTPInput {
     }
 
     this._wrapper.appendChild(this._inputsRow);
+
+    // Reveal/peek toggle (secure mode only)
+    if (this.options.secure && this.options.revealToggle) {
+      this._buildRevealToggle();
+    }
+
     this.timer.buildUI(this._wrapper);
+
+    // Lockout message region (only when lockout is enabled)
+    if (this.options.lockout?.enabled) {
+      this._lockEl = createElement('div', {
+        class: 'otp-lock-message',
+        role: 'status',
+        'aria-live': 'polite',
+      });
+      this._wrapper.appendChild(this._lockEl);
+    }
+
     this.container.appendChild(this._wrapper);
+
+    // Loading overlay (spinner) — hidden until a verification is in flight
+    this._spinner = createElement('div', {
+      class: 'otp-spinner',
+      role: 'status',
+      'aria-hidden': 'true',
+    });
+    this._spinner.innerHTML = '<span class="otp-spinner__ring"></span>';
+    this.container.appendChild(this._spinner);
 
     // A11y setup
     this.a11y.setup(this.container, this.inputs);
@@ -209,6 +269,24 @@ export class OTPInput {
     return input;
   }
 
+  _buildRevealToggle() {
+    const label = this.options.revealLabel;
+    const btn = createElement('button', {
+      type: 'button',
+      class: 'otp-reveal-btn',
+      'aria-pressed': 'false',
+      'aria-label': label,
+      title: label,
+    });
+    btn.innerHTML =
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>' +
+      `<span class="otp-reveal-label">${label}</span>`;
+    btn.addEventListener('click', () => this.toggleReveal());
+    this._revealBtn = btn;
+    this._wrapper.appendChild(btn);
+  }
+
   // ─── Event Binding ─────────────────────────────────────────────────────────
 
   _bindInputEvents(input, index) {
@@ -222,12 +300,14 @@ export class OTPInput {
   }
 
   _bindOptionCallbacks() {
-    const { onChange, onComplete, onError, onFocus, onBlur, toast } = this.options;
+    const { onChange, onComplete, onError, onFocus, onBlur, onVerified, onFailed, toast } = this.options;
     if (isFunction(onChange))   this.emitter.on('change',   onChange);
     if (isFunction(onComplete)) this.emitter.on('complete', onComplete);
     if (isFunction(onError))    this.emitter.on('error',    onError);
     if (isFunction(onFocus))    this.emitter.on('focus',    onFocus);
     if (isFunction(onBlur))     this.emitter.on('blur',     onBlur);
+    if (isFunction(onVerified)) this.emitter.on('verified', onVerified);
+    if (isFunction(onFailed))   this.emitter.on('verify-failed', onFailed);
 
     if (toast?.enabled) {
       this.emitter.on('expire', () => this.toast.warning(toast.expireMessage));
@@ -439,6 +519,7 @@ export class OTPInput {
   }
 
   _checkCompletion(force = false) {
+    if (this._locked) return;
     if (!this._isComplete() && !force) return;
 
     const value = this.getValue();
@@ -451,6 +532,7 @@ export class OTPInput {
         this.toast.error(msg);
       }
       this.emitter.emit('error', errors);
+      this._registerFailedAttempt();
       return;
     }
 
@@ -459,10 +541,20 @@ export class OTPInput {
       return;
     }
 
+    this._proceedAfterGate(value);
+  }
+
+  /** Route a locally-valid value through async verification (if configured) or straight to success. */
+  _proceedAfterGate(value) {
+    if (isFunction(this.options.onVerify)) {
+      this._runVerify(value);
+      return;
+    }
     this._completeSuccess(value);
   }
 
   _completeSuccess(value) {
+    this._attempts = 0;
     this._animateSuccess();
     this.a11y.announceCompletion(value);
     if (this.options.toast?.enabled) {
@@ -470,46 +562,185 @@ export class OTPInput {
     }
     this.emitter.emit('complete', value);
 
-    if (this.options.autoSubmit) {
-      const form = this.container.closest('form');
-      if (form) {
-        const hidden = form.querySelector('input[name="otp"]') || (() => {
-          const h = document.createElement('input');
-          h.type = 'hidden'; h.name = 'otp';
-          form.appendChild(h); return h;
-        })();
-        hidden.value = value;
-        form.requestSubmit?.() ?? form.submit();
-      }
+    if (this.options.autoSubmit) this._submitForm(value);
+  }
+
+  _submitForm(value) {
+    const form = this.container.closest('form');
+    if (!form) return;
+    const hidden = form.querySelector('input[name="otp"]') || (() => {
+      const h = document.createElement('input');
+      h.type = 'hidden'; h.name = 'otp';
+      form.appendChild(h); return h;
+    })();
+    hidden.value = value;
+    form.requestSubmit?.() ?? form.submit();
+  }
+
+  // ─── Async Verification ─────────────────────────────────────────────────────
+
+  async _runVerify(value) {
+    // Completion can fire twice for the final digit — ignore re-entry while a
+    // verification is already in flight (prevents a duplicate server call).
+    if (this._loading) return;
+    // Input is complete & locally valid — announce completion, then verify remotely.
+    this.emitter.emit('complete', value);
+    this.setLoading(true);
+    this.emitter.emit('verify-start', value);
+
+    let result;
+    try {
+      result = await this.options.onVerify(value);
+    } catch (err) {
+      if (this._destroyed) return;
+      this.setLoading(false);
+      this._verifyFailure(err && err.message);
+      return;
     }
+
+    if (this._destroyed) return;
+    this.setLoading(false);
+    const { ok, message } = this._normalizeVerifyResult(result);
+    if (ok) this._verifySuccess(value, message);
+    else    this._verifyFailure(message);
+  }
+
+  /** Coerce the many accepted onVerify return shapes into { ok, message }. */
+  _normalizeVerifyResult(result) {
+    if (result === false) return { ok: false, message: null };
+    if (typeof result === 'string') return { ok: false, message: result };
+    if (result && typeof result === 'object') {
+      return { ok: !!result.ok, message: result.message ?? null };
+    }
+    // true / undefined / anything truthy → success (verify fns often resolve void on success)
+    return { ok: true, message: null };
+  }
+
+  _verifySuccess(value, message) {
+    this._attempts = 0;
+    this.clearError();
+    this._animateSuccess();
+    addClasses(this.container, 'otp-root--verified');
+    this.a11y.announceCompletion(value);
+    if (this.options.toast?.enabled) {
+      this.toast.success(message || this.options.toast.successMessage);
+    }
+    this.emitter.emit('verified', value);
+    if (this.options.autoSubmit) this._submitForm(value);
+  }
+
+  _verifyFailure(message) {
+    const msg = message || this.options.loading?.errorText || 'Verification failed';
+    this._animateError();
+    this.inputs.forEach(inp => addClasses(inp, 'otp-input--error'));
+    this.a11y.announceError(msg);
+    if (this.options.toast?.enabled) this.toast.error(msg);
+    this.emitter.emit('verify-failed', msg);
+    this._registerFailedAttempt();
+
+    if (this.options.loading?.clearOnError) {
+      const delay = this.options.loading.clearDelay ?? 900;
+      clearTimeout(this._clearTimeout);
+      this._clearTimeout = setTimeout(() => {
+        if (this._destroyed || this._locked) return;
+        this.clear();
+        this.clearError();
+      }, delay);
+    }
+  }
+
+  // ─── Lockout (too many failed attempts) ─────────────────────────────────────
+
+  _registerFailedAttempt() {
+    const lk = this.options.lockout;
+    if (!lk?.enabled || this._locked) return;
+    this._attempts += 1;
+    this.emitter.emit('attempt', { attempts: this._attempts, max: lk.maxAttempts });
+    if (this._attempts >= lk.maxAttempts) this.lock();
+  }
+
+  /** Lock the input for the configured cooldown. */
+  lock() {
+    const lk = this.options.lockout;
+    this._locked = true;
+    this.disable();
+    addClasses(this.container, 'otp-root--locked');
+
+    let remaining = lk.duration;
+    const text = () =>
+      String(lk.message || 'Too many attempts. Try again in {seconds}s.').replace('{seconds}', remaining);
+
+    if (this._lockEl) this._lockEl.textContent = text();
+    this.a11y.announceError(text());
+    if (this.options.toast?.enabled) this.toast.error(text());
+    if (isFunction(lk.onLock)) lk.onLock(remaining);
+    this.emitter.emit('lock', remaining);
+
+    clearInterval(this._lockInterval);
+    this._lockInterval = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        this.unlock();
+      } else if (this._lockEl) {
+        this._lockEl.textContent = text();
+      }
+    }, 1000);
+    return this;
+  }
+
+  /** Release a lock early and reset the attempt counter. */
+  unlock() {
+    clearInterval(this._lockInterval);
+    if (!this._locked) return this;
+    this._locked = false;
+    this._attempts = 0;
+    this.enable();
+    removeClasses(this.container, 'otp-root--locked');
+    if (this._lockEl) this._lockEl.textContent = '';
+    this.clear();
+    if (isFunction(this.options.lockout?.onUnlock)) this.options.lockout.onUnlock();
+    this.emitter.emit('unlock');
+    return this;
+  }
+
+  /** Whether the input is currently locked out. */
+  isLocked() {
+    return this._locked;
   }
 
   // ─── Animations ────────────────────────────────────────────────────────────
 
+  // Each error style maps to one or more animation classes. Errors usually fire
+  // when the code is COMPLETE (all cells filled), so every style animates all
+  // cells — the old 'highlight' only touched empty cells and so did nothing.
+  static get ERROR_ANIMATIONS() {
+    return {
+      shake:     ['otp-anim-shake'],
+      highlight: ['otp-anim-highlight'],
+      both:      ['otp-anim-shake', 'otp-anim-highlight'],
+      pulse:     ['otp-anim-pulse'],
+      buzz:      ['otp-anim-buzz'],
+      bounce:    ['otp-anim-bounce'],
+      glow:      ['otp-anim-glow'],
+      wobble:    ['otp-anim-wobble'],
+    };
+  }
+
   _animateError() {
     if (prefersReducedMotion()) return;
-    const { animation } = this.options;
-    if (!animation?.error) return;
+    const style = this.options.animation?.error;
+    if (!style) return;
 
-    const targets = animation.error === 'highlight'
-      ? this.inputs.filter((_, i) => this._values[i] === '')
-      : this.inputs;
+    const classes = OTPInput.ERROR_ANIMATIONS[style] || OTPInput.ERROR_ANIMATIONS.shake;
 
-    if (animation.error === 'shake' || animation.error === 'both') {
-      targets.forEach(inp => {
-        inp.classList.remove('otp-anim-shake');
-        void inp.offsetWidth; // reflow
-        inp.classList.add('otp-anim-shake');
-        inp.addEventListener('animationend', () => inp.classList.remove('otp-anim-shake'), { once: true });
-      });
-    }
-
-    if (animation.error === 'highlight' || animation.error === 'both') {
-      targets.forEach(inp => {
-        inp.classList.add('otp-anim-highlight');
-        inp.addEventListener('animationend', () => inp.classList.remove('otp-anim-highlight'), { once: true });
-      });
-    }
+    this.inputs.forEach((inp) => {
+      classes.forEach((cls) => inp.classList.remove(cls));
+      void inp.offsetWidth; // force reflow so the animation restarts
+      classes.forEach((cls) => inp.classList.add(cls));
+      inp.addEventListener('animationend', () => {
+        classes.forEach((cls) => inp.classList.remove(cls));
+      }, { once: true });
+    });
 
     this._haptic([100, 50, 100]);
   }
@@ -528,26 +759,50 @@ export class OTPInput {
   // ─── SMS Auto-Read (Web OTP API) ───────────────────────────────────────────
 
   _initSmsAutoRead() {
-    if (!this.options.smsAutoRead || !('OTPCredential' in window)) return;
+    if (!this.options.smsAutoRead) return;
+
+    // The Web OTP API only exists on supporting browsers (Android Chrome) …
+    if (!('OTPCredential' in window)) {
+      this.emitter.emit('sms-unsupported', 'no-api');
+      return;
+    }
+    // … and only runs in a secure context (HTTPS or localhost).
+    if (window.isSecureContext === false) {
+      this.emitter.emit('sms-unsupported', 'insecure-context');
+      return;
+    }
+
     const ac = new AbortController();
     this._smsAbortController = ac;
+    this.emitter.emit('sms-pending');
+
     navigator.credentials.get({ otp: { transport: ['sms'] }, signal: ac.signal })
-      .then(otp => { if (otp?.code) this.setValue(otp.code); })
-      .catch(() => {});
+      .then((otp) => {
+        if (otp && otp.code) {
+          this.setValue(otp.code);
+          if (isFunction(this.options.onSmsRead)) this.options.onSmsRead(otp.code);
+          this.emitter.emit('sms-read', otp.code);
+        }
+      })
+      .catch((err) => {
+        // AbortError fires on destroy/navigation — not a genuine failure.
+        if (err && err.name === 'AbortError') return;
+        this.emitter.emit('sms-error', err);
+      });
   }
 
   // ─── Biometric Confirm (WebAuthn) ──────────────────────────────────────────
 
   async _biometricConfirm(value) {
     if (!window.PublicKeyCredential) {
-      this._completeSuccess(value);
+      this._proceedAfterGate(value);
       return;
     }
 
     try {
       const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
       if (!available) {
-        this._completeSuccess(value);
+        this._proceedAfterGate(value);
         return;
       }
 
@@ -556,23 +811,42 @@ export class OTPInput {
       }
       this.emitter.emit('biometric-start');
 
-      await navigator.credentials.get({
+      // A registration ceremony reliably triggers the platform biometric
+      // (Touch ID / Face ID / Windows Hello) WITHOUT a pre-registered credential.
+      // get() with an empty allowCredentials list rejects when nothing is
+      // registered — which is why the old flow always "failed". The created
+      // credential is discarded; we only care that user-verification passed.
+      const rpId = location.hostname || 'localhost';
+      await navigator.credentials.create({
         publicKey: {
           challenge: crypto.getRandomValues(new Uint8Array(32)),
-          rpId: location.hostname || 'localhost',
-          allowCredentials: [],
-          userVerification: 'required',
+          rp: { name: document.title || rpId, id: rpId },
+          user: {
+            id: crypto.getRandomValues(new Uint8Array(16)),
+            name: this.options.biometric.userName || 'otp-user',
+            displayName: this.options.biometric.userName || 'OTP User',
+          },
+          pubKeyCredParams: [
+            { type: 'public-key', alg: -7 },   // ES256
+            { type: 'public-key', alg: -257 }, // RS256
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: 'platform',
+            userVerification: 'required',
+            residentKey: 'discouraged',
+          },
           timeout: 60000,
+          attestation: 'none',
         },
       });
 
       if (typeof this.options.biometric.onConfirmed === 'function') this.options.biometric.onConfirmed();
       this.emitter.emit('biometric-confirmed');
-      this._completeSuccess(value);
+      this._proceedAfterGate(value);
     } catch (err) {
       if (typeof this.options.biometric.onCancelled === 'function') this.options.biometric.onCancelled();
       this.emitter.emit('biometric-cancelled');
-      this.setError('Biometric verification was cancelled or failed');
+      this.setError(this.options.biometric.cancelText || 'Biometric verification was cancelled or failed');
     }
   }
 
@@ -647,13 +921,15 @@ export class OTPInput {
 
   /** Clear all inputs */
   clear() {
+    clearTimeout(this._clearTimeout);
     this._values.fill('');
     this.inputs.forEach((inp, i) => {
       inp.value = '';
       this._updateInputUI(inp, i);
     });
     this.validation.clearErrors(this.inputs);
-    this.inputs.forEach(inp => removeClasses(inp, 'otp-input--success'));
+    this.inputs.forEach(inp => removeClasses(inp, 'otp-input--success', 'otp-input--error'));
+    removeClasses(this.container, 'otp-root--verified');
     this.history.push([...this._values]);
     this._notifyChange();
     if (this.options.autoFocus) this._focusIndex(0);
@@ -678,6 +954,7 @@ export class OTPInput {
 
   /** Trigger error state with optional message */
   setError(message) {
+    this.setLoading(false);
     this._animateError();
     this.inputs.forEach(inp => addClasses(inp, 'otp-input--error'));
     if (message) {
@@ -685,6 +962,50 @@ export class OTPInput {
       if (this.options.toast?.enabled) this.toast.error(message);
     }
     this.emitter.emit('error', [{ index: -1, message }]);
+    this._registerFailedAttempt();
+  }
+
+  /** Toggle peeking at masked digits (secure mode). Pass a boolean to force. */
+  toggleReveal(force) {
+    if (!this.options.secure) return this;
+    this._revealed = typeof force === 'boolean' ? force : !this._revealed;
+    const type = this._revealed ? 'text' : 'password';
+    this.inputs.forEach((inp) => { inp.type = type; });
+    if (this._revealBtn) {
+      const label = this._revealed ? this.options.hideLabel : this.options.revealLabel;
+      this._revealBtn.setAttribute('aria-pressed', String(this._revealed));
+      this._revealBtn.setAttribute('aria-label', label);
+      this._revealBtn.setAttribute('title', label);
+      this._revealBtn.classList.toggle('otp-reveal-btn--on', this._revealed);
+      const labelEl = this._revealBtn.querySelector('.otp-reveal-label');
+      if (labelEl) labelEl.textContent = label;
+    }
+    return this;
+  }
+
+  /** Toggle the verifying/loading state — disables inputs and shows a spinner. */
+  setLoading(loading = true) {
+    this._loading = !!loading;
+    if (this._loading) {
+      addClasses(this.container, 'otp-root--loading');
+      this.inputs.forEach(inp => { inp.disabled = true; });
+      if (this._spinner) {
+        this._spinner.setAttribute('aria-hidden', 'false');
+        this._spinner.setAttribute('aria-label', this.options.loading?.text || 'Loading');
+      }
+    } else {
+      removeClasses(this.container, 'otp-root--loading');
+      if (!this._expired) this.inputs.forEach(inp => { inp.disabled = false; });
+      if (this._spinner) this._spinner.setAttribute('aria-hidden', 'true');
+    }
+    return this;
+  }
+
+  /** Manually put the component into the verified/success state. */
+  setSuccess(message) {
+    this.setLoading(false);
+    this._verifySuccess(this.getValue(), message);
+    return this;
   }
 
   /** Switch theme dynamically: 'default'|'underline'|'rounded'|'ghost'|'filled'|'soft'|'neon'|'gradient'|'pill' */
@@ -730,15 +1051,28 @@ export class OTPInput {
     });
   }
 
-  /** Subscribe to events */
+  /** Subscribe to an event. Returns an unsubscribe function. */
   on(event, listener) {
     return this.emitter.on(event, listener);
+  }
+
+  /** Unsubscribe a previously-registered listener. */
+  off(event, listener) {
+    this.emitter.off(event, listener);
+    return this;
+  }
+
+  /** Subscribe to an event for a single emission. Returns an unsubscribe function. */
+  once(event, listener) {
+    return this.emitter.once(event, listener);
   }
 
   /** Destroy instance and clean up DOM */
   destroy() {
     if (this._destroyed) return;
     this._destroyed = true;
+    clearTimeout(this._clearTimeout);
+    clearInterval(this._lockInterval);
     this._smsAbortController?.abort();
     this.timer.destroy();
     this.clipboard.destroy();
