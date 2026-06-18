@@ -14,7 +14,8 @@ A highly customizable, framework-agnostic OTP input component with full RTL supp
 - **10 built-in themes** — default, underline, rounded, pill, ghost, filled, soft, neon, gradient, elevated
 - **Full RTL & i18n** — 12+ RTL locales, 8 numeral systems (Arabic-Indic, Persian, Hindi, Bengali, Tamil, Thai…)
 - **WCAG 2.1 AA accessible** — ARIA labels, live error regions, keyboard navigation, high-contrast & reduced-motion support
-- **Countdown timer** with progress bar and expiry callback
+- **Countdown timer** — progress-bar or circular **ring** style, with expiry callback
+- **Audio feedback** — optional Web Audio key/success/error tones (no asset files)
 - **Resend button** with configurable cooldown
 - **Toast notifications** — 6 themes, 9 positions, auto-dismiss
 - **Clipboard paste detection** with smart OTP extraction
@@ -317,6 +318,9 @@ otp.once('complete', handler);
   keypad-randomize
   confetti
   success-animation="bounce"
+  timer-style="ring"
+  sound
+  sound-volume="0.2"
   toast-enabled
   toast-theme="glass"
   toast-position="top-right"
