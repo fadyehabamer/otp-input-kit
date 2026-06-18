@@ -22,6 +22,8 @@ A highly customizable, framework-agnostic OTP input component with full RTL supp
 - **Haptic feedback** (mobile vibration)
 - **Async verification** — built-in loading spinner that awaits your server and resolves to a success or error state
 - **Secure mode** — password masking with optional 👁 reveal toggle and brute-force attempt lockout
+- **On-screen keypad** — optional built-in virtual number pad (mobile / kiosk / PIN), with shuffle-to-obscure
+- **Success celebration** — success animation styles (pop / glow / bounce / flip) + optional 🎉 confetti burst
 - **Web Component** `<otp-input>` — drop in anywhere
 - **Framework adapters** — first-class React, Vue 3, Svelte, and Angular wrappers
 - **TypeScript** — ships full type declarations for the core, Web Component, and every adapter
@@ -105,7 +107,8 @@ const otp = OTPInput.create('#container', {
 | `haptic` | `boolean` | `true` | Vibration feedback on mobile |
 | `theme` | `string` | `'default'` | Input theme (see [Themes](#themes)) |
 | `validate` | `Function` | `null` | `(value) => errorString \| null` |
-| `animation` | `object` | see below | Error animation config |
+| `animation` | `object` | see below | Error/success animation + confetti config |
+| `keypad` | `boolean \| object` | `false` | On-screen virtual number pad (see below) |
 | `timer` | `object` | see below | Countdown timer config |
 | `resend` | `object` | see below | Resend button config |
 | `toast` | `object` | see below | Toast notification config |
@@ -118,13 +121,30 @@ const otp = OTPInput.create('#container', {
 animation: {
   // 'shake' | 'highlight' | 'both' | 'pulse' | 'buzz' | 'bounce' | 'glow' | 'wobble' | false
   error: 'shake',
-  success: true,    // pop animation on completion
+  // true | false | 'pop' | 'glow' | 'bounce' | 'flip'
+  success: true,
+  confetti: false,  // 🎉 burst on success
   duration: 300,    // ms
 }
 ```
 
 All error styles animate **every** cell (errors normally fire when the code is
 complete), respect `prefers-reduced-motion`, and trigger a haptic buzz on mobile.
+
+### `keypad`
+
+An optional on-screen number pad — great for mobile, kiosks, and PIN entry.
+
+```js
+keypad: {
+  enabled: false,
+  randomize: false,      // shuffle key order (anti shoulder-surfing for PINs)
+  showClear: false,      // include a "clear all" key
+  backspaceLabel: '⌫',
+  clearLabel: 'Clear',
+}
+// shorthand: keypad: true
+```
 
 ### `timer`
 
@@ -133,7 +153,20 @@ timer: {
   enabled: true,
   duration: 60,          // seconds
   showProgress: true,    // animated progress bar
+  style: 'bar',          // 'bar' | 'ring' (circular countdown)
   onExpire: () => {},    // callback when time runs out
+}
+```
+
+### `sound`
+
+Subtle Web Audio feedback (keypress / success / error) — no asset files, created
+lazily on first key, off by default.
+
+```js
+sound: {
+  enabled: false,
+  volume: 0.2,           // 0..1
 }
 ```
 
@@ -280,6 +313,10 @@ otp.once('complete', handler);
   reveal-toggle
   lockout-attempts="3"
   lockout-duration="30"
+  keypad
+  keypad-randomize
+  confetti
+  success-animation="bounce"
   toast-enabled
   toast-theme="glass"
   toast-position="top-right"

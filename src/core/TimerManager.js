@@ -26,20 +26,38 @@ export class TimerManager {
       if (timer?.enabled) {
         const timerWrap = document.createElement('div');
         timerWrap.className = 'otp-timer-wrap';
-
-        if (timer.showProgress) {
-          this._progressEl = document.createElement('div');
-          this._progressEl.className = 'otp-timer-progress';
-          this._progressBar = document.createElement('div');
-          this._progressBar.className = 'otp-timer-progress-bar';
-          this._progressEl.appendChild(this._progressBar);
-          wrapperEl.insertBefore(this._progressEl, wrapperEl.querySelector('.otp-inputs-row'));
-        }
+        this._isRing = timer.style === 'ring';
 
         this._timerEl = document.createElement('span');
-        this._timerEl.className = 'otp-timer';
         this._timerEl.setAttribute('aria-live', 'off');
-        timerWrap.appendChild(this._timerEl);
+
+        if (this._isRing) {
+          // Circular countdown: a progress ring with the time in the centre.
+          this._timerEl.className = 'otp-ring-label';
+          const ring = document.createElement('div');
+          ring.className = 'otp-timer-ring';
+          ring.innerHTML =
+            '<svg viewBox="0 0 48 48" aria-hidden="true">' +
+            '<circle class="otp-ring-track" cx="24" cy="24" r="20"></circle>' +
+            '<circle class="otp-ring-progress" cx="24" cy="24" r="20"></circle>' +
+            '</svg>';
+          // Reuse the same handle the bar uses → start/stop/pause logic is shared.
+          this._progressBar = ring.querySelector('.otp-ring-progress');
+          ring.appendChild(this._timerEl);
+          timerWrap.appendChild(ring);
+        } else {
+          this._timerEl.className = 'otp-timer';
+          if (timer.showProgress) {
+            this._progressEl = document.createElement('div');
+            this._progressEl.className = 'otp-timer-progress';
+            this._progressBar = document.createElement('div');
+            this._progressBar.className = 'otp-timer-progress-bar';
+            this._progressEl.appendChild(this._progressBar);
+            wrapperEl.insertBefore(this._progressEl, wrapperEl.querySelector('.otp-inputs-row'));
+          }
+          timerWrap.appendChild(this._timerEl);
+        }
+
         footer.appendChild(timerWrap);
       }
 
@@ -65,8 +83,10 @@ export class TimerManager {
     if (this._progressBar) {
       this._progressBar.classList.remove('otp-timer-progress-bar--running');
       this._progressBar.style.animationDuration = '';
-      // Force reflow so removing the class takes effect before re-adding
-      void this._progressBar.offsetWidth;
+      // Force reflow so removing the class takes effect before re-adding.
+      // (offsetWidth is undefined on SVG elements, so use getBoundingClientRect
+      // which forces layout for both the bar <div> and the ring <circle>.)
+      void this._progressBar.getBoundingClientRect().width;
       this._progressBar.style.animationDuration = `${durationSeconds}s`;
       this._progressBar.classList.add('otp-timer-progress-bar--running');
     }
@@ -138,9 +158,15 @@ export class TimerManager {
 
   _updateDisplay() {
     if (this._timerEl) {
-      this._timerEl.textContent = formatTime(this._remaining);
+      // Ring shows compact raw seconds; the bar uses mm:ss.
+      this._timerEl.textContent = this._isRing
+        ? String(Math.max(0, this._remaining))
+        : formatTime(this._remaining);
       if (this._remaining <= 10) {
         this._timerEl.classList.add('otp-timer--urgent');
+        if (this._isRing && this._progressBar) {
+          this._progressBar.classList.add('otp-ring-progress--urgent');
+        }
       }
     }
   }
@@ -172,6 +198,7 @@ export class TimerManager {
   reset(durationSeconds) {
     this.stop();
     this._timerEl?.classList.remove('otp-timer--urgent');
+    this._progressBar?.classList.remove('otp-ring-progress--urgent');
     if (this._resendBtn) this._resendBtn.disabled = true;
     this.start(durationSeconds ?? this._total);
   }

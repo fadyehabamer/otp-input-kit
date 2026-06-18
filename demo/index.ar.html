@@ -1015,6 +1015,100 @@ OTPInput.create('#otp', { length: 8, type: 'hex', direction: 'rtl' });</pre>
     </div>
   </div>
 
+  <!-- ── لوحة المفاتيح على الشاشة ── -->
+  <div class="section-header" id="ar-keypad">
+    <div class="line"></div>
+    <h2>لوحة مفاتيح على الشاشة</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🔢 لوحة أرقام افتراضية مدمجة</div>
+      <div class="card-desc">
+        لوحة مفاتيح اختيارية على الشاشة — مثالية للجوال والأكشاك وإدخال رمز PIN
+        دون الاعتماد على لوحة مفاتيح النظام.
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="otp-ar-keypad" dir="rtl"></div>
+      <div id="out-ar-keypad" class="output">اضغط لوحة المفاتيح لإدخال الرمز</div>
+      <div class="controls">
+        <button class="btn" onclick="otpArKeypad.clear()">مسح</button>
+      </div>
+    </div>
+    <div class="card-footer">
+      <pre>OTPInput.create('#otp', {
+  length: 4, direction: 'rtl', locale: 'ar',
+  keypad: { enabled: true, showClear: true },
+});</pre>
+    </div>
+  </div>
+
+  <!-- ── احتفال النجاح ── -->
+  <div class="section-header" id="ar-celebrate">
+    <div class="line"></div>
+    <h2>احتفال النجاح</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🎉 حركات نجاح + قصاصات ورقية</div>
+      <div class="card-desc">
+        مقابل حركات الخطأ — للنجاح. اختر نمط نجاح وأطلق القصاصات عند التحقق.
+        الرمز الصحيح هو <strong>٢٠٢٤</strong>.
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="otp-ar-celebrate" dir="rtl"></div>
+      <div id="out-ar-celebrate" class="output">أدخل ٢٠٢٤ للاحتفال 🎉</div>
+      <div class="controls">
+        <button class="btn" onclick="otpArCelebrate.clear()">مسح</button>
+        <button class="btn" onclick="otpArCelebrate.setValue('2000')">تعبئة ٢٠٢٤</button>
+      </div>
+    </div>
+    <div class="card-footer">
+      <pre>OTPInput.create('#otp', {
+  length: 4, direction: 'rtl', locale: 'ar',
+  animation: { success: 'bounce', confetti: true },
+  onVerify: (code) => code === '2000',
+});</pre>
+    </div>
+  </div>
+
+  <!-- ── مؤقت دائري + صوت ── -->
+  <div class="section-header" id="ar-ring-sound">
+    <div class="line"></div>
+    <h2>مؤقت دائري + صوت</h2>
+    <div class="line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">⭕ عدّاد دائري + 🔊 تغذية صوتية</div>
+      <div class="card-desc">
+        نمط مؤقت دائري، مع نغمات Web Audio خفيفة عند الضغط والنجاح والخطأ —
+        دون ملفات صوتية.
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="otp-ar-ring" dir="rtl"></div>
+      <div id="out-ar-ring" class="output">أدخل الرمز — استمع لنغمات المفاتيح والنجاح</div>
+      <div class="controls">
+        <button class="btn" onclick="otpArRing.resetTimer(30)">إعادة المؤقت</button>
+        <button class="btn" onclick="otpArRing.clear()">مسح</button>
+      </div>
+    </div>
+    <div class="card-footer">
+      <pre>OTPInput.create('#otp', {
+  length: 6, direction: 'rtl', locale: 'ar',
+  timer: { enabled: true, duration: 30, style: 'ring' },
+  sound: { enabled: true },
+});</pre>
+    </div>
+  </div>
+
   <!-- ── التحقق غير المتزامن ── -->
   <div class="section-header" id="ar-async-verify">
     <div class="line"></div>
@@ -1333,6 +1427,46 @@ import { OtpInputDirective } from 'otp-input-kit/angular';
       position: 'top-left',
       successMessage: 'تم التحقق بنجاح! جارٍ التوجيه…',
       errorMessage: 'رمز غير صالح، حاول مجدداً.',
+    },
+  });
+
+  // ── لوحة المفاتيح على الشاشة ─────────────────────────────────────────────────
+  window.otpArKeypad = OTPInput.create('#otp-ar-keypad', {
+    ...rtlOpts, length: 4,
+    keypad: { enabled: true, showClear: true },
+    onComplete: (v) => {
+      const el = document.getElementById('out-ar-keypad');
+      el.textContent = `✓ تم الإدخال عبر لوحة المفاتيح: ${v}`;
+      el.className = 'output success';
+    },
+  });
+
+  // ── احتفال النجاح ────────────────────────────────────────────────────────────
+  window.otpArCelebrate = OTPInput.create('#otp-ar-celebrate', {
+    ...rtlOpts, length: 4,
+    animation: { success: 'bounce', confetti: true },
+    onVerify: (code) => code === '2000',
+    onVerified: () => {
+      const el = document.getElementById('out-ar-celebrate');
+      el.textContent = '✓ تم التحقق — 🎉🎉🎉';
+      el.className = 'output success';
+    },
+    onFailed: () => {
+      const el = document.getElementById('out-ar-celebrate');
+      el.textContent = '✗ جرّب ٢٠٢٤ لرؤية القصاصات.';
+      el.className = 'output error';
+    },
+  });
+
+  // ── مؤقت دائري + صوت ─────────────────────────────────────────────────────────
+  window.otpArRing = OTPInput.create('#otp-ar-ring', {
+    ...rtlOpts, length: 6,
+    timer: { enabled: true, duration: 30, style: 'ring' },
+    sound: { enabled: true },
+    onComplete: (v) => {
+      const el = document.getElementById('out-ar-ring');
+      el.textContent = `✓ مكتمل: ${v}`;
+      el.className = 'output success';
     },
   });
 

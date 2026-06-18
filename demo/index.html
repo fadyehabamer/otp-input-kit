@@ -803,6 +803,9 @@
         <a href="#themes" class="nav-link">Themes</a>
         <a href="#toasts" class="nav-link">Toasts</a>
         <a href="#separator" class="nav-link">Separator</a>
+        <a href="#keypad" class="nav-link">Keypad</a>
+        <a href="#celebrate" class="nav-link">Celebrate</a>
+        <a href="#ring-sound" class="nav-link">Ring + Sound</a>
         <a href="#async-verify" class="nav-link">Async Verify</a>
         <a href="#frameworks" class="nav-link">Frameworks</a>
         <a href="#web-component" class="nav-link">Web Component</a>
@@ -868,6 +871,9 @@
             <a href="#themes" class="nav-link">Themes</a>
             <a href="#toasts" class="nav-link">Toasts</a>
             <a href="#separator" class="nav-link">Separator</a>
+            <a href="#keypad" class="nav-link">Keypad</a>
+            <a href="#celebrate" class="nav-link">Celebrate</a>
+            <a href="#ring-sound" class="nav-link">Ring + Sound</a>
             <a href="#async-verify" class="nav-link">Async Verify</a>
             <a href="#frameworks" class="nav-link">Frameworks</a>
             <a href="#web-component" class="nav-link">Web Component</a>
@@ -2343,6 +2349,124 @@ OTPInput.create('#otp', {
         </div>
       </div>
 
+      <!-- ── On-screen keypad ── -->
+      <div class="section-header" id="keypad">
+        <h2>On-Screen Keypad</h2>
+        <div class="line"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔢 Built-in Virtual Number Pad</div>
+          <div class="card-desc">
+            An optional on-screen keypad — ideal for mobile, kiosks, and PIN
+            entry without trusting the OS keyboard. Tap the keys; the inputs
+            stay focused. Optionally <strong>randomize</strong> key order to
+            deter shoulder-surfing.
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="otp-keypad"></div>
+          <div id="out-keypad" class="output">Tap the keypad to enter a code</div>
+          <div class="controls">
+            <button class="btn" onclick="otpKeypad.clear()">Clear</button>
+          </div>
+        </div>
+        <div class="card-footer">
+          <pre>
+OTPInput.create('#container', {
+  length: 4,
+  secure: true,
+  keypad: {
+    enabled: true,
+    randomize: false,  // true → shuffled keys for PIN pads
+    showClear: true,
+  },
+});</pre
+          >
+        </div>
+      </div>
+
+      <!-- ── Success celebration ── -->
+      <div class="section-header" id="celebrate">
+        <h2>Success Celebration</h2>
+        <div class="line"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎉 Success Animations + Confetti</div>
+          <div class="card-desc">
+            Mirror of the error animations, for wins. Pick a success style
+            (<code class="code">pop</code>, <code class="code">glow</code>,
+            <code class="code">bounce</code>, <code class="code">flip</code>) and
+            optionally burst confetti on verify. The correct code is
+            <strong>2000</strong>.
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="otp-celebrate"></div>
+          <div id="out-celebrate" class="output">
+            Enter 2000 to celebrate 🎉
+          </div>
+          <div class="controls">
+            <button class="btn" onclick="otpCelebrate.clear()">Clear</button>
+            <button class="btn" onclick="otpCelebrate.setValue('2000')">
+              Fill 2000
+            </button>
+          </div>
+        </div>
+        <div class="card-footer">
+          <pre>
+OTPInput.create('#container', {
+  length: 4,
+  animation: {
+    success: 'bounce',  // 'pop' | 'glow' | 'bounce' | 'flip'
+    confetti: true,     // 🎉 burst on success
+  },
+  onVerify: (code) => code === '2000',
+});</pre
+          >
+        </div>
+      </div>
+
+      <!-- ── Circular timer + sound ── -->
+      <div class="section-header" id="ring-sound">
+        <h2>Circular Timer &amp; Sound</h2>
+        <div class="line"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⭕ Ring Countdown + 🔊 Audio Feedback</div>
+          <div class="card-desc">
+            A circular timer variant, plus subtle Web Audio cues on keypress,
+            success, and error — no asset files. Toggle sound below.
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="otp-ring"></div>
+          <div id="out-ring" class="output">
+            Type a code — listen for the key / success tones
+          </div>
+          <div class="controls">
+            <button class="btn" onclick="otpRing.resetTimer(30)">
+              Restart timer
+            </button>
+            <button class="btn" id="sound-toggle" onclick="toggleRingSound()">
+              🔊 Sound: on
+            </button>
+            <button class="btn" onclick="otpRing.clear()">Clear</button>
+          </div>
+        </div>
+        <div class="card-footer">
+          <pre>
+OTPInput.create('#container', {
+  length: 6,
+  timer: { enabled: true, duration: 30, style: 'ring' },
+  sound: { enabled: true, volume: 0.2 },
+});</pre
+          >
+        </div>
+      </div>
+
       <!-- ── Async Verification ── -->
       <div class="section-header" id="async-verify">
         <h2>Async Verification</h2>
@@ -2901,6 +3025,62 @@ form.addEventListener('submit', (e) =&gt; {
         el.textContent = "Unlocked — you can try again.";
         el.className = "output";
       });
+
+      // ── On-screen keypad ──────────────────────────────────────────────────────
+      window.otpKeypad = OTPInput.create("#otp-keypad", {
+        autoFocus: false,
+        length: 4,
+        secure: true,
+        keypad: { enabled: true, showClear: true },
+        onComplete: (v) => {
+          const el = document.getElementById("out-keypad");
+          el.textContent = `✓ Entered via keypad: ${v}`;
+          el.className = "output success";
+        },
+        onChange: (v) => {
+          if (!v) {
+            const el = document.getElementById("out-keypad");
+            el.textContent = "Tap the keypad to enter a code";
+            el.className = "output";
+          }
+        },
+      });
+
+      // ── Success celebration ───────────────────────────────────────────────────
+      window.otpCelebrate = OTPInput.create("#otp-celebrate", {
+        autoFocus: false,
+        length: 4,
+        animation: { success: "bounce", confetti: true },
+        onVerify: (code) => code === "2000",
+        onVerified: () => {
+          const el = document.getElementById("out-celebrate");
+          el.textContent = "✓ Verified — 🎉🎉🎉";
+          el.className = "output success";
+        },
+        onFailed: () => {
+          const el = document.getElementById("out-celebrate");
+          el.textContent = "✗ Try 2000 to see the confetti.";
+          el.className = "output error";
+        },
+      });
+
+      // ── Circular timer + sound ────────────────────────────────────────────────
+      window.otpRing = OTPInput.create("#otp-ring", {
+        autoFocus: false,
+        length: 6,
+        timer: { enabled: true, duration: 30, style: "ring" },
+        sound: { enabled: true, volume: 0.2 },
+        onComplete: (v) => {
+          const el = document.getElementById("out-ring");
+          el.textContent = `✓ Complete: ${v}`;
+          el.className = "output success";
+        },
+      });
+      window.toggleRingSound = () => {
+        otpRing.options.sound.enabled = !otpRing.options.sound.enabled;
+        document.getElementById("sound-toggle").textContent =
+          "🔊 Sound: " + (otpRing.options.sound.enabled ? "on" : "off");
+      };
 
       // ── 5. Timer + Resend ─────────────────────────────────────────────────────
       window.otpTimer = OTPInput.create("#otp-timer", {

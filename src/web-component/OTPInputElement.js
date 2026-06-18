@@ -36,6 +36,8 @@ export class OTPInputElement extends _HTMLElement {
       'clipboard-detection', 'label', 'theme',
       'toast-enabled', 'toast-theme', 'toast-position',
       'reveal-toggle', 'lockout-attempts', 'lockout-duration',
+      'keypad', 'keypad-randomize', 'confetti', 'success-animation',
+      'timer-style', 'sound', 'sound-volume',
     ];
   }
 
@@ -157,6 +159,11 @@ export class OTPInputElement extends _HTMLElement {
         enabled:  num('timer-duration', 0) > 0,
         duration: num('timer-duration', 60),
         showProgress: bool('timer-progress'),
+        style: str('timer-style', 'bar'),
+      },
+      sound: {
+        enabled: bool('sound'),
+        volume:  num('sound-volume', 0.2),
       },
       resend: {
         enabled:  bool('resend-enabled'),
@@ -166,6 +173,14 @@ export class OTPInputElement extends _HTMLElement {
         enabled:     num('lockout-attempts', 0) > 0,
         maxAttempts: num('lockout-attempts', 3),
         duration:    num('lockout-duration', 30),
+      },
+      keypad: {
+        enabled:   bool('keypad'),
+        randomize: bool('keypad-randomize'),
+      },
+      animation: {
+        confetti: bool('confetti'),
+        success:  this.hasAttribute('success-animation') ? str('success-animation', 'pop') : true,
       },
       onChange:   (v)    => { this._syncForm(v); this.dispatchEvent(new CustomEvent('otp-change', { detail: v, bubbles: true, composed: true })); },
       onComplete: (v)    => this.dispatchEvent(new CustomEvent('otp-complete',  { detail: v,       bubbles: true, composed: true })),

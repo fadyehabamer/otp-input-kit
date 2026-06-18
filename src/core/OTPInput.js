@@ -35,14 +35,29 @@ const DEFAULT_OPTIONS = {
   animation: {
     // 'shake' | 'highlight' | 'both' | 'pulse' | 'buzz' | 'bounce' | 'glow' | 'wobble' | false
     error: 'shake',
-    success: true,
+    success: true,           // true | false | 'pop' | 'glow' | 'bounce' | 'flip'
+    confetti: false,         // celebratory burst on success
     duration: 300,
+  },
+  // On-screen virtual number pad (great for mobile/kiosk/PIN entry)
+  keypad: {
+    enabled: false,
+    randomize: false,        // shuffle key order (anti shoulder-surfing for PINs)
+    showClear: false,        // include a "clear all" key
+    backspaceLabel: '⌫',
+    clearLabel: 'Clear',
   },
   timer: {
     enabled: false,
     duration: 60,            // seconds
     showProgress: true,
+    style: 'bar',            // 'bar' | 'ring' (circular countdown)
     onExpire: null,
+  },
+  // Subtle Web Audio feedback (no asset files; created lazily on first key)
+  sound: {
+    enabled: false,
+    volume: 0.2,             // 0..1
   },
   resend: {
     enabled: false,
@@ -120,6 +135,9 @@ export class OTPInput {
     if (!container) throw new Error('[OTPInput] Container element not found');
 
     this.container = container;
+    // Allow the `keypad: true` shorthand (mergeDeep would otherwise clobber the
+    // default keypad object with the boolean).
+    if (options && options.keypad === true) options = { ...options, keypad: { enabled: true } };
     this.options = mergeDeep({}, DEFAULT_OPTIONS, options);
     this._id = generateId('otp');
     this.inputs = [];
@@ -208,6 +226,11 @@ export class OTPInput {
       this._buildRevealToggle();
     }
 
+    // On-screen virtual keypad
+    if (this.options.keypad?.enabled) {
+      this._buildKeypad();
+    }
+
     this.timer.buildUI(this._wrapper);
 
     // Lockout message region (only when lockout is enabled)
@@ -285,6 +308,96 @@ export class OTPInput {
     btn.addEventListener('click', () => this.toggleReveal());
     this._revealBtn = btn;
     this._wrapper.appendChild(btn);
+  }
+
+  _buildKeypad() {
+    const kp = this.options.keypad;
+    // Number pads read left-to-right (1,2,3…) even in RTL UIs.
+    const pad = createElement('div', {
+      class: 'otp-keypad',
+      role: 'group',
+      'aria-label': 'Number pad',
+      dir: 'ltr',
+    });
+
+    let digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+    if (kp.randomize) {
+      for (let i = digits.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [digits[i], digits[j]] = [digits[j], digits[i]];
+      }
+    }
+
+    const makeKey = (content, { action, onClick, label } = {}) => {
+      const key = createElement('button', {
+        type: 'button',
+        class: 'otp-keypad-key' + (action ? ' otp-keypad-key--action' : ''),
+        'aria-label': label || content,
+      });
+      key.textContent = content;
+      // Keep focus on the OTP inputs (don't let the button steal it).
+      key.addEventListener('mousedown', (e) => e.preventDefault());
+      key.addEventListener('click', onClick);
+      return key;
+    };
+
+    // 9 digits, then [clear?] · 0 · backspace
+    const first9 = digits.slice(0, 9);
+    first9.forEach((d) => {
+      const display = this.options.nativeNumerals ? this.numbers.toLocale(d) : d;
+      pad.appendChild(makeKey(display, { label: d, onClick: () => this._keypadInput(d) }));
+    });
+
+    pad.appendChild(
+      kp.showClear
+        ? makeKey(kp.clearLabel ?? 'Clear', { action: true, label: kp.clearLabel ?? 'Clear', onClick: () => this.clear() })
+        : createElement('span', { class: 'otp-keypad-key otp-keypad-key--spacer', 'aria-hidden': 'true' })
+    );
+
+    const zero = digits[9];
+    const zeroDisplay = this.options.nativeNumerals ? this.numbers.toLocale(zero) : zero;
+    pad.appendChild(makeKey(zeroDisplay, { label: zero, onClick: () => this._keypadInput(zero) }));
+
+    pad.appendChild(
+      makeKey(kp.backspaceLabel ?? '⌫', { action: true, label: 'Backspace', onClick: () => this._keypadBackspace() })
+    );
+
+    this._keypad = pad;
+    this._wrapper.appendChild(pad);
+  }
+
+  /** Insert a digit from the on-screen keypad into the first empty cell. */
+  _keypadInput(ch) {
+    if (this._locked || this._expired) return;
+    const western = this._normalize(ch);
+    if (!this.validation.isValidChar(western)) return;
+    const idx = this._values.findIndex((v) => v === '');
+    if (idx === -1) return; // all cells filled
+
+    this._setInputValue(idx, western);
+    this.history.pushIfChanged([...this._values]);
+    this._haptic();
+    this._playSound('key');
+    this._notifyChange();
+
+    const next = this.rtl.nextIndex(idx, this.inputs);
+    if (next !== null && this._values[next] === '') this._focusIndex(next);
+    else this._focusIndex(idx);
+    this._checkCompletion();
+  }
+
+  /** Remove the last filled cell from the on-screen keypad. */
+  _keypadBackspace() {
+    if (this._locked || this._expired) return;
+    let idx = -1;
+    for (let i = this._values.length - 1; i >= 0; i--) {
+      if (this._values[i] !== '') { idx = i; break; }
+    }
+    if (idx === -1) return;
+    this._setInputValue(idx, '');
+    this.history.pushIfChanged([...this._values]);
+    this._notifyChange();
+    this._focusIndex(idx);
   }
 
   // ─── Event Binding ─────────────────────────────────────────────────────────
@@ -367,6 +480,7 @@ export class OTPInput {
 
     this._updateInputUI(input, index);
     this._haptic();
+    this._playSound('key');
     this._notifyChange();
 
     // Advance to next
@@ -556,6 +670,7 @@ export class OTPInput {
   _completeSuccess(value) {
     this._attempts = 0;
     this._animateSuccess();
+    this._playSound('success');
     this.a11y.announceCompletion(value);
     if (this.options.toast?.enabled) {
       this.toast.success(this.options.toast.successMessage);
@@ -620,6 +735,7 @@ export class OTPInput {
     this._attempts = 0;
     this.clearError();
     this._animateSuccess();
+    this._playSound('success');
     addClasses(this.container, 'otp-root--verified');
     this.a11y.announceCompletion(value);
     if (this.options.toast?.enabled) {
@@ -727,6 +843,7 @@ export class OTPInput {
   }
 
   _animateError() {
+    this._playSound('error'); // sound isn't motion — play regardless of reduced-motion
     if (prefersReducedMotion()) return;
     const style = this.options.animation?.error;
     if (!style) return;
@@ -745,15 +862,55 @@ export class OTPInput {
     this._haptic([100, 50, 100]);
   }
 
+  static get SUCCESS_ANIMATIONS() {
+    return {
+      pop:    'otp-anim-pop',
+      glow:   'otp-anim-success-glow',
+      bounce: 'otp-anim-success-bounce',
+      flip:   'otp-anim-flip',
+    };
+  }
+
   _animateSuccess() {
-    if (prefersReducedMotion()) return;
-    if (!this.options.animation?.success) return;
+    const successOpt = this.options.animation?.success;
+    if (!successOpt) return;
+
+    const reduced = prefersReducedMotion();
+    const style = successOpt === true ? 'pop' : successOpt;
+    const cls = OTPInput.SUCCESS_ANIMATIONS[style] || OTPInput.SUCCESS_ANIMATIONS.pop;
+
     this.inputs.forEach((inp, i) => {
-      setTimeout(() => {
-        addClasses(inp, 'otp-input--success', 'otp-anim-pop');
-        inp.addEventListener('animationend', () => removeClasses(inp, 'otp-anim-pop'), { once: true });
-      }, i * 40);
+      if (reduced) {
+        // Keep the green success state, skip the motion.
+        addClasses(inp, 'otp-input--success');
+      } else {
+        setTimeout(() => {
+          addClasses(inp, 'otp-input--success', cls);
+          inp.addEventListener('animationend', () => removeClasses(inp, cls), { once: true });
+        }, i * 40);
+      }
     });
+
+    if (this.options.animation?.confetti && !reduced) this._burstConfetti();
+  }
+
+  _burstConfetti() {
+    const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#a855f7', '#ec4899'];
+    const layer = createElement('div', { class: 'otp-confetti', 'aria-hidden': 'true' });
+    const count = 28;
+    for (let i = 0; i < count; i++) {
+      const piece = createElement('span', { class: 'otp-confetti-piece' });
+      const angle = (360 / count) * i + (Math.random() * 18 - 9);
+      const dist = 55 + Math.random() * 55;
+      const rad = (angle * Math.PI) / 180;
+      piece.style.setProperty('--tx', `${Math.cos(rad) * dist}px`);
+      piece.style.setProperty('--ty', `${Math.sin(rad) * dist}px`);
+      piece.style.background = COLORS[i % COLORS.length];
+      piece.style.animationDelay = `${Math.floor(Math.random() * 70)}ms`;
+      layer.appendChild(piece);
+    }
+    this.container.appendChild(layer);
+    setTimeout(() => layer.remove(), 1200);
   }
 
   // ─── SMS Auto-Read (Web OTP API) ───────────────────────────────────────────
@@ -862,6 +1019,45 @@ export class OTPInput {
   _haptic(pattern) {
     if (!this.options.haptic || !navigator.vibrate) return;
     navigator.vibrate(pattern || [10]);
+  }
+
+  // ─── Audio feedback (Web Audio — no asset files) ────────────────────────────
+
+  _playSound(type) {
+    const s = this.options.sound;
+    if (!s?.enabled) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!this._audioCtx) this._audioCtx = new AC();
+      const ctx = this._audioCtx;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const now = ctx.currentTime;
+      const vol = Math.max(0, Math.min(1, s.volume ?? 0.2));
+      const TONES = {
+        key:     [{ f: 620, d: 0.05 }],
+        success: [{ f: 660, d: 0.10 }, { f: 880, d: 0.16, t: 0.09 }],
+        error:   [{ f: 200, d: 0.20 }],
+      };
+      const seq = TONES[type] || TONES.key;
+
+      seq.forEach(({ f, d, t = 0 }) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type === 'error' ? 'sawtooth' : 'sine';
+        osc.frequency.value = f;
+        const start = now + t;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.linearRampToValueAtTime(vol, start + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + d);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + d + 0.02);
+      });
+    } catch {
+      /* Web Audio unavailable — silently ignore */
+    }
   }
 
   // ─── Undo / Redo ───────────────────────────────────────────────────────────
@@ -1073,6 +1269,7 @@ export class OTPInput {
     this._destroyed = true;
     clearTimeout(this._clearTimeout);
     clearInterval(this._lockInterval);
+    this._audioCtx?.close?.();
     this._smsAbortController?.abort();
     this.timer.destroy();
     this.clipboard.destroy();

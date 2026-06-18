@@ -67,17 +67,36 @@ export interface OTPFocusInfo {
   input: HTMLInputElement;
 }
 
+export type OTPSuccessAnimation = 'pop' | 'glow' | 'bounce' | 'flip';
+
 export interface OTPAnimationOptions {
   error?: OTPErrorAnimation | false;
-  success?: boolean;
+  success?: boolean | OTPSuccessAnimation;
+  confetti?: boolean;
   duration?: number;
+}
+
+export interface OTPKeypadOptions {
+  enabled?: boolean;
+  randomize?: boolean;
+  showClear?: boolean;
+  backspaceLabel?: string;
+  clearLabel?: string;
 }
 
 export interface OTPTimerOptions {
   enabled?: boolean;
   duration?: number;
   showProgress?: boolean;
+  /** 'bar' (default progress bar) or 'ring' (circular countdown). */
+  style?: 'bar' | 'ring';
   onExpire?: (() => void) | null;
+}
+
+export interface OTPSoundOptions {
+  enabled?: boolean;
+  /** 0..1 */
+  volume?: number;
 }
 
 export interface OTPResendOptions {
@@ -152,6 +171,8 @@ export interface OTPInputOptions {
   haptic?: boolean;
   validate?: ((value: string) => string | null) | null;
   animation?: OTPAnimationOptions;
+  keypad?: boolean | OTPKeypadOptions;
+  sound?: OTPSoundOptions;
   timer?: OTPTimerOptions;
   resend?: OTPResendOptions;
   separator?: OTPSeparatorOptions | null;
