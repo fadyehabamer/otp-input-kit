@@ -6,6 +6,7 @@ A highly customizable, framework-agnostic OTP input component with full RTL supp
 [![CI](https://github.com/fadyehabamer/otp-input-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/fadyehabamer/otp-input-kit/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/otp-input-kit.svg)](https://www.npmjs.com/package/otp-input-kit)
 [![license](https://img.shields.io/npm/l/otp-input-kit.svg)](LICENSE)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/fadyehabamer/otp-input-kit/badge)](https://scorecard.dev/viewer/?uri=github.com/fadyehabamer/otp-input-kit)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/otp-input-kit)](https://bundlephobia.com/package/otp-input-kit)
 
 ---
