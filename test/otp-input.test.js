@@ -385,4 +385,29 @@ describe('timer', () => {
     assert.equal(timerEl.textContent, '00:30');
     assert.ok(!timerEl.classList.contains('otp-timer--urgent'));
   });
+
+  test('resend without a timer starts enabled and re-enables after the cooldown', (t) => {
+    t.mock.timers.enable({ apis: ['setInterval'] });
+    let resends = 0;
+    const otp = mount({ length: 4, resend: { enabled: true, cooldown: 5, onResend: () => { resends++; } } });
+    const btn = otp.container.querySelector('.otp-resend-btn');
+    assert.equal(btn.disabled, false);
+    btn.click();
+    assert.equal(resends, 1);
+    assert.equal(btn.disabled, true);
+    t.mock.timers.tick(5000);
+    assert.equal(btn.disabled, false);
+    // The cooldown must not expire the code or disable the inputs.
+    assert.equal(otp._expired, false);
+    assert.ok(otp.inputs.every((i) => !i.disabled));
+  });
+
+  test('resend with a timer stays disabled until the countdown expires', (t) => {
+    t.mock.timers.enable({ apis: ['setInterval'] });
+    const otp = mount({ length: 4, timer: { enabled: true, duration: 2 }, resend: { enabled: true } });
+    const btn = otp.container.querySelector('.otp-resend-btn');
+    assert.equal(btn.disabled, true);
+    t.mock.timers.tick(3000);
+    assert.equal(btn.disabled, false);
+  });
 });
