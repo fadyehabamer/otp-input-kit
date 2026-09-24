@@ -1,5 +1,5 @@
 /*!
- * otp-input-kit v1.1.0
+ * otp-input-kit v1.2.0
  * A highly customizable, framework-agnostic OTP input component
  * (c) 2026 — MIT License
  */
@@ -556,6 +556,7 @@ class TimerManager {
     this._interval = null;
     this._remaining = 0;
     this._total = 0;
+    this._cooldownInterval = null;
   }
 
   buildUI(wrapperEl) {
@@ -609,7 +610,9 @@ class TimerManager {
         this._resendBtn.type = 'button';
         this._resendBtn.className = 'otp-resend-btn';
         this._resendBtn.textContent = resend.label || 'Resend code';
-        this._resendBtn.disabled = true;
+        // With a countdown the button unlocks on expiry; without one there is
+        // nothing to wait for, so it starts enabled.
+        this._resendBtn.disabled = !!timer?.enabled;
         this._resendBtn.addEventListener('click', () => this._handleResend());
         footer.appendChild(this._resendBtn);
       }
@@ -726,11 +729,36 @@ class TimerManager {
     this._resendBtn.disabled = true;
 
     const cooldown = resend.cooldown ?? timer?.duration ?? 30;
-    this.start(cooldown);
+    if (timer?.enabled) {
+      this.start(cooldown);
+    } else {
+      // No countdown UI: only hold the button for the cooldown — running the
+      // expiry timer here would wrongly expire (and disable) the inputs.
+      this._startCooldown(cooldown);
+    }
 
     if (resend.onResend) resend.onResend();
     inst.emitter.emit('resend');
     inst.a11y.announceResend();
+  }
+
+  /** Keep the resend button disabled for `seconds`, without touching expiry. */
+  _startCooldown(seconds) {
+    clearInterval(this._cooldownInterval);
+    this._cooldownInterval = null;
+    if (!(seconds > 0)) {
+      this._resendBtn.disabled = false;
+      return;
+    }
+    let remaining = seconds;
+    this._cooldownInterval = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(this._cooldownInterval);
+        this._cooldownInterval = null;
+        if (this._resendBtn) this._resendBtn.disabled = false;
+      }
+    }, 1000);
   }
 
   stop() {
@@ -749,6 +777,8 @@ class TimerManager {
 
   destroy() {
     this.stop();
+    clearInterval(this._cooldownInterval);
+    this._cooldownInterval = null;
     if (this._visibilityHandler) {
       document.removeEventListener('visibilitychange', this._visibilityHandler);
       this._visibilityHandler = null;
@@ -1160,7 +1190,8 @@ const DEFAULT_OPTIONS = {
     onResend: null,
   },
   separator: null,           // { char: '—', after: [3] }  — visual separator between digit groups
-  smsAutoRead: false,        // use Web OTP API to auto-fill from SMS (requires HTTPS + correct SMS format)
+  webOtp: false,             // use the Web OTP API to auto-fill from SMS (requires HTTPS + correct SMS format)
+  smsAutoRead: false,        // legacy alias of `webOtp`
   biometric: {
     enabled: false,          // require platform biometric/PIN after OTP completion
     promptText: 'Verify your identity to continue',
@@ -1262,7 +1293,9 @@ class OTPInput {
     this._build();
     this._bindOptionCallbacks();
     this._startIfNeeded();
-    this._initSmsAutoRead();
+    // Deferred so listeners attached right after construction (.on('sms-…'),
+    // the web component's otp-sms-* events) see the first status event.
+    Promise.resolve().then(() => { if (!this._destroyed) this._initSmsAutoRead(); });
   }
 
   // ─── Static factory ────────────────────────────────────────────────────────
@@ -1369,8 +1402,11 @@ class OTPInput {
 
     const input = createElement$1('input', {
       type: secure ? 'password' : 'text',
-      inputMode: type === 'alpha' ? 'text' : (type === 'numeric' ? 'numeric' : 'text'),
-      maxLength: 1,
+      inputMode: type === 'numeric' ? 'numeric' : 'text',
+      // The first cell is the one-time-code autofill target (iOS/Android SMS
+      // suggestions insert the whole code there), so it must accept the full
+      // length; typed characters are still reduced to one per cell.
+      maxLength: index === 0 ? this.options.length : 1,
       autocomplete: index === 0 ? 'one-time-code' : 'off',
       autocorrect: 'off',
       autocapitalize: 'off',
@@ -1395,10 +1431,14 @@ class OTPInput {
       'aria-label': label,
       title: label,
     });
+    // The icon is static markup; the label is user-supplied, so it is set as
+    // text (never parsed as HTML).
     btn.innerHTML =
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>' +
-      `<span class="otp-reveal-label">${label}</span>`;
+      '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+    const labelEl = createElement$1('span', { class: 'otp-reveal-label' });
+    labelEl.textContent = label;
+    btn.appendChild(labelEl);
     btn.addEventListener('click', () => this.toggleReveal());
     this._revealBtn = btn;
     this._wrapper.appendChild(btn);
@@ -1558,6 +1598,14 @@ class OTPInput {
       this._values[index] = '';
       this._updateInputUI(input, index);
       this._notifyChange();
+      return;
+    }
+
+    // A single typed key into a filled cell (only the first cell allows more
+    // than one character) replaces the cell instead of spilling over.
+    if (raw.length > 1 && e.inputType === 'insertText' && e.data && e.data.length === 1) {
+      input.value = e.data;
+      this._handleInput({}, index);
       return;
     }
 
@@ -2019,10 +2067,16 @@ class OTPInput {
   // ─── SMS Auto-Read (Web OTP API) ───────────────────────────────────────────
 
   _initSmsAutoRead() {
-    if (!this.options.smsAutoRead) return;
+    if (!this.options.webOtp && !this.options.smsAutoRead) return;
 
     // The Web OTP API only exists on supporting browsers (Android Chrome) …
-    if (!('OTPCredential' in window)) {
+    if (
+      typeof window === 'undefined' ||
+      !('OTPCredential' in window) ||
+      typeof navigator === 'undefined' ||
+      typeof navigator.credentials?.get !== 'function' ||
+      typeof AbortController === 'undefined'
+    ) {
       this.emitter.emit('sms-unsupported', 'no-api');
       return;
     }
@@ -2032,23 +2086,54 @@ class OTPInput {
       return;
     }
 
+    // Once the code is complete there is nothing left to wait for; a resend
+    // means a new SMS is on its way, so listen again.
+    this.emitter.on('complete', () => this._abortSmsAutoRead());
+    this.emitter.on('resend', () => this._requestSmsCode());
+    this._requestSmsCode();
+  }
+
+  _requestSmsCode() {
+    if (this._destroyed || this._smsAbortController) return;
     const ac = new AbortController();
     this._smsAbortController = ac;
     this.emitter.emit('sms-pending');
 
-    navigator.credentials.get({ otp: { transport: ['sms'] }, signal: ac.signal })
+    let request;
+    try {
+      request = Promise.resolve(
+        navigator.credentials.get({ otp: { transport: ['sms'] }, signal: ac.signal })
+      );
+    } catch (err) {
+      request = Promise.reject(err);
+    }
+
+    request
       .then((otp) => {
-        if (otp && otp.code) {
-          this.setValue(otp.code);
-          if (isFunction(this.options.onSmsRead)) this.options.onSmsRead(otp.code);
-          this.emitter.emit('sms-read', otp.code);
-        }
+        if (this._smsAbortController === ac) this._smsAbortController = null;
+        if (this._destroyed || ac.signal.aborted || !otp || !otp.code) return;
+        // Keep only characters this input accepts (SMS may use native digits).
+        const code = toWesternDigits(String(otp.code))
+          .split('')
+          .filter((ch) => this.validation.isValidChar(ch))
+          .join('');
+        if (!code) return;
+        this.setValue(code);
+        if (isFunction(this.options.onSmsRead)) this.options.onSmsRead(code);
+        this.emitter.emit('sms-read', code);
       })
       .catch((err) => {
+        if (this._smsAbortController === ac) this._smsAbortController = null;
         // AbortError fires on destroy/navigation — not a genuine failure.
-        if (err && err.name === 'AbortError') return;
+        if (this._destroyed || (err && err.name === 'AbortError')) return;
         this.emitter.emit('sms-error', err);
       });
+  }
+
+  _abortSmsAutoRead() {
+    const ac = this._smsAbortController;
+    this._smsAbortController = null;
+    ac?.abort();
   }
 
   // ─── Biometric Confirm (WebAuthn) ──────────────────────────────────────────
@@ -2373,7 +2458,7 @@ class OTPInput {
     clearTimeout(this._clearTimeout);
     clearInterval(this._lockInterval);
     this._audioCtx?.close?.();
-    this._smsAbortController?.abort();
+    this._abortSmsAutoRead();
     this.timer.destroy();
     this.clipboard.destroy();
     this.a11y.destroy();
@@ -2403,6 +2488,8 @@ if (typeof document !== 'undefined') {
  *
  *   <OtpInput
  *     length={6}
+ *     value={code}                // optional — controlled value
+ *     onChange={setCode}
  *     onComplete={(code) => console.log(code)}
  *     onVerify={async (code) => (await api.verify(code)).ok}
  *     onVerified={() => navigate('/home')}
@@ -2419,10 +2506,11 @@ const STRUCTURAL_KEYS = [
   'length', 'type', 'pattern', 'secure', 'direction', 'locale',
   'nativeNumerals', 'placeholder', 'theme', 'separator', 'autoFocus',
   'autoSubmit', 'selectOnFocus', 'clipboardDetection', 'haptic', 'smsAutoRead',
+  'webOtp',
 ];
 
 const OtpInput = forwardRef(function OtpInput(props, ref) {
-  const { className, style, ...options } = props;
+  const { className, style, value, ...options } = props;
   const containerRef = useRef(null);
   const instanceRef = useRef(null);
   // Latest props, so callbacks always fire the current handler without rebuilds.
@@ -2459,6 +2547,15 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [structKey]);
+
+  // Controlled value: push external changes into the instance (also re-applied
+  // after a rebuild). Echoes of what the user typed are already in sync.
+  useEffect(() => {
+    const inst = instanceRef.current;
+    if (!inst || value == null) return;
+    const next = String(value);
+    if (next !== inst.getValue()) inst.setValue(next);
+  }, [value, structKey]);
 
   // Toggle the verify flow live if onVerify is added/removed between renders.
   useEffect(() => {

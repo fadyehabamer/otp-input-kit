@@ -19,6 +19,7 @@ A highly customizable, framework-agnostic OTP input component with full RTL supp
 - **Resend button** with configurable cooldown
 - **Toast notifications** — 6 themes, 9 positions, auto-dismiss
 - **Clipboard paste detection** with smart OTP extraction
+- **SMS autofill** — `autocomplete="one-time-code"` for iOS/Android keyboard suggestions, plus optional [Web OTP API](#sms-autofill--web-otp) auto-fill
 - **Undo/Redo** (Ctrl+Z / Ctrl+Shift+Z)
 - **Haptic feedback** (mobile vibration)
 - **Async verification** — built-in loading spinner that awaits your server and resolves to a success or error state
@@ -96,6 +97,7 @@ const otp = OTPInput.create('#container', {
 | `pattern` | `RegExp` | `null` | Custom pattern (requires `type: 'custom'`) |
 | `secure` | `boolean` | `false` | Mask input like a password field |
 | `revealToggle` | `boolean` | `false` | Add an 👁 button to peek at masked digits (secure mode) |
+| `revealLabel` / `hideLabel` | `string` | `'Show code'` / `'Hide code'` | Reveal-button label in each state (plain text — HTML is not interpreted) |
 | `lockout` | `object` | see below | Lock input after too many failed attempts |
 | `autoFocus` | `boolean` | `true` | Focus first input on init |
 | `autoSubmit` | `boolean` | `false` | Submit parent `<form>` on completion |
@@ -106,6 +108,7 @@ const otp = OTPInput.create('#container', {
 | `placeholder` | `string` | `'·'` | Empty cell placeholder character |
 | `clipboardDetection` | `boolean` | `true` | Detect and auto-fill pasted OTPs |
 | `haptic` | `boolean` | `true` | Vibration feedback on mobile |
+| `webOtp` | `boolean` | `false` | Auto-fill from SMS via the Web OTP API (see [SMS autofill](#sms-autofill--web-otp)). `smsAutoRead` is a legacy alias |
 | `theme` | `string` | `'default'` | Input theme (see [Themes](#themes)) |
 | `validate` | `Function` | `null` | `(value) => errorString \| null` |
 | `animation` | `object` | see below | Error/success animation + confetti config |
@@ -280,7 +283,9 @@ otp.on('resend',        () => {});
 otp.on('verify-start',  (value) => {});   // async verification began
 otp.on('verified',      (value) => {});   // async verification succeeded
 otp.on('verify-failed', (message) => {}); // async verification failed
+otp.on('sms-pending',   () => {});        // Web OTP request started (webOtp)
 otp.on('sms-read',      (code) => {});    // Web OTP API auto-filled from SMS
+otp.on('sms-error',     (err) => {});     // Web OTP request failed (not on abort)
 otp.on('sms-unsupported', (reason) => {}); // 'no-api' | 'insecure-context'
 otp.on('attempt', ({ attempts, max }) => {}); // a failed attempt was counted
 otp.on('lock',    (secondsRemaining) => {});  // input locked out
@@ -325,6 +330,10 @@ otp.once('complete', handler);
   toast-theme="glass"
   toast-position="top-right"
   label="Enter verification code"
+  web-otp
+  name="otp"
+  required
+  validation-message="Please complete the verification code."
 ></otp-input>
 ```
 
@@ -343,6 +352,8 @@ el.addEventListener('otp-failed',       (e) => console.log(e.detail));
 el.addEventListener('otp-lock',         (e) => console.log(e.detail));
 el.addEventListener('otp-unlock',       () => {});
 el.addEventListener('otp-attempt',      (e) => console.log(e.detail));
+el.addEventListener('otp-sms-read',     (e) => console.log(e.detail));
+el.addEventListener('otp-sms-unsupported', (e) => console.log(e.detail));
 ```
 
 Because functions can't be HTML attributes, attach `onVerify` as a property:
@@ -373,8 +384,17 @@ native control inside a `<form>`:
 
 - The value is submitted under the element's `name`.
 - `required` makes the form invalid until the code is complete (`:invalid`,
-  `checkValidity()`, `reportValidity()` all work).
-- Form **reset** clears it; browser autofill **restore** repopulates it.
+  `checkValidity()`, `reportValidity()` all work): `validity.valueMissing`
+  while empty, `validity.tooShort` while partially filled. Set a custom message
+  with `validation-message`. Toggling `required` re-validates in place.
+- Form **reset** clears it; browser autofill **restore** repopulates it; a
+  disabled `<fieldset>` disables it.
+- `el.value` can be set before the element is connected — it is applied once
+  the inputs are built.
+
+This relies on the `ElementInternals` form APIs (Chrome/Edge 77+, Firefox 98+,
+Safari 16.4+). Where they are missing the element still works, it just doesn't
+take part in form submission — read `el.value` in your submit handler instead.
 
 ---
 
@@ -389,9 +409,12 @@ import { OtpInput } from 'otp-input-kit/react';
 
 function Login() {
   const ref = useRef(null);
+  const [code, setCode] = useState('');
   return (
     <OtpInput
       ref={ref}
+      value={code}            // optional — controlled value
+      onChange={setCode}
       length={6}
       theme="rounded"
       onVerify={async (code) => (await api.verify(code)).ok}
@@ -404,6 +427,10 @@ function Login() {
 // ref exposes: getValue, setValue, clear, focus, setError,
 // setLoading, setSuccess, setTheme, resetTimer, getInstance
 ```
+
+Every core option is a prop (e.g. `webOtp`, `timer`, `resend`). Callback props
+always call the latest handler; changing a structural prop (`length`, `type`,
+`theme`, …) rebuilds the inputs. The instance is destroyed on unmount.
 
 There's also a lightweight hook:
 
@@ -422,12 +449,14 @@ import { ref } from 'vue';
 import { OtpInput } from 'otp-input-kit/vue';
 
 const otp = ref(null);
+const code = ref('');
 const verify = async (code) => (await api.verify(code)).ok;
 </script>
 
 <template>
   <OtpInput
     ref="otp"
+    v-model="code"
     :length="6"
     theme="pill"
     :on-verify="verify"
@@ -437,6 +466,10 @@ const verify = async (code) => (await api.verify(code)).ok;
   />
 </template>
 ```
+
+`v-model` binds the code (`modelValue` / `update:modelValue`). Emits:
+`change`, `complete`, `error`, `focus`, `blur`, `verify-start`, `verified`,
+`failed`, `expire`, `resend`, `sms-read`.
 
 ### Svelte
 
@@ -669,6 +702,53 @@ OTPInput.create('#container', {
   },
 });
 ```
+
+---
+
+## SMS autofill & Web OTP
+
+Two complementary mechanisms:
+
+1. **Keyboard suggestions (iOS Safari, Android keyboards)** — always on. The
+   first cell has `autocomplete="one-time-code"` and `inputmode="numeric"`
+   (`text` for non-numeric types), and accepts the whole code so the
+   suggestion is spread across all cells instead of being truncated.
+2. **Web OTP API** — set `webOtp: true` (or the `web-otp` attribute) to call
+   `navigator.credentials.get({ otp: { transport: ['sms'] } })` and fill the
+   code as soon as the SMS arrives.
+
+```js
+const otp = OTPInput.create('#container', {
+  length: 6,
+  webOtp: true,
+  onSmsRead: (code) => console.log('from SMS', code),
+  onComplete: (code) => verify(code),
+});
+otp.on('sms-unsupported', (reason) => {}); // 'no-api' | 'insecure-context'
+```
+
+The SMS must end with a line binding it to your origin, for example:
+
+```
+Your code is 123456
+
+@example.com #123456
+```
+
+Caveats:
+
+- **Support**: Chrome on Android (and Chromium-based Android browsers). iOS has
+  no Web OTP API — it relies on the keyboard suggestion from (1). Elsewhere the
+  option is a feature-detected no-op that emits `sms-unsupported`.
+- **HTTPS only** (or `localhost`), and the domain after `@` must match the
+  top-level page's origin. In a cross-origin iframe the SMS needs a second
+  `@frame-origin` and the iframe needs `allow="otp-credentials"`.
+- The request is started a microtask after creation (so `.on('sms-…')` listeners
+  attached right after `create()` fire), aborted when the code is completed or
+  the instance is destroyed, and started again after **Resend**.
+- The browser shows its own consent prompt; a dismissal emits `sms-error`.
+- Received codes are normalised to western digits and filtered through the
+  configured `type`/`pattern` before filling.
 
 ---
 

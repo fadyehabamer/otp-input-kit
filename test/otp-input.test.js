@@ -327,6 +327,23 @@ describe('keypad', () => {
   });
 });
 
+describe('reveal toggle', () => {
+  test('renders revealLabel/hideLabel as text, never as HTML', () => {
+    const otp = mount({
+      length: 4, secure: true, revealToggle: true,
+      revealLabel: '<img src=x onerror="window.__pwned=1">Show', hideLabel: '<b>Hide</b>',
+    });
+    const btn = otp.container.querySelector('.otp-reveal-btn');
+    const labelEl = btn.querySelector('.otp-reveal-label');
+    assert.equal(btn.querySelector('img'), null);
+    assert.equal(labelEl.textContent, '<img src=x onerror="window.__pwned=1">Show');
+    otp.toggleReveal();
+    assert.equal(labelEl.textContent, '<b>Hide</b>');
+    assert.equal(btn.querySelector('b'), null);
+    assert.ok(otp.inputs.every((i) => i.type === 'text'));
+  });
+});
+
 describe('lockout', () => {
   test('locks after maxAttempts failures and unlocks', () => {
     const otp = mount({ length: 4, lockout: { enabled: true, maxAttempts: 2, duration: 30 } });
@@ -384,5 +401,30 @@ describe('timer', () => {
     assert.equal(otp._expired, false);
     assert.equal(timerEl.textContent, '00:30');
     assert.ok(!timerEl.classList.contains('otp-timer--urgent'));
+  });
+
+  test('resend without a timer starts enabled and re-enables after the cooldown', (t) => {
+    t.mock.timers.enable({ apis: ['setInterval'] });
+    let resends = 0;
+    const otp = mount({ length: 4, resend: { enabled: true, cooldown: 5, onResend: () => { resends++; } } });
+    const btn = otp.container.querySelector('.otp-resend-btn');
+    assert.equal(btn.disabled, false);
+    btn.click();
+    assert.equal(resends, 1);
+    assert.equal(btn.disabled, true);
+    t.mock.timers.tick(5000);
+    assert.equal(btn.disabled, false);
+    // The cooldown must not expire the code or disable the inputs.
+    assert.equal(otp._expired, false);
+    assert.ok(otp.inputs.every((i) => !i.disabled));
+  });
+
+  test('resend with a timer stays disabled until the countdown expires', (t) => {
+    t.mock.timers.enable({ apis: ['setInterval'] });
+    const otp = mount({ length: 4, timer: { enabled: true, duration: 2 }, resend: { enabled: true } });
+    const btn = otp.container.querySelector('.otp-resend-btn');
+    assert.equal(btn.disabled, true);
+    t.mock.timers.tick(3000);
+    assert.equal(btn.disabled, false);
   });
 });

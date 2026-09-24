@@ -10,7 +10,7 @@ const { window } = dom;
 const globals = [
   'window', 'document', 'navigator', 'HTMLElement', 'Node', 'Event', 'KeyboardEvent',
   'InputEvent', 'CustomEvent', 'customElements', 'getComputedStyle',
-  'requestAnimationFrame', 'cancelAnimationFrame',
+  'requestAnimationFrame', 'cancelAnimationFrame', 'Element', 'SVGElement',
 ];
 for (const key of globals) {
   const value = key === 'window' ? window : window[key];

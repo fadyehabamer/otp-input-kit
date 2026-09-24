@@ -5,6 +5,7 @@
  *   import { OtpInput } from 'otp-input-kit/vue';
  *
  *   <OtpInput
+ *     v-model="code"
  *     :length="6"
  *     :on-verify="async (code) => (await api.verify(code)).ok"
  *     @complete="onComplete"
@@ -23,6 +24,7 @@ import '../styles/otp-input.css';
 export const OtpInput = defineComponent({
   name: 'OtpInput',
   props: {
+    modelValue:         { type: String, default: undefined },
     length:             { type: Number, default: 6 },
     type:               { type: String, default: 'numeric' },
     pattern:            { type: RegExp, default: null },
@@ -37,6 +39,7 @@ export const OtpInput = defineComponent({
     clipboardDetection: { type: Boolean, default: true },
     haptic:             { type: Boolean, default: true },
     smsAutoRead:        { type: Boolean, default: false },
+    webOtp:             { type: Boolean, default: false },
     theme:              { type: String, default: 'default' },
     separator:          { type: Object, default: null },
     timer:              { type: Object, default: null },
@@ -49,7 +52,8 @@ export const OtpInput = defineComponent({
   },
   emits: [
     'change', 'complete', 'error', 'focus', 'blur',
-    'verify-start', 'verified', 'failed', 'expire', 'resend',
+    'verify-start', 'verified', 'failed', 'expire', 'resend', 'sms-read',
+    'update:modelValue',
   ],
   setup(props, { expose, emit }) {
     const el = ref(null);
@@ -70,8 +74,9 @@ export const OtpInput = defineComponent({
         clipboardDetection: props.clipboardDetection,
         haptic: props.haptic,
         smsAutoRead: props.smsAutoRead,
+        webOtp: props.webOtp,
         theme: props.theme,
-        onChange:   (v) => emit('change', v),
+        onChange:   (v) => { emit('update:modelValue', v); emit('change', v); },
         onComplete: (v) => emit('complete', v),
         onError:    (e) => emit('error', e),
         onFocus:    (i) => emit('focus', i),
@@ -95,16 +100,27 @@ export const OtpInput = defineComponent({
       instance.on('verify-start', (v) => emit('verify-start', v));
       instance.on('expire', () => emit('expire'));
       instance.on('resend', () => emit('resend'));
+      instance.on('sms-read', (c) => emit('sms-read', c));
+      syncModel();
+    };
+
+    // v-model: push external changes into the instance.
+    const syncModel = () => {
+      if (!instance || props.modelValue == null) return;
+      const next = String(props.modelValue);
+      if (next !== instance.getValue()) instance.setValue(next);
     };
 
     onMounted(build);
-    onBeforeUnmount(() => instance?.destroy());
+    onBeforeUnmount(() => { instance?.destroy(); instance = null; });
+    watch(() => props.modelValue, syncModel);
 
     // Rebuild on structural prop changes; live-tune cheaper ones.
     watch(
       () => [
         props.length, props.type, props.secure, props.theme, props.direction,
         props.locale, props.nativeNumerals, props.placeholder, props.separator,
+        props.webOtp, props.smsAutoRead,
       ],
       () => { instance?.destroy(); build(); }
     );

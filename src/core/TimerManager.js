@@ -13,6 +13,7 @@ export class TimerManager {
     this._interval = null;
     this._remaining = 0;
     this._total = 0;
+    this._cooldownInterval = null;
   }
 
   buildUI(wrapperEl) {
@@ -66,7 +67,9 @@ export class TimerManager {
         this._resendBtn.type = 'button';
         this._resendBtn.className = 'otp-resend-btn';
         this._resendBtn.textContent = resend.label || 'Resend code';
-        this._resendBtn.disabled = true;
+        // With a countdown the button unlocks on expiry; without one there is
+        // nothing to wait for, so it starts enabled.
+        this._resendBtn.disabled = !!timer?.enabled;
         this._resendBtn.addEventListener('click', () => this._handleResend());
         footer.appendChild(this._resendBtn);
       }
@@ -183,11 +186,36 @@ export class TimerManager {
     this._resendBtn.disabled = true;
 
     const cooldown = resend.cooldown ?? timer?.duration ?? 30;
-    this.start(cooldown);
+    if (timer?.enabled) {
+      this.start(cooldown);
+    } else {
+      // No countdown UI: only hold the button for the cooldown — running the
+      // expiry timer here would wrongly expire (and disable) the inputs.
+      this._startCooldown(cooldown);
+    }
 
     if (resend.onResend) resend.onResend();
     inst.emitter.emit('resend');
     inst.a11y.announceResend();
+  }
+
+  /** Keep the resend button disabled for `seconds`, without touching expiry. */
+  _startCooldown(seconds) {
+    clearInterval(this._cooldownInterval);
+    this._cooldownInterval = null;
+    if (!(seconds > 0)) {
+      this._resendBtn.disabled = false;
+      return;
+    }
+    let remaining = seconds;
+    this._cooldownInterval = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(this._cooldownInterval);
+        this._cooldownInterval = null;
+        if (this._resendBtn) this._resendBtn.disabled = false;
+      }
+    }, 1000);
   }
 
   stop() {
@@ -206,6 +234,8 @@ export class TimerManager {
 
   destroy() {
     this.stop();
+    clearInterval(this._cooldownInterval);
+    this._cooldownInterval = null;
     if (this._visibilityHandler) {
       document.removeEventListener('visibilitychange', this._visibilityHandler);
       this._visibilityHandler = null;

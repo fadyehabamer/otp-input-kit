@@ -1,6 +1,6 @@
 {
   "name": "otp-input-kit",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Highly customizable, framework-agnostic OTP input component with RTL, i18n, a11y, timer, and Web Component support",
   "author": "Fady Ehab <fadyehabamer@gmail.com>",
   "homepage": "https://github.com/fadyehabamer/otp-input-kit#readme",
@@ -77,9 +77,9 @@
   "type": "module",
   "license": "MIT",
   "peerDependencies": {
+    "@angular/core": ">=16",
     "react": ">=17",
-    "vue": ">=3",
-    "@angular/core": ">=16"
+    "vue": ">=3"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -97,6 +97,9 @@
     "@rollup/plugin-terser": "^1.0.0",
     "@rollup/pluginutils": "^5.1.0",
     "jsdom": "^27.4.0",
-    "rollup": "^4.9.0"
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "rollup": "^4.9.0",
+    "vue": "^3.5.43"
   }
 }

@@ -9,7 +9,7 @@ const _HTMLElement = typeof HTMLElement !== 'undefined' ? HTMLElement : class {}
  * Attributes (all optional):
  *   length, type, secure, auto-focus, auto-submit, direction, locale,
  *   native-numerals, placeholder, haptic, timer-duration, resend-enabled,
- *   resend-cooldown, clipboard-detection
+ *   resend-cooldown, clipboard-detection, web-otp
  *
  * Events: otp-change, otp-complete, otp-error, otp-focus, otp-blur, otp-expire,
  *         otp-resend, otp-verify-start, otp-verified, otp-failed
@@ -37,7 +37,9 @@ export class OTPInputElement extends _HTMLElement {
       'toast-enabled', 'toast-theme', 'toast-position',
       'reveal-toggle', 'lockout-attempts', 'lockout-duration',
       'keypad', 'keypad-randomize', 'confetti', 'success-animation',
-      'timer-style', 'sound', 'sound-volume',
+      'timer-style', 'sound', 'sound-volume', 'web-otp',
+      // Form state only — re-validated without rebuilding the inputs.
+      'required', 'validation-message',
     ];
   }
 
@@ -46,6 +48,8 @@ export class OTPInputElement extends _HTMLElement {
     this._instance = null;
     this._initialized = false;
     this._onVerify = null;
+    this._formDisabled = false;
+    this._pendingValue = null;
     // attachInternals is unavailable in older browsers / SSR, and some
     // environments (e.g. jsdom) implement ElementInternals without the form
     // APIs — only use it when form association is really supported.
@@ -57,22 +61,37 @@ export class OTPInputElement extends _HTMLElement {
 
   /** Current OTP value — also the value submitted with the form. */
   get value() {
-    return this._instance ? this._instance.getValue() : '';
+    if (this._instance) return this._instance.getValue();
+    return this._pendingValue ?? '';
   }
   set value(v) {
-    this._instance?.setValue(v);
+    // Before the element is connected there is no instance yet — keep the value
+    // and apply it once the inputs are built.
+    if (!this._instance) {
+      this._pendingValue = v == null ? null : String(v);
+      return;
+    }
+    this._instance.setValue(v);
     this._syncForm(this.value);
   }
 
+  /** The form field name the value is submitted under. */
+  get name() { return this.getAttribute('name'); }
+  set name(v) { this.setAttribute('name', v); }
+
+  get required() { return this.hasAttribute('required'); }
+  set required(v) { this.toggleAttribute('required', !!v); }
+
   /** Sync the form value + validity after a change. */
-  _syncForm(value) {
+  _syncForm(value = this.value) {
     if (!this._internals) return;
     this._internals.setFormValue(value);
-    const length = Number(this.getAttribute('length') || 6);
+    const length = this._instance?.options.length ?? Number(this.getAttribute('length') || 6);
     const anchor = this._instance?.inputs?.[0];
     if (this.hasAttribute('required') && value.length < length) {
+      // Empty → valueMissing; partially filled → tooShort (both block submit).
       this._internals.setValidity(
-        { valueMissing: true },
+        value.length === 0 ? { valueMissing: true } : { tooShort: true },
         this.getAttribute('validation-message') || 'Please complete the verification code.',
         anchor
       );
@@ -88,16 +107,19 @@ export class OTPInputElement extends _HTMLElement {
   }
 
   formDisabledCallback(disabled) {
+    this._formDisabled = !!disabled;
     if (disabled) this._instance?.disable();
     else this._instance?.enable();
   }
 
   formStateRestoreCallback(state) {
-    if (typeof state === 'string') this._instance?.setValue(state);
+    if (typeof state !== 'string') return;
+    this.value = state;
   }
 
   // ─── Constraint-validation proxies ──────────────────────────────────────────
   get form() { return this._internals?.form ?? null; }
+  get labels() { return this._internals?.labels ?? []; }
   get validity() { return this._internals?.validity; }
   get validationMessage() { return this._internals?.validationMessage ?? ''; }
   get willValidate() { return this._internals?.willValidate ?? false; }
@@ -128,6 +150,10 @@ export class OTPInputElement extends _HTMLElement {
 
   attributeChangedCallback(name, oldVal, newVal) {
     if (!this._initialized || oldVal === newVal) return;
+    if (name === 'required' || name === 'validation-message') {
+      this._syncForm();
+      return;
+    }
     // Re-initialize on relevant attribute changes
     this._instance?.destroy();
     this._instance = null;
@@ -154,6 +180,7 @@ export class OTPInputElement extends _HTMLElement {
       clipboardDetection: !bool('no-clipboard'),
       label:              str('label', null),
       theme:              str('theme', 'default'),
+      webOtp:             bool('web-otp'),
       toast: {
         enabled:  bool('toast-enabled'),
         theme:    str('toast-theme', 'default'),
@@ -229,6 +256,14 @@ export class OTPInputElement extends _HTMLElement {
     this._instance.on('attempt', (info) =>
       this.dispatchEvent(new CustomEvent('otp-attempt', { detail: info, bubbles: true, composed: true }))
     );
+
+    // A rebuild (attribute change) must not re-enable a disabled fieldset's control.
+    if (this._formDisabled) this._instance.disable();
+    if (this._pendingValue != null) {
+      const pending = this._pendingValue;
+      this._pendingValue = null;
+      this._instance.setValue(pending);
+    }
 
     // Initialise the form value/validity for the freshly-built instance.
     this._syncForm(this._instance.getValue());
