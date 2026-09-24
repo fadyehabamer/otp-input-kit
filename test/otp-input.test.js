@@ -327,6 +327,23 @@ describe('keypad', () => {
   });
 });
 
+describe('reveal toggle', () => {
+  test('renders revealLabel/hideLabel as text, never as HTML', () => {
+    const otp = mount({
+      length: 4, secure: true, revealToggle: true,
+      revealLabel: '<img src=x onerror="window.__pwned=1">Show', hideLabel: '<b>Hide</b>',
+    });
+    const btn = otp.container.querySelector('.otp-reveal-btn');
+    const labelEl = btn.querySelector('.otp-reveal-label');
+    assert.equal(btn.querySelector('img'), null);
+    assert.equal(labelEl.textContent, '<img src=x onerror="window.__pwned=1">Show');
+    otp.toggleReveal();
+    assert.equal(labelEl.textContent, '<b>Hide</b>');
+    assert.equal(btn.querySelector('b'), null);
+    assert.ok(otp.inputs.every((i) => i.type === 'text'));
+  });
+});
+
 describe('lockout', () => {
   test('locks after maxAttempts failures and unlocks', () => {
     const otp = mount({ length: 4, lockout: { enabled: true, maxAttempts: 2, duration: 30 } });

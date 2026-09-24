@@ -301,10 +301,14 @@ export class OTPInput {
       'aria-label': label,
       title: label,
     });
+    // The icon is static markup; the label is user-supplied, so it is set as
+    // text (never parsed as HTML).
     btn.innerHTML =
       '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>' +
-      `<span class="otp-reveal-label">${label}</span>`;
+      '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+    const labelEl = createElement('span', { class: 'otp-reveal-label' });
+    labelEl.textContent = label;
+    btn.appendChild(labelEl);
     btn.addEventListener('click', () => this.toggleReveal());
     this._revealBtn = btn;
     this._wrapper.appendChild(btn);
