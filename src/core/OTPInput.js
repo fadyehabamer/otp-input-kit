@@ -486,9 +486,10 @@ export class OTPInput {
     // Advance to next
     const next = this.rtl.nextIndex(index, this.inputs);
     if (next !== null) this._focusIndex(next);
-    else this._checkCompletion();
 
-    if (index === this.inputs.length - 1) this._checkCompletion();
+    // Check once per entry: the cell that completes the code is not
+    // necessarily the last one (e.g. the user went back to fill a gap).
+    this._checkCompletion();
   }
 
   _handleKeyDown(e, index) {
