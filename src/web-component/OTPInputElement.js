@@ -9,7 +9,7 @@ const _HTMLElement = typeof HTMLElement !== 'undefined' ? HTMLElement : class {}
  * Attributes (all optional):
  *   length, type, secure, auto-focus, auto-submit, direction, locale,
  *   native-numerals, placeholder, haptic, timer-duration, resend-enabled,
- *   resend-cooldown, clipboard-detection
+ *   resend-cooldown, clipboard-detection, web-otp
  *
  * Events: otp-change, otp-complete, otp-error, otp-focus, otp-blur, otp-expire,
  *         otp-resend, otp-verify-start, otp-verified, otp-failed
@@ -37,7 +37,7 @@ export class OTPInputElement extends _HTMLElement {
       'toast-enabled', 'toast-theme', 'toast-position',
       'reveal-toggle', 'lockout-attempts', 'lockout-duration',
       'keypad', 'keypad-randomize', 'confetti', 'success-animation',
-      'timer-style', 'sound', 'sound-volume',
+      'timer-style', 'sound', 'sound-volume', 'web-otp',
     ];
   }
 
@@ -154,6 +154,7 @@ export class OTPInputElement extends _HTMLElement {
       clipboardDetection: !bool('no-clipboard'),
       label:              str('label', null),
       theme:              str('theme', 'default'),
+      webOtp:             bool('web-otp'),
       toast: {
         enabled:  bool('toast-enabled'),
         theme:    str('toast-theme', 'default'),

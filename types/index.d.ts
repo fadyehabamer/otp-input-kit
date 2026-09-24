@@ -176,6 +176,13 @@ export interface OTPInputOptions {
   timer?: OTPTimerOptions;
   resend?: OTPResendOptions;
   separator?: OTPSeparatorOptions | null;
+  /**
+   * Auto-fill from an incoming SMS via the Web OTP API
+   * (`navigator.credentials.get({ otp })`). Feature-detected: a no-op
+   * (emits `sms-unsupported`) where the API or a secure context is missing.
+   */
+  webOtp?: boolean;
+  /** @deprecated Alias of `webOtp`. */
   smsAutoRead?: boolean;
   biometric?: OTPBiometricOptions;
   /** Async verification — drives the loading → success/error flow. */
