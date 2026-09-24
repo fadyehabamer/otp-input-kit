@@ -135,6 +135,27 @@ Open the PR against `main` and fill in the template. A PR is ready when:
 Please don't bump the version in `package.json`; releases are done by the
 maintainer.
 
+## Releasing
+
+Releases are published to npm by GitHub Actions, not from a local machine.
+
+1. Bump the version with `npm version <x.y.z> --no-git-tag-version` (this
+   updates `package-lock.json` too), run `npm run build` and commit `dist/`,
+   move the `## [Unreleased]` entries in `CHANGELOG.md` under the new version,
+   and merge that to `main`.
+2. Create a GitHub release from `main` whose tag is `v` followed by the
+   version, for example `v1.3.0` for `1.3.0`:
+   `gh release create v1.3.0 --target main --title v1.3.0 --notes-file notes.md`.
+3. Publishing the release starts the [Publish
+   workflow](.github/workflows/publish.yml). It first checks that the tag
+   equals `v` + the `package.json` version and stops without publishing if
+   they differ. Then it runs the tests and the build and lists the packed
+   files, and finally runs `npm publish --provenance`. Versions with a
+   pre-release suffix (`1.3.0-beta.1`) go to the `next` dist-tag.
+
+To try the workflow without publishing, open **Actions → Publish → Run
+workflow** and leave **dry run** ticked.
+
 ## Reporting bugs
 
 Use the **Bug report** form. The most useful details are the options you
