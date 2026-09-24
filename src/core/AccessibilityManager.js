@@ -43,12 +43,14 @@ export class AccessibilityManager {
   }
 
   announce(message, priority = 'polite') {
-    if (!this._liveRegion) return;
-    this._liveRegion.setAttribute('aria-live', priority);
+    const region = this._liveRegion;
+    if (!region) return;
+    region.setAttribute('aria-live', priority);
     // Clear and re-set to force announcement
-    this._liveRegion.textContent = '';
+    region.textContent = '';
     requestAnimationFrame(() => {
-      this._liveRegion.textContent = message;
+      // The instance may have been destroyed before the frame ran.
+      if (this._liveRegion === region) region.textContent = message;
     });
   }
 
