@@ -1,5 +1,5 @@
 /*!
- * otp-input-kit v1.0.3
+ * otp-input-kit v1.1.0
  * A highly customizable, framework-agnostic OTP input component
  * (c) 2026 — MIT License
  */
@@ -65,8 +65,13 @@ function mergeDeep(target, ...sources) {
   return mergeDeep(target, ...sources);
 }
 
+// Only plain objects are merged recursively. Anything else (RegExp, Date,
+// arrays, DOM nodes, class instances) is copied by reference — otherwise a
+// `pattern: /^[A-F]$/` option would be "merged" into an empty object.
 function isObject(item) {
-  return item && typeof item === 'object' && !Array.isArray(item);
+  if (!item || typeof item !== 'object') return false;
+  const proto = Object.getPrototypeOf(item);
+  return proto === Object.prototype || proto === null;
 }
 
 function isFunction(val) {
@@ -168,16 +173,24 @@ class AccessibilityManager {
   }
 
   announce(message, priority = 'polite') {
-    if (!this._liveRegion) return;
-    this._liveRegion.setAttribute('aria-live', priority);
+    const region = this._liveRegion;
+    if (!region) return;
+    region.setAttribute('aria-live', priority);
     // Clear and re-set to force announcement
-    this._liveRegion.textContent = '';
+    region.textContent = '';
     requestAnimationFrame(() => {
-      this._liveRegion.textContent = message;
+      // The instance may have been destroyed before the frame ran.
+      if (this._liveRegion === region) region.textContent = message;
     });
   }
 
   announceCompletion(value) {
+    // In secure (masked) mode never read the code aloud — screen reader output
+    // can be overheard or captured just like a visible code.
+    if (this.instance.options.secure) {
+      this.announce('OTP complete', 'assertive');
+      return;
+    }
     this.announce(`OTP complete: ${value.split('').join(' ')}`, 'assertive');
   }
 
@@ -223,20 +236,36 @@ function isOTPLike(text) {
   return /^\d{4,8}$/.test(stripped) || /^[A-Z0-9]{4,8}$/.test(stripped);
 }
 
-function extractOTP(text, length, pattern) {
-  // Try to extract OTP from various formats: "Your OTP is 123456", SMS templates, etc.
-  const stripped = text.replace(/\s/g, '');
+/**
+ * Extract an OTP of `length` characters from free-form text such as
+ * "Your OTP is 123456", "123 456" or "12-34-56".
+ *
+ * @param {string} text
+ * @param {number} length
+ * @param {RegExp|((ch: string) => boolean)} [isValid] per-character validator
+ *   (a RegExp or a predicate function). Defaults to western digits.
+ * @returns {string|null}
+ */
+function extractOTP(text, length, isValid) {
+  if (typeof text !== 'string' || !text) return null;
+  const test =
+    typeof isValid === 'function' ? isValid
+    : isValid instanceof RegExp ? (ch) => isValid.test(ch)
+    : (ch) => /^\d$/.test(ch);
+  const allValid = (candidate) => candidate.split('').every(test);
 
   // Pure digit sequence of correct length
   const exactMatch = new RegExp(`\\b\\d{${length}}\\b`).exec(text);
-  if (exactMatch) return exactMatch[0];
+  if (exactMatch && allValid(exactMatch[0])) return exactMatch[0];
 
-  // Alphanumeric sequence
-  const alphaMatch = new RegExp(`\\b[A-Z0-9]{${length}}\\b`).exec(text.toUpperCase());
-  if (alphaMatch) return alphaMatch[0];
+  // Alphanumeric sequence — skip words ("YOUR", "CODE") the validator rejects
+  const alphaRe = new RegExp(`\\b[A-Z0-9]{${length}}\\b`, 'g');
+  for (const m of text.toUpperCase().matchAll(alphaRe)) {
+    if (allValid(m[0])) return m[0];
+  }
 
-  // Take first N valid characters
-  const valid = stripped.split('').filter(ch => (pattern || /\d/).test(ch));
+  // Take first N valid characters (handles "123 456", "12-34-56", …)
+  const valid = text.replace(/\s/g, '').split('').filter(test);
   if (valid.length >= length) return valid.slice(0, length).join('');
 
   return null;
@@ -367,6 +396,61 @@ function arraysEqual(a, b) {
 }
 
 /**
+ * Locale definitions for number rendering and RTL detection
+ */
+
+const RTL_LOCALES = new Set([
+  'ar', 'arc', 'dv', 'fa', 'ha', 'he', 'khw', 'ks', 'ku', 'ps', 'ur', 'yi',
+]);
+
+const NUMERAL_SYSTEMS = {
+  // Western Arabic (default)
+  en: { digits: '0123456789', dir: 'ltr' },
+  // Eastern Arabic
+  ar: { digits: '٠١٢٣٤٥٦٧٨٩', dir: 'rtl' },
+  // Persian/Farsi
+  fa: { digits: '۰۱۲۳۴۵۶۷۸۹', dir: 'rtl' },
+  // Hindi/Devanagari
+  hi: { digits: '०१२३४५६७८९', dir: 'ltr' },
+  // Bengali
+  bn: { digits: '০১২৩৪৫৬৭৮৯', dir: 'ltr' },
+  // Tamil
+  ta: { digits: '௦௧௨௩௪௫௬௭௮௯', dir: 'ltr' },
+  // Thai
+  th: { digits: '๐๑๒๓๔๕๖๗๘๙', dir: 'ltr' },
+};
+
+function isRTLLocale(locale) {
+  if (!locale) return false;
+  const base = locale.split('-')[0].toLowerCase();
+  return RTL_LOCALES.has(base);
+}
+
+function getNumeralSystem(locale) {
+  if (!locale) return NUMERAL_SYSTEMS.en;
+  const base = locale.split('-')[0].toLowerCase();
+  return NUMERAL_SYSTEMS[base] || NUMERAL_SYSTEMS.en;
+}
+
+/**
+ * Convert digits from ANY supported numeral system to western digits,
+ * leaving every other character untouched. Used for pasted/autofilled text,
+ * whose numeral system may not match the configured locale.
+ */
+function toWesternDigits(str) {
+  let out = '';
+  for (const ch of String(str)) {
+    let mapped = ch;
+    for (const { digits } of Object.values(NUMERAL_SYSTEMS)) {
+      const idx = digits.indexOf(ch);
+      if (idx !== -1) { mapped = String(idx); break; }
+    }
+    out += mapped;
+  }
+  return out;
+}
+
+/**
  * Handles paste events and clipboard OTP detection with suggestion UI.
  */
 class ClipboardManager {
@@ -385,7 +469,9 @@ class ClipboardManager {
   _distribute(text, startIdx) {
     const inst = this.instance;
     const { length, type, pattern } = inst.options;
-    const extracted = extractOTP(text, length, inst.validation._validator);
+    // Pasted SMS text may use Arabic-Indic, Persian, … digits regardless of the
+    // configured locale — normalise to western digits before extracting.
+    const extracted = extractOTP(toWesternDigits(text), length, inst.validation._validator);
 
     if (!extracted) return;
 
@@ -410,7 +496,8 @@ class ClipboardManager {
     try {
       const text = await navigator.clipboard.readText();
       const { length } = this.instance.options;
-      if (isOTPLike(text) || extractOTP(text, length)) {
+      const western = toWesternDigits(text);
+      if (isOTPLike(western) || extractOTP(western, length)) {
         this._showSuggestion(text);
       }
     } catch (_) {
@@ -531,6 +618,9 @@ class TimerManager {
     this.stop();
     this._total = durationSeconds;
     this._remaining = durationSeconds;
+    // A restarted countdown (reset or resend) is no longer urgent.
+    this._timerEl?.classList.remove('otp-timer--urgent');
+    this._progressBar?.classList.remove('otp-ring-progress--urgent');
 
     if (this._progressBar) {
       this._progressBar.classList.remove('otp-timer-progress-bar--running');
@@ -649,8 +739,6 @@ class TimerManager {
 
   reset(durationSeconds) {
     this.stop();
-    this._timerEl?.classList.remove('otp-timer--urgent');
-    this._progressBar?.classList.remove('otp-ring-progress--urgent');
     if (this._resendBtn) this._resendBtn.disabled = true;
     this.start(durationSeconds ?? this._total);
   }
@@ -888,43 +976,6 @@ class ToastManager {
     if (!container) return;
     container.querySelectorAll('.otp-toast').forEach(t => this._dismiss(t));
   }
-}
-
-/**
- * Locale definitions for number rendering and RTL detection
- */
-
-const RTL_LOCALES = new Set([
-  'ar', 'arc', 'dv', 'fa', 'ha', 'he', 'khw', 'ks', 'ku', 'ps', 'ur', 'yi',
-]);
-
-const NUMERAL_SYSTEMS = {
-  // Western Arabic (default)
-  en: { digits: '0123456789', dir: 'ltr' },
-  // Eastern Arabic
-  ar: { digits: '٠١٢٣٤٥٦٧٨٩', dir: 'rtl' },
-  // Persian/Farsi
-  fa: { digits: '۰۱۲۳۴۵۶۷۸۹', dir: 'rtl' },
-  // Hindi/Devanagari
-  hi: { digits: '०१२३४५६७८९', dir: 'ltr' },
-  // Bengali
-  bn: { digits: '০১২৩৪৫৬৭৮৯', dir: 'ltr' },
-  // Tamil
-  ta: { digits: '௦௧௨௩௪௫௬௭௮௯', dir: 'ltr' },
-  // Thai
-  th: { digits: '๐๑๒๓๔๕๖๗๘๙', dir: 'ltr' },
-};
-
-function isRTLLocale(locale) {
-  if (!locale) return false;
-  const base = locale.split('-')[0].toLowerCase();
-  return RTL_LOCALES.has(base);
-}
-
-function getNumeralSystem(locale) {
-  if (!locale) return NUMERAL_SYSTEMS.en;
-  const base = locale.split('-')[0].toLowerCase();
-  return NUMERAL_SYSTEMS[base] || NUMERAL_SYSTEMS.en;
 }
 
 /**
@@ -1389,7 +1440,7 @@ class OTPInput {
 
     pad.appendChild(
       kp.showClear
-        ? makeKey(kp.clearLabel ?? 'Clear', { action: true, label: kp.clearLabel ?? 'Clear', onClick: () => this.clear() })
+        ? makeKey(kp.clearLabel ?? 'Clear', { action: true, label: kp.clearLabel ?? 'Clear', onClick: () => { if (!this._keypadBlocked()) this.clear(); } })
         : createElement$1('span', { class: 'otp-keypad-key otp-keypad-key--spacer', 'aria-hidden': 'true' })
     );
 
@@ -1405,9 +1456,17 @@ class OTPInput {
     this._wrapper.appendChild(pad);
   }
 
+  /**
+   * The keypad buttons are not form controls of the OTP group, so they stay
+   * clickable while the inputs are disabled — mirror the inputs' state.
+   */
+  _keypadBlocked() {
+    return this._locked || this._expired || this._loading || !!this.inputs[0]?.disabled;
+  }
+
   /** Insert a digit from the on-screen keypad into the first empty cell. */
   _keypadInput(ch) {
-    if (this._locked || this._expired) return;
+    if (this._keypadBlocked()) return;
     const western = this._normalize(ch);
     if (!this.validation.isValidChar(western)) return;
     const idx = this._values.findIndex((v) => v === '');
@@ -1427,7 +1486,7 @@ class OTPInput {
 
   /** Remove the last filled cell from the on-screen keypad. */
   _keypadBackspace() {
-    if (this._locked || this._expired) return;
+    if (this._keypadBlocked()) return;
     let idx = -1;
     for (let i = this._values.length - 1; i >= 0; i--) {
       if (this._values[i] !== '') { idx = i; break; }
@@ -1525,9 +1584,10 @@ class OTPInput {
     // Advance to next
     const next = this.rtl.nextIndex(index, this.inputs);
     if (next !== null) this._focusIndex(next);
-    else this._checkCompletion();
 
-    if (index === this.inputs.length - 1) this._checkCompletion();
+    // Check once per entry: the cell that completes the code is not
+    // necessarily the last one (e.g. the user went back to fill a gap).
+    this._checkCompletion();
   }
 
   _handleKeyDown(e, index) {
