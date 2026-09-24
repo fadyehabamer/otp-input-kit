@@ -2282,7 +2282,7 @@ OTPInput.create('#otp', {
 // Automatically fills when SMS arrives (Android Chrome + HTTPS)
 OTPInput.create('#otp', {
   length: 6,
-  smsAutoRead: true,   // uses navigator.credentials.get({ otp: … })
+  webOtp: true,        // uses navigator.credentials.get({ otp: … })
   onComplete: (v) => verify(v),
 });</pre
             >
@@ -3423,7 +3423,7 @@ form.addEventListener('submit', (e) =&gt; {
         length: 6,
         autoFocus: false,
         theme: "soft",
-        smsAutoRead: true,
+        webOtp: true,
         onComplete: (v) => {
           const el = document.getElementById("out-sms");
           el.textContent = `✓ Auto-filled: ${v}`;
