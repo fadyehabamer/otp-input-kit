@@ -46,9 +46,13 @@ export class OTPInputElement extends _HTMLElement {
     this._instance = null;
     this._initialized = false;
     this._onVerify = null;
-    // attachInternals is unavailable in older browsers / SSR — degrade gracefully.
-    this._internals =
+    // attachInternals is unavailable in older browsers / SSR, and some
+    // environments (e.g. jsdom) implement ElementInternals without the form
+    // APIs — only use it when form association is really supported.
+    const internals =
       typeof this.attachInternals === 'function' ? this.attachInternals() : null;
+    this._internals =
+      internals && typeof internals.setFormValue === 'function' ? internals : null;
   }
 
   /** Current OTP value — also the value submitted with the form. */

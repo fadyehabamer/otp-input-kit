@@ -79,6 +79,9 @@ export class TimerManager {
     this.stop();
     this._total = durationSeconds;
     this._remaining = durationSeconds;
+    // A restarted countdown (reset or resend) is no longer urgent.
+    this._timerEl?.classList.remove('otp-timer--urgent');
+    this._progressBar?.classList.remove('otp-ring-progress--urgent');
 
     if (this._progressBar) {
       this._progressBar.classList.remove('otp-timer-progress-bar--running');
@@ -197,8 +200,6 @@ export class TimerManager {
 
   reset(durationSeconds) {
     this.stop();
-    this._timerEl?.classList.remove('otp-timer--urgent');
-    this._progressBar?.classList.remove('otp-ring-progress--urgent');
     if (this._resendBtn) this._resendBtn.disabled = true;
     this.start(durationSeconds ?? this._total);
   }

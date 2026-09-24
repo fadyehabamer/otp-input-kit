@@ -1,4 +1,5 @@
 import { isOTPLike, extractOTP } from '../utils/validators.js';
+import { toWesternDigits } from '../i18n/locales.js';
 
 /**
  * Handles paste events and clipboard OTP detection with suggestion UI.
@@ -19,7 +20,9 @@ export class ClipboardManager {
   _distribute(text, startIdx) {
     const inst = this.instance;
     const { length, type, pattern } = inst.options;
-    const extracted = extractOTP(text, length, inst.validation._validator);
+    // Pasted SMS text may use Arabic-Indic, Persian, … digits regardless of the
+    // configured locale — normalise to western digits before extracting.
+    const extracted = extractOTP(toWesternDigits(text), length, inst.validation._validator);
 
     if (!extracted) return;
 
@@ -44,7 +47,8 @@ export class ClipboardManager {
     try {
       const text = await navigator.clipboard.readText();
       const { length } = this.instance.options;
-      if (isOTPLike(text) || extractOTP(text, length)) {
+      const western = toWesternDigits(text);
+      if (isOTPLike(western) || extractOTP(western, length)) {
         this._showSuggestion(text);
       }
     } catch (_) {

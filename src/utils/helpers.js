@@ -18,8 +18,13 @@ export function mergeDeep(target, ...sources) {
   return mergeDeep(target, ...sources);
 }
 
+// Only plain objects are merged recursively. Anything else (RegExp, Date,
+// arrays, DOM nodes, class instances) is copied by reference — otherwise a
+// `pattern: /^[A-F]$/` option would be "merged" into an empty object.
 function isObject(item) {
-  return item && typeof item === 'object' && !Array.isArray(item);
+  if (!item || typeof item !== 'object') return false;
+  const proto = Object.getPrototypeOf(item);
+  return proto === Object.prototype || proto === null;
 }
 
 export function debounce(fn, delay) {

@@ -55,6 +55,7 @@
     "build": "rollup -c rollup.config.js",
     "dev": "rollup -c rollup.config.js --watch",
     "demo": "npx serve . -p 3000",
+    "test": "node --test test/*.test.js",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -93,8 +94,9 @@
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "@rollup/pluginutils": "^5.1.0",
+    "jsdom": "^27.4.0",
     "rollup": "^4.9.0"
   }
 }

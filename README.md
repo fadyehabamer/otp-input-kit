@@ -689,6 +689,22 @@ Chrome 80+, Firefox 75+, Safari 14+, Edge 80+. No IE11 support.
 
 ---
 
+## Development
+
+Requires Node.js 20+.
+
+```bash
+npm install
+npm test         # node:test + jsdom unit tests (test/*.test.js)
+npm run build    # rollup → dist/
+npm run demo     # serve the demo pages on http://localhost:3000
+```
+
+`dist/` is committed so the CDN links work straight from the repo — run
+`npm run build` and commit the result when changing anything under `src/`.
+
+---
+
 ## License
 
 MIT © Fady Ehab

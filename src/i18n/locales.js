@@ -34,3 +34,21 @@ export function getNumeralSystem(locale) {
   const base = locale.split('-')[0].toLowerCase();
   return NUMERAL_SYSTEMS[base] || NUMERAL_SYSTEMS.en;
 }
+
+/**
+ * Convert digits from ANY supported numeral system to western digits,
+ * leaving every other character untouched. Used for pasted/autofilled text,
+ * whose numeral system may not match the configured locale.
+ */
+export function toWesternDigits(str) {
+  let out = '';
+  for (const ch of String(str)) {
+    let mapped = ch;
+    for (const { digits } of Object.values(NUMERAL_SYSTEMS)) {
+      const idx = digits.indexOf(ch);
+      if (idx !== -1) { mapped = String(idx); break; }
+    }
+    out += mapped;
+  }
+  return out;
+}

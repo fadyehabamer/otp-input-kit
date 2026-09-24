@@ -2,6 +2,8 @@ import { readFileSync } from 'fs';
 import { createFilter } from '@rollup/pluginutils';
 import terser from '@rollup/plugin-terser';
 
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+
 // ── Simple CSS-inlining plugin (no extra deps) ────────────────────────────
 function inlineCss() {
   const filter = createFilter(['**/*.css']);
@@ -41,7 +43,7 @@ export default __css;
 }
 
 const banner = `/*!
- * otp-input-kit v1.0.3
+ * otp-input-kit v${pkg.version}
  * A highly customizable, framework-agnostic OTP input component
  * (c) ${new Date().getFullYear()} — MIT License
  */`;
