@@ -2,13 +2,14 @@
 
 ## Supported versions
 
-Security fixes are released for the latest published version on npm. Please
-upgrade to the most recent `1.x` release before reporting an issue.
+Security fixes are released for the latest minor version. Please upgrade to
+the most recent `1.x` release before reporting an issue.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.x     | :white_check_mark: |
-| < 1.0   | :x:                |
+| Version | Supported          | Notes |
+| ------- | ------------------ | ----- |
+| 1.2.x   | :white_check_mark: | Current release line (`main`). |
+| 1.1.x   | :white_check_mark: | Latest version on npm; supported until 1.2.0 is published. |
+| < 1.1   | :x:                | Please upgrade. |
 
 ## Reporting a vulnerability
 
@@ -19,7 +20,8 @@ Report privately using either:
 - **GitHub Security Advisories** — open the repository's
   [Security tab](https://github.com/fadyehabamer/otp-input-kit/security/advisories/new)
   and click *"Report a vulnerability"* (preferred), or
-- **Email** — [a.chwayekh.sparkit@gmail.com](mailto:a.chwayekh.sparkit@gmail.com)
+- **Email** — [fadyamer45@gmail.com](mailto:fadyamer45@gmail.com), with
+  "otp-input-kit security" in the subject
 
 Please include:
 

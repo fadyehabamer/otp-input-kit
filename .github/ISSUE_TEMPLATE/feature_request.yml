@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest a new option, wrapper, locale or improvement.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: The use case behind the request.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: The option, attribute, event or method you have in mind, with an example.
+      render: js
+    validations:
+      required: true
+  - type: checkboxes
+    id: wrappers
+    attributes:
+      label: Where should it work?
+      options:
+        - label: Vanilla JS
+        - label: Web Component
+        - label: React
+        - label: Vue
+        - label: Svelte
+        - label: Angular
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you tried, or how other libraries handle it.
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to work on this myself

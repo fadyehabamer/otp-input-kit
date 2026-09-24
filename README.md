@@ -3,8 +3,10 @@
 
 A highly customizable, framework-agnostic OTP input component with full RTL support, i18n, accessibility, countdown timer, toast notifications, and Web Component support — zero dependencies.
 
+[![CI](https://github.com/fadyehabamer/otp-input-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/fadyehabamer/otp-input-kit/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/otp-input-kit.svg)](https://www.npmjs.com/package/otp-input-kit)
 [![license](https://img.shields.io/npm/l/otp-input-kit.svg)](LICENSE)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/otp-input-kit)](https://bundlephobia.com/package/otp-input-kit)
 
 ---
 

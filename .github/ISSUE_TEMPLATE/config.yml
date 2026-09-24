@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Live demo
+    url: https://fadyehabamer.github.io/otp-input-kit/demo/
+    about: Try the options and themes before filing.
+  - name: Report a security vulnerability
+    url: https://github.com/fadyehabamer/otp-input-kit/security/advisories/new
+    about: Please report security problems privately, not in a public issue.
