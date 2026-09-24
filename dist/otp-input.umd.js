@@ -1,5 +1,5 @@
 /*!
- * otp-input-kit v1.1.0
+ * otp-input-kit v1.2.0
  * A highly customizable, framework-agnostic OTP input component
  * (c) 2026 — MIT License
  */
@@ -567,6 +567,7 @@
       this._interval = null;
       this._remaining = 0;
       this._total = 0;
+      this._cooldownInterval = null;
     }
 
     buildUI(wrapperEl) {
@@ -620,7 +621,9 @@
           this._resendBtn.type = 'button';
           this._resendBtn.className = 'otp-resend-btn';
           this._resendBtn.textContent = resend.label || 'Resend code';
-          this._resendBtn.disabled = true;
+          // With a countdown the button unlocks on expiry; without one there is
+          // nothing to wait for, so it starts enabled.
+          this._resendBtn.disabled = !!timer?.enabled;
           this._resendBtn.addEventListener('click', () => this._handleResend());
           footer.appendChild(this._resendBtn);
         }
@@ -737,11 +740,36 @@
       this._resendBtn.disabled = true;
 
       const cooldown = resend.cooldown ?? timer?.duration ?? 30;
-      this.start(cooldown);
+      if (timer?.enabled) {
+        this.start(cooldown);
+      } else {
+        // No countdown UI: only hold the button for the cooldown — running the
+        // expiry timer here would wrongly expire (and disable) the inputs.
+        this._startCooldown(cooldown);
+      }
 
       if (resend.onResend) resend.onResend();
       inst.emitter.emit('resend');
       inst.a11y.announceResend();
+    }
+
+    /** Keep the resend button disabled for `seconds`, without touching expiry. */
+    _startCooldown(seconds) {
+      clearInterval(this._cooldownInterval);
+      this._cooldownInterval = null;
+      if (!(seconds > 0)) {
+        this._resendBtn.disabled = false;
+        return;
+      }
+      let remaining = seconds;
+      this._cooldownInterval = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(this._cooldownInterval);
+          this._cooldownInterval = null;
+          if (this._resendBtn) this._resendBtn.disabled = false;
+        }
+      }, 1000);
     }
 
     stop() {
@@ -760,6 +788,8 @@
 
     destroy() {
       this.stop();
+      clearInterval(this._cooldownInterval);
+      this._cooldownInterval = null;
       if (this._visibilityHandler) {
         document.removeEventListener('visibilitychange', this._visibilityHandler);
         this._visibilityHandler = null;
@@ -1178,7 +1208,8 @@
       onResend: null,
     },
     separator: null,           // { char: '—', after: [3] }  — visual separator between digit groups
-    smsAutoRead: false,        // use Web OTP API to auto-fill from SMS (requires HTTPS + correct SMS format)
+    webOtp: false,             // use the Web OTP API to auto-fill from SMS (requires HTTPS + correct SMS format)
+    smsAutoRead: false,        // legacy alias of `webOtp`
     biometric: {
       enabled: false,          // require platform biometric/PIN after OTP completion
       promptText: 'Verify your identity to continue',
@@ -1280,7 +1311,9 @@
       this._build();
       this._bindOptionCallbacks();
       this._startIfNeeded();
-      this._initSmsAutoRead();
+      // Deferred so listeners attached right after construction (.on('sms-…'),
+      // the web component's otp-sms-* events) see the first status event.
+      Promise.resolve().then(() => { if (!this._destroyed) this._initSmsAutoRead(); });
     }
 
     // ─── Static factory ────────────────────────────────────────────────────────
@@ -1387,8 +1420,11 @@
 
       const input = createElement('input', {
         type: secure ? 'password' : 'text',
-        inputMode: type === 'alpha' ? 'text' : (type === 'numeric' ? 'numeric' : 'text'),
-        maxLength: 1,
+        inputMode: type === 'numeric' ? 'numeric' : 'text',
+        // The first cell is the one-time-code autofill target (iOS/Android SMS
+        // suggestions insert the whole code there), so it must accept the full
+        // length; typed characters are still reduced to one per cell.
+        maxLength: index === 0 ? this.options.length : 1,
         autocomplete: index === 0 ? 'one-time-code' : 'off',
         autocorrect: 'off',
         autocapitalize: 'off',
@@ -1413,10 +1449,14 @@
         'aria-label': label,
         title: label,
       });
+      // The icon is static markup; the label is user-supplied, so it is set as
+      // text (never parsed as HTML).
       btn.innerHTML =
         '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>' +
-        `<span class="otp-reveal-label">${label}</span>`;
+        '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      const labelEl = createElement('span', { class: 'otp-reveal-label' });
+      labelEl.textContent = label;
+      btn.appendChild(labelEl);
       btn.addEventListener('click', () => this.toggleReveal());
       this._revealBtn = btn;
       this._wrapper.appendChild(btn);
@@ -1576,6 +1616,14 @@
         this._values[index] = '';
         this._updateInputUI(input, index);
         this._notifyChange();
+        return;
+      }
+
+      // A single typed key into a filled cell (only the first cell allows more
+      // than one character) replaces the cell instead of spilling over.
+      if (raw.length > 1 && e.inputType === 'insertText' && e.data && e.data.length === 1) {
+        input.value = e.data;
+        this._handleInput({}, index);
         return;
       }
 
@@ -2037,10 +2085,16 @@
     // ─── SMS Auto-Read (Web OTP API) ───────────────────────────────────────────
 
     _initSmsAutoRead() {
-      if (!this.options.smsAutoRead) return;
+      if (!this.options.webOtp && !this.options.smsAutoRead) return;
 
       // The Web OTP API only exists on supporting browsers (Android Chrome) …
-      if (!('OTPCredential' in window)) {
+      if (
+        typeof window === 'undefined' ||
+        !('OTPCredential' in window) ||
+        typeof navigator === 'undefined' ||
+        typeof navigator.credentials?.get !== 'function' ||
+        typeof AbortController === 'undefined'
+      ) {
         this.emitter.emit('sms-unsupported', 'no-api');
         return;
       }
@@ -2050,23 +2104,54 @@
         return;
       }
 
+      // Once the code is complete there is nothing left to wait for; a resend
+      // means a new SMS is on its way, so listen again.
+      this.emitter.on('complete', () => this._abortSmsAutoRead());
+      this.emitter.on('resend', () => this._requestSmsCode());
+      this._requestSmsCode();
+    }
+
+    _requestSmsCode() {
+      if (this._destroyed || this._smsAbortController) return;
       const ac = new AbortController();
       this._smsAbortController = ac;
       this.emitter.emit('sms-pending');
 
-      navigator.credentials.get({ otp: { transport: ['sms'] }, signal: ac.signal })
+      let request;
+      try {
+        request = Promise.resolve(
+          navigator.credentials.get({ otp: { transport: ['sms'] }, signal: ac.signal })
+        );
+      } catch (err) {
+        request = Promise.reject(err);
+      }
+
+      request
         .then((otp) => {
-          if (otp && otp.code) {
-            this.setValue(otp.code);
-            if (isFunction(this.options.onSmsRead)) this.options.onSmsRead(otp.code);
-            this.emitter.emit('sms-read', otp.code);
-          }
+          if (this._smsAbortController === ac) this._smsAbortController = null;
+          if (this._destroyed || ac.signal.aborted || !otp || !otp.code) return;
+          // Keep only characters this input accepts (SMS may use native digits).
+          const code = toWesternDigits(String(otp.code))
+            .split('')
+            .filter((ch) => this.validation.isValidChar(ch))
+            .join('');
+          if (!code) return;
+          this.setValue(code);
+          if (isFunction(this.options.onSmsRead)) this.options.onSmsRead(code);
+          this.emitter.emit('sms-read', code);
         })
         .catch((err) => {
+          if (this._smsAbortController === ac) this._smsAbortController = null;
           // AbortError fires on destroy/navigation — not a genuine failure.
-          if (err && err.name === 'AbortError') return;
+          if (this._destroyed || (err && err.name === 'AbortError')) return;
           this.emitter.emit('sms-error', err);
         });
+    }
+
+    _abortSmsAutoRead() {
+      const ac = this._smsAbortController;
+      this._smsAbortController = null;
+      ac?.abort();
     }
 
     // ─── Biometric Confirm (WebAuthn) ──────────────────────────────────────────
@@ -2391,7 +2476,7 @@
       clearTimeout(this._clearTimeout);
       clearInterval(this._lockInterval);
       this._audioCtx?.close?.();
-      this._smsAbortController?.abort();
+      this._abortSmsAutoRead();
       this.timer.destroy();
       this.clipboard.destroy();
       this.a11y.destroy();
@@ -2411,7 +2496,7 @@
    * Attributes (all optional):
    *   length, type, secure, auto-focus, auto-submit, direction, locale,
    *   native-numerals, placeholder, haptic, timer-duration, resend-enabled,
-   *   resend-cooldown, clipboard-detection
+   *   resend-cooldown, clipboard-detection, web-otp
    *
    * Events: otp-change, otp-complete, otp-error, otp-focus, otp-blur, otp-expire,
    *         otp-resend, otp-verify-start, otp-verified, otp-failed
@@ -2439,7 +2524,9 @@
         'toast-enabled', 'toast-theme', 'toast-position',
         'reveal-toggle', 'lockout-attempts', 'lockout-duration',
         'keypad', 'keypad-randomize', 'confetti', 'success-animation',
-        'timer-style', 'sound', 'sound-volume',
+        'timer-style', 'sound', 'sound-volume', 'web-otp',
+        // Form state only — re-validated without rebuilding the inputs.
+        'required', 'validation-message',
       ];
     }
 
@@ -2448,6 +2535,8 @@
       this._instance = null;
       this._initialized = false;
       this._onVerify = null;
+      this._formDisabled = false;
+      this._pendingValue = null;
       // attachInternals is unavailable in older browsers / SSR, and some
       // environments (e.g. jsdom) implement ElementInternals without the form
       // APIs — only use it when form association is really supported.
@@ -2459,22 +2548,37 @@
 
     /** Current OTP value — also the value submitted with the form. */
     get value() {
-      return this._instance ? this._instance.getValue() : '';
+      if (this._instance) return this._instance.getValue();
+      return this._pendingValue ?? '';
     }
     set value(v) {
-      this._instance?.setValue(v);
+      // Before the element is connected there is no instance yet — keep the value
+      // and apply it once the inputs are built.
+      if (!this._instance) {
+        this._pendingValue = v == null ? null : String(v);
+        return;
+      }
+      this._instance.setValue(v);
       this._syncForm(this.value);
     }
 
+    /** The form field name the value is submitted under. */
+    get name() { return this.getAttribute('name'); }
+    set name(v) { this.setAttribute('name', v); }
+
+    get required() { return this.hasAttribute('required'); }
+    set required(v) { this.toggleAttribute('required', !!v); }
+
     /** Sync the form value + validity after a change. */
-    _syncForm(value) {
+    _syncForm(value = this.value) {
       if (!this._internals) return;
       this._internals.setFormValue(value);
-      const length = Number(this.getAttribute('length') || 6);
+      const length = this._instance?.options.length ?? Number(this.getAttribute('length') || 6);
       const anchor = this._instance?.inputs?.[0];
       if (this.hasAttribute('required') && value.length < length) {
+        // Empty → valueMissing; partially filled → tooShort (both block submit).
         this._internals.setValidity(
-          { valueMissing: true },
+          value.length === 0 ? { valueMissing: true } : { tooShort: true },
           this.getAttribute('validation-message') || 'Please complete the verification code.',
           anchor
         );
@@ -2490,16 +2594,19 @@
     }
 
     formDisabledCallback(disabled) {
+      this._formDisabled = !!disabled;
       if (disabled) this._instance?.disable();
       else this._instance?.enable();
     }
 
     formStateRestoreCallback(state) {
-      if (typeof state === 'string') this._instance?.setValue(state);
+      if (typeof state !== 'string') return;
+      this.value = state;
     }
 
     // ─── Constraint-validation proxies ──────────────────────────────────────────
     get form() { return this._internals?.form ?? null; }
+    get labels() { return this._internals?.labels ?? []; }
     get validity() { return this._internals?.validity; }
     get validationMessage() { return this._internals?.validationMessage ?? ''; }
     get willValidate() { return this._internals?.willValidate ?? false; }
@@ -2530,6 +2637,10 @@
 
     attributeChangedCallback(name, oldVal, newVal) {
       if (!this._initialized || oldVal === newVal) return;
+      if (name === 'required' || name === 'validation-message') {
+        this._syncForm();
+        return;
+      }
       // Re-initialize on relevant attribute changes
       this._instance?.destroy();
       this._instance = null;
@@ -2556,6 +2667,7 @@
         clipboardDetection: !bool('no-clipboard'),
         label:              str('label', null),
         theme:              str('theme', 'default'),
+        webOtp:             bool('web-otp'),
         toast: {
           enabled:  bool('toast-enabled'),
           theme:    str('toast-theme', 'default'),
@@ -2631,6 +2743,14 @@
       this._instance.on('attempt', (info) =>
         this.dispatchEvent(new CustomEvent('otp-attempt', { detail: info, bubbles: true, composed: true }))
       );
+
+      // A rebuild (attribute change) must not re-enable a disabled fieldset's control.
+      if (this._formDisabled) this._instance.disable();
+      if (this._pendingValue != null) {
+        const pending = this._pendingValue;
+        this._pendingValue = null;
+        this._instance.setValue(pending);
+      }
 
       // Initialise the form value/validity for the freshly-built instance.
       this._syncForm(this._instance.getValue());
