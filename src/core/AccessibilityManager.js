@@ -53,6 +53,12 @@ export class AccessibilityManager {
   }
 
   announceCompletion(value) {
+    // In secure (masked) mode never read the code aloud — screen reader output
+    // can be overheard or captured just like a visible code.
+    if (this.instance.options.secure) {
+      this.announce('OTP complete', 'assertive');
+      return;
+    }
     this.announce(`OTP complete: ${value.split('').join(' ')}`, 'assertive');
   }
 
