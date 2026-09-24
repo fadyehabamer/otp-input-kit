@@ -350,7 +350,7 @@ export class OTPInput {
 
     pad.appendChild(
       kp.showClear
-        ? makeKey(kp.clearLabel ?? 'Clear', { action: true, label: kp.clearLabel ?? 'Clear', onClick: () => this.clear() })
+        ? makeKey(kp.clearLabel ?? 'Clear', { action: true, label: kp.clearLabel ?? 'Clear', onClick: () => { if (!this._keypadBlocked()) this.clear(); } })
         : createElement('span', { class: 'otp-keypad-key otp-keypad-key--spacer', 'aria-hidden': 'true' })
     );
 
@@ -366,9 +366,17 @@ export class OTPInput {
     this._wrapper.appendChild(pad);
   }
 
+  /**
+   * The keypad buttons are not form controls of the OTP group, so they stay
+   * clickable while the inputs are disabled — mirror the inputs' state.
+   */
+  _keypadBlocked() {
+    return this._locked || this._expired || this._loading || !!this.inputs[0]?.disabled;
+  }
+
   /** Insert a digit from the on-screen keypad into the first empty cell. */
   _keypadInput(ch) {
-    if (this._locked || this._expired) return;
+    if (this._keypadBlocked()) return;
     const western = this._normalize(ch);
     if (!this.validation.isValidChar(western)) return;
     const idx = this._values.findIndex((v) => v === '');
@@ -388,7 +396,7 @@ export class OTPInput {
 
   /** Remove the last filled cell from the on-screen keypad. */
   _keypadBackspace() {
-    if (this._locked || this._expired) return;
+    if (this._keypadBlocked()) return;
     let idx = -1;
     for (let i = this._values.length - 1; i >= 0; i--) {
       if (this._values[i] !== '') { idx = i; break; }
