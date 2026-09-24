@@ -2,6 +2,8 @@ import * as React from 'react';
 import { OTPInput, OTPInputOptions, OTPTheme } from './index';
 
 export interface OtpInputProps extends OTPInputOptions {
+  /** Controlled value. Pair with `onChange` to keep it in sync. */
+  value?: string;
   className?: string;
   style?: React.CSSProperties;
 }

@@ -6,6 +6,8 @@
  *
  *   <OtpInput
  *     length={6}
+ *     value={code}                // optional — controlled value
+ *     onChange={setCode}
  *     onComplete={(code) => console.log(code)}
  *     onVerify={async (code) => (await api.verify(code)).ok}
  *     onVerified={() => navigate('/home')}
@@ -25,10 +27,11 @@ const STRUCTURAL_KEYS = [
   'length', 'type', 'pattern', 'secure', 'direction', 'locale',
   'nativeNumerals', 'placeholder', 'theme', 'separator', 'autoFocus',
   'autoSubmit', 'selectOnFocus', 'clipboardDetection', 'haptic', 'smsAutoRead',
+  'webOtp',
 ];
 
 export const OtpInput = forwardRef(function OtpInput(props, ref) {
-  const { className, style, ...options } = props;
+  const { className, style, value, ...options } = props;
   const containerRef = useRef(null);
   const instanceRef = useRef(null);
   // Latest props, so callbacks always fire the current handler without rebuilds.
@@ -65,6 +68,15 @@ export const OtpInput = forwardRef(function OtpInput(props, ref) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [structKey]);
+
+  // Controlled value: push external changes into the instance (also re-applied
+  // after a rebuild). Echoes of what the user typed are already in sync.
+  useEffect(() => {
+    const inst = instanceRef.current;
+    if (!inst || value == null) return;
+    const next = String(value);
+    if (next !== inst.getValue()) inst.setValue(next);
+  }, [value, structKey]);
 
   // Toggle the verify flow live if onVerify is added/removed between renders.
   useEffect(() => {
