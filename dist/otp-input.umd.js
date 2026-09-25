@@ -2787,6 +2787,17 @@
   // Auto-register <otp-input> web component
   registerOTPInputElement();
 
+  /**
+   * UMD-only entry. Rollup's `name: 'OTPInputLib'` still exposes the named
+   * exports on `window.OTPInputLib`; this also aliases `window.OTPInput` to the
+   * default export so the README's `OTPInput.create(...)` example works. An
+   * existing global is left alone.
+   */
+
+  if (typeof globalThis !== 'undefined') {
+    globalThis.OTPInput ??= OTPInput;
+  }
+
   exports.EventEmitter = EventEmitter;
   exports.OTPInput = OTPInput;
   exports.OTPInputElement = OTPInputElement;
