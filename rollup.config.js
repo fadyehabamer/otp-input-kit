@@ -87,8 +87,9 @@ export default [
   },
 
   // ── UMD browser (for <script src="..."> CDN usage) ─────────────────────
+  // Uses src/umd.js so window.OTPInput is also set (README examples).
   {
-    input,
+    input: 'src/umd.js',
     plugins: [inlineCss()],
     output: {
       file: 'dist/otp-input.umd.js',
@@ -115,7 +116,7 @@ export default [
 
   // ── Minified UMD ────────────────────────────────────────────────────────
   {
-    input,
+    input: 'src/umd.js',
     plugins: [inlineCss(), terser()],
     output: {
       file: 'dist/otp-input.umd.min.js',

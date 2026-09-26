@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- UMD builds also expose `window.OTPInput` (aliasing the default export) so the
+  README CDN/`<script>` examples work. `window.OTPInputLib` is unchanged for
+  existing users; an already-defined `OTPInput` global is not overwritten.
+
 ## [1.2.0]
 
 ### Added
